@@ -1,7 +1,4 @@
----
-name: garena-rayark-game-jam-2026
-description: Use when working in GarenaRayarkGameJam2026 Unity Game Jam project, especially Assets folder organization, Inspector Chinese LabelAttribute, Traditional Chinese Unity docs/UI, 2.5D survivor prototype logic, quick jam production, architecture.md maintenance, imagegen temporary art, UIUX feedback, or release checks.
----
+偏好語言：繁體中文
 
 # Garena Rayark Game Jam 2026 開發守則
 
