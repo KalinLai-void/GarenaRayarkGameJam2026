@@ -18,8 +18,7 @@ namespace Gameplay
         [Tooltip("負責讀取輸入的 PlayerInput 元件 (若留空，將於 Awake 自動尋找同物件上的元件)")]
         [SerializeField] private PlayerInput playerInput;
 
-        [Tooltip("負責角色貼圖顯示的 SpriteRenderer 元件 (若留空，將於 Awake 自動尋找子物件或同物件上的元件)")]
-        [SerializeField] private SpriteRenderer spriteRenderer;
+        [SerializeField] private Animator animator;
 
         /// <summary>
         /// 當前玩家是否處於移動狀態
@@ -44,11 +43,6 @@ namespace Gameplay
             if (playerInput == null)
             {
                 playerInput = GetComponent<PlayerInput>();
-            }
-
-            if (spriteRenderer == null)
-            {
-                spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             }
 
             // 初始化輸入動作
@@ -99,16 +93,16 @@ namespace Gameplay
         /// </summary>
         private void UpdateFacingDirection()
         {
-            if (spriteRenderer == null) return;
+            if (animator == null) return;
 
             // 當往左移動時，翻面 (flipX = true)；當往右移動時，不翻面 (flipX = false)
             if (moveInput.x < -0.01f)
             {
-                spriteRenderer.flipX = true;
+                animator.SetBool("IsFaceLeft", true);
             }
             else if (moveInput.x > 0.01f)
             {
-                spriteRenderer.flipX = false;
+                animator.SetBool("IsFaceLeft", false);
             }
         }
 

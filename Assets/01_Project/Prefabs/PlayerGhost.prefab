@@ -348,7 +348,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Gameplay.PlayerMovement
   moveSpeed: 20
   playerInput: {fileID: 0}
-  spriteRenderer: {fileID: 1880142988931498685}
+  animator: {fileID: 0}
 --- !u!114 &87920919215773726
 MonoBehaviour:
   m_ObjectHideFlags: 0
