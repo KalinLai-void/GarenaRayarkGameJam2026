@@ -1245,6 +1245,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2415177095045655941}
   - component: {fileID: 4909392846783167096}
+  - component: {fileID: 4909392846783167097}
   m_Layer: 0
   m_Name: LevelUp_Tinder_HUD
   m_TagString: Untagged
@@ -2711,6 +2712,27 @@ MonoBehaviour:
   rWeight: 70
   srWeight: 25
   ssrWeight: 5
+--- !u!114 &4909392846783167097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1304073194168618233}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63f4254f5c8f76c428bb8aebedd2f579, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Gameplay.JuiceScaleEffect
+  targetScale: {x: 1, y: 1, z: 1}
+  durationUp: 1
+  durationDown: 1
+  playOnEnable: 1
+  loop: 1
+  useRandomScale: 1
+  randomRange: {x: 0.05, y: 0.05}
+  affectChildren: 1
+  scaleParent: 1
 --- !u!1 &5059285723037711780
 GameObject:
   m_ObjectHideFlags: 0
