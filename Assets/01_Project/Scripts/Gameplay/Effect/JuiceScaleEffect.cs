@@ -81,13 +81,13 @@ namespace Gameplay
 
         private IEnumerator PunchScaleRoutine()
         {
-            // 🌟 根據設定決定是否隨機化目標縮放
-            Vector3 finalTargetScale = targetScale;
+            // 🌟 根據原始縮放 (originalScale) 進行等比相乘，防止非 1 的初始縮放物件被強制拉伸/變形！
+            Vector3 finalTargetScale = new Vector3(originalScale.x * targetScale.x, originalScale.y * targetScale.y, originalScale.z * targetScale.z);
             if (useRandomScale)
             {
                 float randX = Random.Range(-randomRange.x, randomRange.x);
                 float randY = Random.Range(-randomRange.y, randomRange.y);
-                finalTargetScale = new Vector3(originalScale.x + randX, originalScale.y + randY, originalScale.z);
+                finalTargetScale = new Vector3(originalScale.x * (1f + randX), originalScale.y * (1f + randY), originalScale.z);
             }
 
             // 1. 漸進放大至目標 Scale
