@@ -172,6 +172,22 @@ namespace Gameplay
         /// </summary>
         public void TriggerSkillCooldown(int slotIndex, float duration)
         {
+            if (duration <= 0f)
+            {
+                isActiveOnCooldown = false;
+                activeCooldownTimer = 0f;
+                if (activeCooldownMask != null)
+                {
+                    activeCooldownMask.fillAmount = 0f;
+                    activeCooldownMask.gameObject.SetActive(false);
+                }
+                if (activeCooldownText != null)
+                {
+                    activeCooldownText.gameObject.SetActive(false);
+                }
+                return;
+            }
+
             activeCooldownDuration = duration;
             activeCooldownTimer = duration;
             isActiveOnCooldown = true;

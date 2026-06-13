@@ -444,6 +444,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Gameplay.PlayerSkillSystem
   activeSkill: {fileID: 0}
   passiveSkills: []
+  skillAction:
+    m_Name: UseSkill
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 86fc29bc-2d8c-498e-8e80-f1d6523d9f8c
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 204dfc01-9192-4118-b055-73dbc8157c25
+      m_Path: <Keyboard>/space
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: UseSkill
+      m_Flags: 0
+    m_Flags: 0
 --- !u!1001 &1176354163
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3504,12 +3521,16 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 5792641044701648417, guid: 7a2bb155b2688114fa94fc1394b9c529, type: 3}
+      propertyPath: maxEnemyLimit
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 5792641044701648417, guid: 7a2bb155b2688114fa94fc1394b9c529, type: 3}
       propertyPath: waves.Array.data[0].groupSpread
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5792641044701648417, guid: 7a2bb155b2688114fa94fc1394b9c529, type: 3}
       propertyPath: waves.Array.data[0].amountPerSpawn
-      value: 10
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 6686978853247031666, guid: 7a2bb155b2688114fa94fc1394b9c529, type: 3}
       propertyPath: m_Name

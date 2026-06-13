@@ -52,6 +52,7 @@ namespace Gameplay
         private bool isTimerRunning = false;
         private readonly List<GameObject> activeCards = new List<GameObject>();
         private bool isClosing = false;
+        public bool IsClosing => isClosing;
         private int currentLikes = 0;
         private int currentNopes = 0;
         private Coroutine nopeScaleCoroutine;

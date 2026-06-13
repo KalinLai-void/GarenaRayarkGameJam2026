@@ -20,6 +20,14 @@ namespace Gameplay
         private bool isBlackMushroomActive = false;
         private int blackMushroomLevel = 0;
 
+        // --- 光束雷射新機制欄位 ---
+        private bool hasCollided = false;
+        private float dotTimer = 0f;
+        private float dotInterval = 0.25f;
+        private float dotDamagePercent = 1.0f;
+        private readonly System.Collections.Generic.List<EnemyHealth> enemiesInRange = new System.Collections.Generic.List<EnemyHealth>();
+        private Coroutine destroyCoroutine;
+
         /// <summary>
         /// 初始化子彈傷害、速度、生命週期與特殊效果
         /// </summary>
@@ -39,8 +47,18 @@ namespace Gameplay
 
             if (isBeam)
             {
-                speed = 0f;
-                lifeTime = 1f;
+                // 光束一開始以正常速度前行，直到碰撞才在原地殘留。飛行時間最大設為 3 秒。
+                lifeTime = 3f;
+
+                if (PlayerSkillSystem.Instance != null)
+                {
+                    SkillData coralData = PlayerSkillSystem.Instance.GetSkillData("SR_CoralMushroom");
+                    if (coralData != null)
+                    {
+                        dotInterval = coralData.coralBeamDotInterval;
+                        dotDamagePercent = coralData.coralBeamDotPercent;
+                    }
+                }
             }
 
             // 讀取玩家被動與主動技能設定
@@ -53,20 +71,60 @@ namespace Gameplay
                 blackMushroomLevel = PlayerSkillSystem.Instance.GetSkillLevel("SR_BlackMushroom");
             }
 
-            Destroy(gameObject, lifeTime); // 超過生存時間自動銷毀
+            if (destroyCoroutine != null) StopCoroutine(destroyCoroutine);
+            destroyCoroutine = StartCoroutine(DestroyAfterDelay(lifeTime));
         }
 
         private void Start()
         {
             // 防呆：如果外部忘記呼叫 Setup，依然會在生存時間後銷毀
-            Destroy(gameObject, lifeTime);
+            if (destroyCoroutine == null)
+            {
+                destroyCoroutine = StartCoroutine(DestroyAfterDelay(lifeTime));
+            }
+        }
+
+        private System.Collections.IEnumerator DestroyAfterDelay(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            Destroy(gameObject);
         }
 
         private void Update()
         {
-            if (isBeam) return;
+            // 如果已經碰撞，則光束停留原地不動；否則沿著子彈自身 X 軸移動
+            if (isBeam && hasCollided)
+            {
+                // 處理持續傷害
+                dotTimer += Time.deltaTime;
+                if (dotTimer >= dotInterval)
+                {
+                    dotTimer = 0f;
+                    ApplyBeamDotDamage();
+                }
+                return;
+            }
+
             // 沿著子彈自身的 X 軸正方向直線移動
             transform.Translate(Vector3.right * speed * Time.deltaTime, Space.Self);
+        }
+
+        private void ApplyBeamDotDamage()
+        {
+            int damage = Mathf.Max(1, Mathf.RoundToInt(bulletDamage * dotDamagePercent));
+            for (int i = enemiesInRange.Count - 1; i >= 0; i--)
+            {
+                EnemyHealth enemy = enemiesInRange[i];
+                if (enemy != null && enemy.gameObject.activeInHierarchy)
+                {
+                    enemy.TakeDamage(damage);
+                    enemy.ApplyBurnVisualOnly(0.15f); // 傷害閃紅
+                }
+                else
+                {
+                    enemiesInRange.RemoveAt(i);
+                }
+            }
         }
 
         private void OnTriggerEnter2D(Collider2D collision)
@@ -86,34 +144,51 @@ namespace Gameplay
             
             if (enemyHealth != null)
             {
-                // 1. 造成擊中傷害
-                enemyHealth.TakeDamage(bulletDamage);
+                if (isBeam)
+                {
+                    if (!enemiesInRange.Contains(enemyHealth))
+                    {
+                        enemiesInRange.Add(enemyHealth);
+                    }
 
-                // 2. 施加洋菇緩速、香菇灼燒
-                if (slowLevel > 0)
-                {
-                    enemyHealth.ApplySlow(slowLevel);
-                }
-                if (burnLevel > 0)
-                {
-                    enemyHealth.ApplyBurn(burnLevel, bulletDamage);
-                }
+                    if (!hasCollided)
+                    {
+                        hasCollided = true;
+                        speed = 0f;
 
-                // 3. 施加黑木耳黑色黏著方塊
-                if (isBlackMushroomActive)
-                {
-                    SpawnStickyBlock();
-                }
+                        // 重新設定銷毀時間
+                        if (destroyCoroutine != null) StopCoroutine(destroyCoroutine);
+                        float lingerDuration = 1.0f;
+                        if (PlayerSkillSystem.Instance != null)
+                        {
+                            SkillData coralData = PlayerSkillSystem.Instance.GetSkillData("SR_CoralMushroom");
+                            if (coralData != null)
+                            {
+                                lingerDuration = coralData.coralBeamDuration;
+                            }
+                        }
+                        destroyCoroutine = StartCoroutine(DestroyAfterDelay(lingerDuration));
 
-                // 珊瑚菇光束不銷毀（可穿透），普通子彈銷毀自身
-                if (!isBeam)
+                        // 造成擊中傷害與施加效果
+                        enemyHealth.TakeDamage(bulletDamage);
+                        if (slowLevel > 0) enemyHealth.ApplySlow(slowLevel);
+                        if (burnLevel > 0) enemyHealth.ApplyBurn(burnLevel, bulletDamage);
+                        if (isBlackMushroomActive) SpawnStickyBlock();
+                    }
+                }
+                else
                 {
+                    // 普通子彈
+                    enemyHealth.TakeDamage(bulletDamage);
+                    if (slowLevel > 0) enemyHealth.ApplySlow(slowLevel);
+                    if (burnLevel > 0) enemyHealth.ApplyBurn(burnLevel, bulletDamage);
+                    if (isBlackMushroomActive) SpawnStickyBlock();
                     Destroy(gameObject);
                 }
                 return;
             }
             
-            // 如果撞到牆壁或環境障礙物也銷毀
+            // 如果撞到牆壁或環境障礙物也銷毀/殘留
             if (collision.CompareTag("Obstacle") || collision.gameObject.name.Contains("Wall") || collision.gameObject.layer == LayerMask.NameToLayer("Obstacles"))
             {
                 if (isBlackMushroomActive)
@@ -121,10 +196,46 @@ namespace Gameplay
                     SpawnStickyBlock();
                 }
 
-                if (!isBeam)
+                if (isBeam)
+                {
+                    if (!hasCollided)
+                    {
+                        hasCollided = true;
+                        speed = 0f;
+
+                        if (destroyCoroutine != null) StopCoroutine(destroyCoroutine);
+                        float lingerDuration = 1.0f;
+                        if (PlayerSkillSystem.Instance != null)
+                        {
+                            SkillData coralData = PlayerSkillSystem.Instance.GetSkillData("SR_CoralMushroom");
+                            if (coralData != null)
+                            {
+                                lingerDuration = coralData.coralBeamDuration;
+                            }
+                        }
+                        destroyCoroutine = StartCoroutine(DestroyAfterDelay(lingerDuration));
+                    }
+                }
+                else
                 {
                     Destroy(gameObject);
                 }
+            }
+        }
+
+        private void OnTriggerExit2D(Collider2D collision)
+        {
+            if (!isBeam) return;
+
+            EnemyHealth enemyHealth = collision.GetComponentInParent<EnemyHealth>();
+            if (enemyHealth == null)
+            {
+                enemyHealth = collision.GetComponent<EnemyHealth>();
+            }
+
+            if (enemyHealth != null && enemiesInRange.Contains(enemyHealth))
+            {
+                enemiesInRange.Remove(enemyHealth);
             }
         }
 

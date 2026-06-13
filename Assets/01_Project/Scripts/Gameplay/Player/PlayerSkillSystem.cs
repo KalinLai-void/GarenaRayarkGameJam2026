@@ -16,6 +16,9 @@ namespace Gameplay
         [SerializeField] private SkillData activeSkill;
         [SerializeField] private List<SkillData> passiveSkills = new List<SkillData>();
 
+        [Header("--- Input Action (綁定空白鍵，可在 Inspector 自行更換為 F 等按鍵) ---")]
+        [SerializeField] private InputAction skillAction = new InputAction("UseSkill", binding: "<Keyboard>/space");
+
         // 紀錄技能的等級 (技能ID -> 等級)
         private readonly Dictionary<string, int> skillLevels = new Dictionary<string, int>();
         
@@ -57,6 +60,22 @@ namespace Gameplay
             }
         }
 
+        private void OnEnable()
+        {
+            if (skillAction != null)
+            {
+                skillAction.Enable();
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (skillAction != null)
+            {
+                skillAction.Disable();
+            }
+        }
+
         private void Update()
         {
             // 更新冷卻時間
@@ -76,21 +95,40 @@ namespace Gameplay
                 }
             }
 
-            // 監聽空白鍵觸發主動技能
-            // ⚠️ 若 Tinder UI 正開著，Space 是 Submit 鍵會觸發 Like 按鈕，此時不觸發技能
-            if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame && !IsTinderUIOpen())
+            // 監聽空白鍵觸發主動技能 (支援 InputAction 與 Keyboard.current 直讀，防止焦點丟失)
+            bool spacePressed = false;
+            if (skillAction != null && skillAction.triggered)
             {
-                if (activeSkill == null)
+                spacePressed = true;
+            }
+            else if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
+            {
+                spacePressed = true;
+            }
+
+            if (spacePressed)
+            {
+                // 加入詳細診斷日誌，讓玩家與工程師能明確知道按鍵是否被偵測，以及為何沒有觸發
+                Debug.Log($"【技能系統】空白鍵被按下！TinderUI 是否開啟: {IsTinderUIOpen()} | 當前主動技能: {(activeSkill != null ? activeSkill.skillName : "無")} | 當前冷卻計時器: {activeCDTimer:F2}s");
+
+                if (IsTinderUIOpen())
                 {
-                    Debug.Log("【技能系統】Space 按下，但尚未獲得主動技能。");
-                }
-                else if (activeCDTimer > 0f)
-                {
-                    Debug.Log($"【技能系統】Space 按下，{activeSkill.skillName} 還在冷卻中（剩餘 {activeCDTimer:F1}s）。");
+                    Debug.Log("【技能系統】空白鍵按下，但因 Tinder 升級介面開啟中而忽略觸發技能。");
                 }
                 else
                 {
-                    TriggerActiveSkill();
+                    if (activeSkill == null)
+                    {
+                        Debug.Log("【技能系統】Space 按下，但尚未獲得主動技能。");
+                    }
+                    else if (activeCDTimer > 0f)
+                    {
+                        Debug.Log($"【技能系統】Space 按下，{activeSkill.skillName} 還在冷卻中（剩餘 {activeCDTimer:F1}s）。");
+                    }
+                    else
+                    {
+                        TriggerActiveSkill();
+                    }
                 }
             }
         }
@@ -107,7 +145,7 @@ namespace Gameplay
                 // 包含非活動狀態的物件一起搜尋，因為 TinderSwipeManager 預設是 inactive
                 cachedTinderManager = Object.FindFirstObjectByType<TinderSwipeManager>(FindObjectsInactive.Include);
             }
-            return cachedTinderManager != null && cachedTinderManager.gameObject.activeInHierarchy;
+            return cachedTinderManager != null && cachedTinderManager.gameObject.activeInHierarchy && !cachedTinderManager.IsClosing;
         }
 
         /// <summary>
@@ -287,9 +325,18 @@ namespace Gameplay
                 // 放入主動技能槽 (Slot 0)
                 if (activeSkill == null || activeSkill.skillID != skill.skillID)
                 {
+                    if (activeSkill != null)
+                    {
+                        skillLevels.Remove(activeSkill.skillID);
+                        Debug.Log($"【技能系統】移除舊主動技能等級記錄：{activeSkill.skillID}");
+                    }
                     activeSkill = skill;
                     Debug.Log($"【技能系統】主動技能已設定為：{skill.skillName}");
                 }
+
+                // 再次選取主動技能，冷卻時間會重置
+                activeCDTimer = 0f;
+                Debug.Log($"【技能系統】主動技能冷卻重置為 0f！");
 
                 if (ui != null)
                 {
@@ -297,6 +344,7 @@ namespace Gameplay
                     Debug.Log($"【技能系統】設定主動技能 icon，sprite: {(icon != null ? icon.name : "null")}");
                     ui.SetSkillIcon(0, icon);
                     ui.UpgradeSkillLevel(0, nextLevel);
+                    ui.TriggerSkillCooldown(0, 0f);
                 }
             }
             else
@@ -340,7 +388,25 @@ namespace Gameplay
                     }
                     else
                     {
-                        Debug.LogWarning("【技能系統】被動技能欄位已滿（3/3）！無法獲得新被動技能。");
+                        // 被動技能欄位已滿 (3/3)，隨機取代一個被動技能
+                        int replacedIndex = Random.Range(0, 3);
+                        SkillData replacedSkill = passiveSkills[replacedIndex];
+                        Debug.Log($"【技能系統】被動技能欄位已滿（3/3）！隨機取代 Slot {replacedIndex + 1} 的被動技能 {replacedSkill.skillName} 為新被動技能 {skill.skillName}");
+
+                        // 清除舊技能的等級記錄
+                        skillLevels.Remove(replacedSkill.skillID);
+
+                        // 替換被動技能
+                        passiveSkills[replacedIndex] = skill;
+                        passiveIndex = replacedIndex;
+
+                        if (ui != null)
+                        {
+                            Sprite icon = skill.avatarSprite != null ? skill.avatarSprite : skill.hudIcon;
+                            Debug.Log($"【技能系統】設定被動技能 icon，sprite: {(icon != null ? icon.name : "null")}");
+                            ui.SetSkillIcon(passiveIndex + 1, icon);
+                            ui.UpgradeSkillLevel(passiveIndex + 1, nextLevel);
+                        }
                     }
                 }
             }

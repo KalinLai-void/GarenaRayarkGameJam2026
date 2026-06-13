@@ -86,6 +86,12 @@ namespace Gameplay
         public float coralBeamWidth = 3.5f;
         [Tooltip("光束子彈高度 (Y軸)")]
         public float coralBeamHeight = 0.8f;
+        [Tooltip("珊瑚菇主動：光束殘留持續時間（秒）")]
+        public float coralBeamDuration = 1.0f;
+        [Tooltip("珊瑚菇主動：光束殘留每跳傷害比例（相較於子彈傷害）")]
+        public float coralBeamDotPercent = 1.0f;
+        [Tooltip("珊瑚菇主動：光束殘留傷害觸發間隔（秒）")]
+        public float coralBeamDotInterval = 0.25f;
 
         [Header("猴頭菇 (SR_MonkeyHead) 主動")]
         [Tooltip("爆炸半徑（依等級，如 LV1=2.0, LV2=2.2...）")]
