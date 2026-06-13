@@ -258,6 +258,9 @@ public static class TinderUISetup
         so.FindProperty("timerText").objectReferenceValue = timerText;
         so.ApplyModifiedProperties();
 
+        // 12.5 Set HUD root inactive by default so it only shows up on level up
+        rootGo.SetActive(false);
+
         // 13. Save scene
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
         EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
