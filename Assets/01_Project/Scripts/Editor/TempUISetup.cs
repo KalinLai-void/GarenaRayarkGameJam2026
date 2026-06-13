@@ -41,15 +41,30 @@ public static class TempUISetup
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             
             canvasGo.AddComponent<GraphicRaycaster>();
-            
-            if (Object.FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() == null)
-            {
-                GameObject esGo = new GameObject("EventSystem");
-                esGo.AddComponent<UnityEngine.EventSystems.EventSystem>();
-                esGo.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
-            }
         }
         GameObject canvasRoot = canvas.gameObject;
+
+        // Setup EventSystem (Compatible with New Input System)
+        UnityEngine.EventSystems.EventSystem eventSystem = Object.FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>();
+        if (eventSystem == null)
+        {
+            GameObject esGo = new GameObject("EventSystem");
+            eventSystem = esGo.AddComponent<UnityEngine.EventSystems.EventSystem>();
+        }
+        
+        // Remove legacy StandaloneInputModule if present to prevent InvalidOperationException
+        UnityEngine.EventSystems.StandaloneInputModule legacyModule = eventSystem.GetComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+        if (legacyModule != null)
+        {
+            Object.DestroyImmediate(legacyModule);
+        }
+        
+        // Add InputSystemUIInputModule for New Input System
+        UnityEngine.InputSystem.UI.InputSystemUIInputModule newModule = eventSystem.GetComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+        if (newModule == null)
+        {
+            eventSystem.gameObject.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+        }
 
         // Find or create UIManager
         GameObject uiManagerGo = GameObject.Find("UIManager");
