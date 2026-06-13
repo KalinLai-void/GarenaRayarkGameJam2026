@@ -2765,10 +2765,10 @@ MonoBehaviour:
   nopeButton: {fileID: 3651558105206242843}
   likeButton: {fileID: 1266322592121459311}
   timerText: {fileID: 478320694239300304}
-  maxTime: 99
+  maxTime: 10
   stackSize: 5
-  maxLikes: 1
-  maxNopes: 4
+  maxLikes: 999
+  maxNopes: 999
   openDuration: 0.5
   closeDuration: 0.4
   bounceIntensity: 1.7
