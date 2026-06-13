@@ -3,6 +3,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Gameplay;
 
 public static class TinderUISetup
 {
@@ -53,16 +54,20 @@ public static class TinderUISetup
         GameObject rootGo = new GameObject("LevelUp_Tinder_HUD", typeof(RectTransform));
         rootGo.transform.SetParent(canvasRoot.transform, false);
         RectTransform rootRt = rootGo.GetComponent<RectTransform>();
+        // Snap to center (or right center if configured). Default center for general viewing
         SetupRectTransform(rootRt, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(460f, 900f));
 
-        // 6. Phone_Frame (Image: Light Purple)
+        // Attach the TinderSwipeManager to the root
+        TinderSwipeManager swipeManager = rootGo.AddComponent<TinderSwipeManager>();
+
+        // 6. Phone_Frame (Image: Light Purple Casing)
         GameObject phoneGo = new GameObject("Phone_Frame", typeof(RectTransform), typeof(Image));
         phoneGo.transform.SetParent(rootGo.transform, false);
         SetupRectTransform(phoneGo.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
         Image phoneImg = phoneGo.GetComponent<Image>();
         phoneImg.sprite = uiSprite;
         phoneImg.type = Image.Type.Sliced;
-        phoneImg.color = new Color(0.58f, 0.45f, 0.65f, 1f); // Lighter Purple (matching mockup casing)
+        phoneImg.color = new Color(0.58f, 0.45f, 0.65f, 1f); // Casing Purple
 
         // 6.1 Speaker_Slot (Pill Shape Top)
         GameObject speakerGo = new GameObject("Speaker_Slot", typeof(RectTransform), typeof(Image));
@@ -70,15 +75,26 @@ public static class TinderUISetup
         SetupRectTransform(speakerGo.GetComponent<RectTransform>(), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -40f), new Vector2(70f, 18f));
         Image speakerImg = speakerGo.GetComponent<Image>();
         speakerImg.sprite = capsuleSprite;
-        speakerImg.color = new Color(0.35f, 0.25f, 0.4f, 1f); // Darker Phone Detail Purple
+        speakerImg.color = new Color(0.35f, 0.25f, 0.4f, 1f); // Darker Phone Detail
 
-        // 6.2 Home_Button (Circle Bottom)
+        // 6.2 Home_Button (Circle Bottom Casing)
         GameObject homeGo = new GameObject("Home_Button", typeof(RectTransform), typeof(Image));
         homeGo.transform.SetParent(phoneGo.transform, false);
         SetupRectTransform(homeGo.GetComponent<RectTransform>(), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 45f), new Vector2(65f, 65f));
         Image homeImg = homeGo.GetComponent<Image>();
         homeImg.sprite = circleSprite;
-        homeImg.color = new Color(0.35f, 0.25f, 0.4f, 1f); // Darker Phone Detail Purple
+        homeImg.color = new Color(0.35f, 0.25f, 0.4f, 1f); // Darker Phone Detail
+
+        // 6.2.1 Timer_Text (Centered Inside Home Button!)
+        GameObject timerGo = new GameObject("Timer_Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+        timerGo.transform.SetParent(homeGo.transform, false);
+        SetupRectTransform(timerGo.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        TextMeshProUGUI timerText = timerGo.GetComponent<TextMeshProUGUI>();
+        timerText.text = "5";
+        timerText.fontSize = 28f;
+        timerText.alignment = TextAlignmentOptions.Center;
+        timerText.color = Color.white;
+        timerText.fontStyle = FontStyles.Bold;
 
         // 7. Screen_Mask_Area (Image + Mask: Screen, Solid White Background)
         GameObject maskGo = new GameObject("Screen_Mask_Area", typeof(RectTransform), typeof(Image), typeof(Mask));
@@ -92,74 +108,64 @@ public static class TinderUISetup
         Image maskImg = maskGo.GetComponent<Image>();
         maskImg.sprite = uiSprite;
         maskImg.type = Image.Type.Sliced;
-        maskImg.color = Color.white; // White Screen Background
+        maskImg.color = Color.white; // White Screen Background (mockup)
         
         Mask maskComponent = maskGo.GetComponent<Mask>();
         maskComponent.showMaskGraphic = true;
 
-        // 8. Refresh_Count_Text (Text: Top Sub inside screen area)
-        GameObject refreshGo = new GameObject("Refresh_Count_Text", typeof(RectTransform), typeof(TextMeshProUGUI));
-        refreshGo.transform.SetParent(maskGo.transform, false);
-        SetupRectTransform(refreshGo.GetComponent<RectTransform>(), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -25f), new Vector2(300f, 25f));
-        TextMeshProUGUI refreshText = refreshGo.GetComponent<TextMeshProUGUI>();
-        refreshText.text = "刷新剩餘: 3";
-        refreshText.fontSize = 15f;
-        refreshText.alignment = TextAlignmentOptions.Center;
-        refreshText.color = new Color(0.3f, 0.6f, 0.3f, 1f); // Green text on white screen
-        refreshText.fontStyle = FontStyles.Bold;
-
-        // 9. Card_Stack_Container
+        // 8. Card_Stack_Container
         GameObject containerGo = new GameObject("Card_Stack_Container", typeof(RectTransform));
         containerGo.transform.SetParent(maskGo.transform, false);
         SetupRectTransform(containerGo.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
 
-        // 10. UI_TinderCard_Prefab (Card Root)
+        // 9. UI_TinderCard_Prefab (Card Template)
         GameObject cardGo = new GameObject("UI_TinderCard_Prefab", typeof(RectTransform));
         cardGo.transform.SetParent(containerGo.transform, false);
         RectTransform cardRt = cardGo.GetComponent<RectTransform>();
-        SetupRectTransform(cardRt, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-        // Margins: 15 all around, bottom is 150 to leave space for Nope/Like buttons
-        cardRt.offsetMin = new Vector2(15f, 150f);
-        cardRt.offsetMax = new Vector2(-15f, -70f);
+        // Top-Center Alignment, Perfect Square 380x380 matching the mockup
+        SetupRectTransform(cardRt, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -15f), new Vector2(380f, 380f));
 
-        // 10.1 Card_Background (Image: Bright Cyan Box)
+        // Add TinderCardDragHandler script to the prefab
+        TinderCardDragHandler dragHandler = cardGo.AddComponent<TinderCardDragHandler>();
+
+        // 9.1 Card_Background (Image: Bright Cyan Square)
         GameObject cardBgGo = new GameObject("Card_Background", typeof(RectTransform), typeof(Image));
         cardBgGo.transform.SetParent(cardGo.transform, false);
         SetupRectTransform(cardBgGo.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
         Image cardBgImg = cardBgGo.GetComponent<Image>();
         cardBgImg.sprite = uiSprite;
         cardBgImg.type = Image.Type.Sliced;
-        cardBgImg.color = new Color(0.35f, 0.82f, 0.92f, 1f); // Bright Cyan Box (matching mockup)
+        cardBgImg.color = new Color(0.35f, 0.82f, 0.92f, 1f); // Bright Cyan Box (mockup)
 
-        // 10.2 Character_Illustration (Image: Gray placeholder)
+        // 9.2 Character_Illustration (Image: Gray placeholder, top 55% of card)
         GameObject charGo = new GameObject("Character_Illustration", typeof(RectTransform), typeof(Image));
         charGo.transform.SetParent(cardGo.transform, false);
         RectTransform charRt = charGo.GetComponent<RectTransform>();
-        SetupRectTransform(charRt, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-        charRt.offsetMin = new Vector2(20f, 180f);
-        charRt.offsetMax = new Vector2(-20f, -20f);
+        SetupRectTransform(charRt, new Vector2(0f, 0.45f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        charRt.offsetMin = new Vector2(15f, 10f);
+        charRt.offsetMax = new Vector2(-15f, -15f);
         Image charImg = charGo.GetComponent<Image>();
         charImg.sprite = uiSprite;
         charImg.type = Image.Type.Sliced;
-        charImg.color = new Color(0.85f, 0.85f, 0.85f, 1f); // Character Illustration (Light Gray)
+        charImg.color = new Color(0.85f, 0.85f, 0.85f, 1f); // Character Portrait
 
-        // 10.3 Dialog_Bubble (Image: Semi-transparent Black)
+        // 9.3 Dialog_Bubble (Image: Semi-transparent Black, bottom 45% of card)
         GameObject bubbleGo = new GameObject("Dialog_Bubble", typeof(RectTransform), typeof(Image));
         bubbleGo.transform.SetParent(cardGo.transform, false);
         RectTransform bubbleRt = bubbleGo.GetComponent<RectTransform>();
-        SetupRectTransform(bubbleRt, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        SetupRectTransform(bubbleRt, new Vector2(0f, 0f), new Vector2(1f, 0.45f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
         bubbleRt.offsetMin = new Vector2(15f, 15f);
-        bubbleRt.offsetMax = new Vector2(-15f, -310f); // Height of bubble leaves space for portrait
+        bubbleRt.offsetMax = new Vector2(-15f, -10f);
         Image bubbleImg = bubbleGo.GetComponent<Image>();
         bubbleImg.sprite = uiSprite;
         bubbleImg.type = Image.Type.Sliced;
-        bubbleImg.color = new Color(0.08f, 0.08f, 0.08f, 0.88f); // Dialog Box (Dark Gray/Black Translucent)
+        bubbleImg.color = new Color(0.08f, 0.08f, 0.08f, 0.88f); // Dialog Box
 
-        // 10.3.1 Skill_Name_Text
+        // 9.3.1 Skill_Name_Text
         GameObject skillNameGo = new GameObject("Skill_Name_Text", typeof(RectTransform), typeof(TextMeshProUGUI));
         skillNameGo.transform.SetParent(bubbleGo.transform, false);
         RectTransform nameRt = skillNameGo.GetComponent<RectTransform>();
-        SetupRectTransform(nameRt, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -10f), new Vector2(0f, 25f));
+        SetupRectTransform(nameRt, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -8f), new Vector2(0f, 25f));
         nameRt.offsetMin = new Vector2(15f, nameRt.offsetMin.y);
         nameRt.offsetMax = new Vector2(-15f, nameRt.offsetMax.y);
         TextMeshProUGUI skillNameText = skillNameGo.GetComponent<TextMeshProUGUI>();
@@ -169,23 +175,23 @@ public static class TinderUISetup
         skillNameText.color = Color.yellow;
         skillNameText.fontStyle = FontStyles.Bold;
 
-        // 10.3.2 Skill_Desc_Text
+        // 9.3.2 Skill_Desc_Text
         GameObject skillDescGo = new GameObject("Skill_Desc_Text", typeof(RectTransform), typeof(TextMeshProUGUI));
         skillDescGo.transform.SetParent(bubbleGo.transform, false);
         RectTransform descRt = skillDescGo.GetComponent<RectTransform>();
         SetupRectTransform(descRt, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-        descRt.offsetMin = new Vector2(15f, 10f);
-        descRt.offsetMax = new Vector2(-15f, -38f);
+        descRt.offsetMin = new Vector2(15f, 12f);
+        descRt.offsetMax = new Vector2(-15f, -32f);
         TextMeshProUGUI skillDescText = skillDescGo.GetComponent<TextMeshProUGUI>();
         skillDescText.text = "朝鼠標位置發射一枚會爆炸並致盲周圍敵人的閃光彈，冷卻時間 8 秒。";
         skillDescText.fontSize = 12f;
         skillDescText.alignment = TextAlignmentOptions.Left;
         skillDescText.color = Color.white;
 
-        // 11. Button_Group (HorizontalLayoutGroup - positioned inside white screen lower area)
+        // 10. Button_Group (Nope/Like Circular buttons in bottom of screen area)
         GameObject btnGroupGo = new GameObject("Button_Group", typeof(RectTransform), typeof(HorizontalLayoutGroup));
         btnGroupGo.transform.SetParent(maskGo.transform, false);
-        SetupRectTransform(btnGroupGo.GetComponent<RectTransform>(), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 75f), new Vector2(300f, 90f));
+        SetupRectTransform(btnGroupGo.GetComponent<RectTransform>(), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 65f), new Vector2(300f, 90f));
         
         HorizontalLayoutGroup layout = btnGroupGo.GetComponent<HorizontalLayoutGroup>();
         layout.spacing = 50f;
@@ -195,13 +201,13 @@ public static class TinderUISetup
         layout.childForceExpandHeight = false;
         layout.childAlignment = TextAnchor.MiddleCenter;
 
-        // 11.1 Btn_Nope (Gray Circle Button)
+        // 10.1 Btn_Nope (Gray Circle Button with "X")
         GameObject btnNopeGo = new GameObject("Btn_Nope", typeof(RectTransform), typeof(Image), typeof(Button));
         btnNopeGo.transform.SetParent(btnGroupGo.transform, false);
         SetupRectTransform(btnNopeGo.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(85f, 85f));
         Image nopeImg = btnNopeGo.GetComponent<Image>();
         nopeImg.sprite = circleSprite;
-        nopeImg.color = new Color(0.68f, 0.64f, 0.64f, 1f); // Gray circle (matching mockup Nope)
+        nopeImg.color = new Color(0.68f, 0.64f, 0.64f, 1f); // Gray Circle (mockup Nope)
         btnNopeGo.AddComponent<Button>();
         
         GameObject nopeLabelGo = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
@@ -214,37 +220,45 @@ public static class TinderUISetup
         nopeLabel.color = Color.white;
         nopeLabel.fontStyle = FontStyles.Bold;
 
-        // 11.2 Btn_Like (Pink Circle Button + Timer_Text Countdown overlay)
+        // 10.2 Btn_Like (Pink Circle Button with "<3" Heart)
         GameObject btnLikeGo = new GameObject("Btn_Like", typeof(RectTransform), typeof(Image), typeof(Button));
         btnLikeGo.transform.SetParent(btnGroupGo.transform, false);
         SetupRectTransform(btnLikeGo.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(85f, 85f));
         Image likeImg = btnLikeGo.GetComponent<Image>();
         likeImg.sprite = circleSprite;
-        likeImg.color = new Color(0.84f, 0.32f, 0.54f, 1f); // Pink circle (matching mockup Like)
+        likeImg.color = new Color(0.84f, 0.32f, 0.54f, 1f); // Pink Circle (mockup Like)
         btnLikeGo.AddComponent<Button>();
         
-        // Timer_Text is centered on the Like Button showing numbers
-        GameObject timerGo = new GameObject("Timer_Text", typeof(RectTransform), typeof(TextMeshProUGUI));
-        timerGo.transform.SetParent(btnLikeGo.transform, false);
-        SetupRectTransform(timerGo.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-        TextMeshProUGUI timerText = timerGo.GetComponent<TextMeshProUGUI>();
-        timerText.text = "5"; // Numerical countdown timer
-        timerText.fontSize = 32f;
-        timerText.alignment = TextAlignmentOptions.Center;
-        timerText.color = Color.white;
-        timerText.fontStyle = FontStyles.Bold;
+        GameObject likeLabelGo = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+        likeLabelGo.transform.SetParent(btnLikeGo.transform, false);
+        SetupRectTransform(likeLabelGo.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        TextMeshProUGUI likeLabel = likeLabelGo.GetComponent<TextMeshProUGUI>();
+        likeLabel.text = "❤";
+        likeLabel.fontSize = 32f;
+        likeLabel.alignment = TextAlignmentOptions.Center;
+        likeLabel.color = Color.white;
+        likeLabel.fontStyle = FontStyles.Bold;
 
-        // 12. Save card as Prefab
+        // 11. Save card as Prefab
         string prefabFolderPath = "Assets/01_Project/Prefabs";
         System.IO.Directory.CreateDirectory(prefabFolderPath);
         string cardPrefabPath = $"{prefabFolderPath}/UI_TinderCard.prefab";
-        PrefabUtility.SaveAsPrefabAsset(cardGo, cardPrefabPath);
+        GameObject cardPrefab = PrefabUtility.SaveAsPrefabAsset(cardGo, cardPrefabPath);
+
+        // 12. Wire TinderSwipeManager References
+        SerializedObject so = new SerializedObject(swipeManager);
+        so.FindProperty("cardPrefab").objectReferenceValue = cardPrefab;
+        so.FindProperty("cardContainer").objectReferenceValue = containerGo.transform;
+        so.FindProperty("nopeButton").objectReferenceValue = btnNopeGo.transform;
+        so.FindProperty("likeButton").objectReferenceValue = btnLikeGo.transform;
+        so.FindProperty("timerText").objectReferenceValue = timerText;
+        so.ApplyModifiedProperties();
 
         // 13. Save scene
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
         EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
 
-        Debug.Log("Successfully created Tinder Level Up UI hierarchy with Timer on Like button, saved prefab, and saved scene!");
+        Debug.Log("Successfully created Tinder Level Up UI matching the mockup proportions, setup drag and swipe scripts, and saved prefab!");
     }
 
     private static Sprite GetOrCreateCircleSprite(int radius)
