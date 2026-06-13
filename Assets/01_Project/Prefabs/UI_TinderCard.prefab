@@ -886,6 +886,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8091546623423804690}
   - component: {fileID: 9199406519570031559}
+  - component: {fileID: 3770246783081326247}
   m_Layer: 0
   m_Name: UI_TinderCard
   m_TagString: Untagged
@@ -933,6 +934,24 @@ MonoBehaviour:
   rotationFactor: 0.05
   returnSpeed: 15
   flyOutSpeed: 1000
+--- !u!114 &3770246783081326247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7060605580584894448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85b531f7ea1ef46478877534c24345d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Gameplay.UI_TinderCard
+  rareBackground: {fileID: 3869900288351081438}
+  rareImage: {fileID: 3288295012484255869}
+  avatarImage: {fileID: 8961555136131585284}
+  avatarHashTagText: {fileID: 9075970632684886936}
+  skillNameText: {fileID: 6336561001414814284}
+  skillDescText: {fileID: 3854930438359341153}
 --- !u!1 &7349973047331325603
 GameObject:
   m_ObjectHideFlags: 0

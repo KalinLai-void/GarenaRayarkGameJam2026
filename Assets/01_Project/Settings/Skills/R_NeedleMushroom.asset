@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ba038fbaf5b76847abc5fda0360462a, type: 3}
+  m_Name: R_NeedleMushroom
+  m_EditorClassIdentifier: Assembly-CSharp::Gameplay.SkillData
+  skillID: R_NeedleMushroom
+  skillName: "\u91D1\u91DD\u83C7"
+  rarity: 0
+  skillTitle: "\u5BC6\u96C6\u5F48\u5E55"
+  description: "\u5B50\u5F48\u7684\u5C04\u901F\u63D0\u5347 15%\uFF0C\u4E14\u5B50\u5F48\u98DB\u884C\u901F\u5EA6\u63D0\u5347
+    10%\u3002"
+  flavorText: "\u300C\u4ECA\u5929\u8D85\u5EA6\u4F60\uFF0C\u770B\u4F60\u600E\u9EBC\u660E\u5929\u898B?\u300D"
+  avatarSprite: {fileID: 3708888898215159540, guid: d83dba2ac8f20794e9386f91b9be06f3, type: 3}
+  rarityBackground: {fileID: 21300000, guid: 141600b92b3b8af49bb86dd11f4b9ccd, type: 3}
+  rarityTag: {fileID: 21300000, guid: 6e85559c94d1416459ed2ef3347c0544, type: 3}
+  hudIcon: {fileID: 3708888898215159540, guid: d83dba2ac8f20794e9386f91b9be06f3, type: 3}
+  cooldown: 0
+  maxLevel: 5

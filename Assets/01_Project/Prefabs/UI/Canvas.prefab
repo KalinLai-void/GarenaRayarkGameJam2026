@@ -1717,7 +1717,24 @@ MonoBehaviour:
   timerText: {fileID: 2574180854813827695}
   maxTime: 5
   stackSize: 4
-  maxSwipes: 3
+  maxLikes: 1
+  maxNopes: 3
+  openDuration: 0.5
+  closeDuration: 0.4
+  bounceIntensity: 1.70158
+  allSkills:
+  - {fileID: 11400000, guid: ec827cb707a1f27448366bd9b57992d7, type: 2}
+  - {fileID: 11400000, guid: 21ad1f7c35752254f95036d1631b5e67, type: 2}
+  - {fileID: 11400000, guid: 589a043120595e04f9e852d47ff7cfa5, type: 2}
+  - {fileID: 11400000, guid: 137d6015beaf2cb41815c17118307422, type: 2}
+  - {fileID: 11400000, guid: ed62ffc724de09a419e420a513b4a965, type: 2}
+  - {fileID: 11400000, guid: 8f494d67bdd98fc489abf28986c7ce09, type: 2}
+  - {fileID: 11400000, guid: 5efcd20312dbf754888425eb532fd174, type: 2}
+  - {fileID: 11400000, guid: 5b8bcc9a763c4b24c9155c79da6f333e, type: 2}
+  - {fileID: 11400000, guid: 209042f6d13660a4d87cb9255b5fbba9, type: 2}
+  rWeight: 70
+  srWeight: 25
+  ssrWeight: 5
 --- !u!1 &4040448140512123769
 GameObject:
   m_ObjectHideFlags: 0

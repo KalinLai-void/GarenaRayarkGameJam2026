@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ba038fbaf5b76847abc5fda0360462a, type: 3}
+  m_Name: SR_CoralMushroom
+  m_EditorClassIdentifier: Assembly-CSharp::Gameplay.SkillData
+  skillID: SR_CoralMushroom
+  skillName: "\u73CA\u745A\u83C7"
+  rarity: 1
+  skillTitle: "\u6DF1\u6D77\u5145\u80FD"
+  description: "\u4F7F\u7528\u6280\u80FD\u5F8C10\u79D2\u5167\u5B50\u5F48\u8B8A\u70BA\u5149\u675F\uFF0C\u50B7\u5BB3\u63D0\u9AD810%\u3002\u5C04\u51FA\u5F8C\u6B98\u7559\u7D041\u79D2\uFF0C"
+  flavorText: "\u300C\u6211\u89AA\u50CF\u6D77\u6CE2\u6D6A\uFF0C\u6709\u8D77\u4E5F\u6709\u843D~\u300D"
+  avatarSprite: {fileID: 7547717628889948282, guid: 701f5246d2a285848a5ef4d8186b2320, type: 3}
+  rarityBackground: {fileID: 7231667575090401544, guid: ff0348b5dfa7d9145972d74ac067f98f, type: 3}
+  rarityTag: {fileID: 1845671642190416673, guid: 5e5a51da72db16d45b71cd8fa77a6c97, type: 3}
+  hudIcon: {fileID: 7547717628889948282, guid: 701f5246d2a285848a5ef4d8186b2320, type: 3}
+  cooldown: 15
+  maxLevel: 5
