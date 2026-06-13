@@ -438,7 +438,7 @@ GameObject:
   - component: {fileID: 5379506696997485215}
   - component: {fileID: 9075970632684886936}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Avatar_Name_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -458,10 +458,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 477513782938822279}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -9, y: 2.568}
-  m_SizeDelta: {x: 265.0749, y: 45.4306}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -4, y: 3}
+  m_SizeDelta: {x: -54.92511, y: -8.569397}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5379506696997485215
 CanvasRenderer:
@@ -491,7 +491,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Muuuuush
+  m_text: "\u5471\u5471\u5471"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f37ac26abe8cde94ba4add7ce441623d, type: 2}
   m_sharedMaterial: {fileID: -6323120989945219511, guid: f37ac26abe8cde94ba4add7ce441623d, type: 2}
@@ -652,7 +652,7 @@ GameObject:
   - component: {fileID: 4629599731308802511}
   - component: {fileID: 5296420501716935179}
   m_Layer: 0
-  m_Name: Bubble_Area
+  m_Name: Avatar_Name_Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
