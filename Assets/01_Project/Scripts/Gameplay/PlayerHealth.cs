@@ -57,6 +57,8 @@ namespace Gameplay
         private Collider2D[] overlapResults = new Collider2D[10];
         private float damageTimer = 0f;
 
+        private SkillUIManager uiManager;
+
         private void Awake()
         {
             currentHealth = maxHealth;
@@ -72,6 +74,13 @@ namespace Gameplay
 
         private void Start()
         {
+            // 尋找場景中的 UI 總管
+            uiManager = Object.FindFirstObjectByType<SkillUIManager>();
+            if (uiManager != null)
+            {
+                uiManager.UpdateHP(currentHealth, maxHealth);
+            }
+
             // 設定過濾器，只偵測 Enemy Layer 的碰撞體
             enemyFilter = new ContactFilter2D();
             int enemyLayerIndex = LayerMask.NameToLayer("Enemy");
@@ -131,6 +140,12 @@ namespace Gameplay
             currentHealth -= damage;
             currentHealth = Mathf.Max(currentHealth, 0);
 
+            // 更新 HP UI
+            if (uiManager != null)
+            {
+                uiManager.UpdateHP(currentHealth, maxHealth);
+            }
+
             // 切換至 Hurt 狀態
             currentState = PlayerState.Hurt;
             Debug.Log($"【Console Log】玩家受到 {damage} 點傷害，剩餘生命值: {currentHealth}，狀態變更為: [Hurt]");
@@ -148,6 +163,24 @@ namespace Gameplay
             if (currentHealth <= 0)
             {
                 Die();
+            }
+        }
+
+        /// <summary>
+        /// 讓玩家回復生命值，上限為 maxHealth
+        /// </summary>
+        public void Heal(int amount)
+        {
+            if (currentState == PlayerState.Dead) return;
+
+            currentHealth += amount;
+            currentHealth = Mathf.Min(currentHealth, maxHealth);
+            
+            Debug.Log($"【Console Log】玩家回復了 {amount} 點生命值，目前生命值: {currentHealth}/{maxHealth}");
+
+            if (uiManager != null)
+            {
+                uiManager.UpdateHP(currentHealth, maxHealth);
             }
         }
 
