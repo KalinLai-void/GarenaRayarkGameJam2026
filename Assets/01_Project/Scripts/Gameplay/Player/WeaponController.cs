@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 namespace Gameplay
 {
@@ -33,6 +34,7 @@ namespace Gameplay
 
         [Header("--- 參照輸入組件 (選填) ---")]
         [SerializeField] private PlayerInput playerInput;
+        [SerializeField] private SpriteRenderer aimRenderer;
 
         private GameObject pool;
 
@@ -129,6 +131,12 @@ namespace Gameplay
         {
             Vector3 mousePosition = GetMouseWorldPosition();
             if (mainCamera == null) return; // 若無攝影機則不執行
+
+            if (aimRenderer)
+            { 
+                aimRenderer.transform.position = mousePosition;
+                aimRenderer.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+            }
 
             // 取得父物件 (Player) 的世界座標，若無父物件則以原點為準
             Vector3 playerPos = transform.parent != null ? transform.parent.position : Vector3.zero;
