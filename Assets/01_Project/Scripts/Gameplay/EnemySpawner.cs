@@ -25,6 +25,8 @@ namespace Gameplay
         [Header("--- 生怪範圍設定 ---")]
         [Tooltip("生怪半徑，必須大於螢幕視野寬高，通常 2D 橫向螢幕設 12~15 剛好在畫外")]
         [SerializeField] private float spawnRadius = 15f;
+        [Tooltip("畫面上同時存活的最大怪物數量限制，達到此數量時將暫停生成新怪物")]
+        [SerializeField] private int maxEnemyLimit = 150;
 
         [Header("--- 波次設定 ---")]
         [SerializeField] private SpawnWave[] waves;
@@ -71,6 +73,12 @@ namespace Gameplay
 
         private void SpawnEnemyOnOrbit()
         {
+            // 若目前存活的怪物總數已達到上限，則跳過此次生成
+            if (EnemyHealth.ActiveEnemyCount >= maxEnemyLimit)
+            {
+                return;
+            }
+
             // 1. 隨機決定一個 0 ~ 360 度的角度
             float randomAngle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
 

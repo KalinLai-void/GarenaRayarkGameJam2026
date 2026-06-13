@@ -30,6 +30,11 @@ namespace Gameplay
         [SerializeField] private Color flashColor = Color.red;
 
         /// <summary>
+        /// 全域當前存活的怪物總數 (靜態變數)
+        /// </summary>
+        public static int ActiveEnemyCount { get; private set; }
+
+        /// <summary>
         /// 當前生命值
         /// </summary>
         public int CurrentHealth => currentHealth;
@@ -44,6 +49,16 @@ namespace Gameplay
         private Color originalColor = Color.white;
         private Coroutine flashCoroutine;
         private EnemyState currentState = EnemyState.Normal;
+
+        private void OnEnable()
+        {
+            ActiveEnemyCount++;
+        }
+
+        private void OnDisable()
+        {
+            ActiveEnemyCount--;
+        }
 
         private void Awake()
         {
