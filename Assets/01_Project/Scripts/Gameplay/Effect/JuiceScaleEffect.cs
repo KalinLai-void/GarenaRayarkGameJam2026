@@ -11,7 +11,7 @@ namespace Gameplay
     {
         [Header("--- 縮放設定 ---")]
         [Tooltip("目標中間狀態的縮放比例")]
-        [SerializeField] private Vector3 targetScale = new Vector3(0.95f, 1.05f, 1f);
+        [SerializeField] private Vector3 targetScale = new Vector3(1f, 1f, 1f);
         
         [Tooltip("放大至目標值所需時間 (秒)")]
         [SerializeField] private float durationUp = 0.2f;
@@ -24,11 +24,11 @@ namespace Gameplay
         [SerializeField] private bool playOnEnable = true;
 
         [Tooltip("是否循環播放 (脈動呼吸效果)")]
-        [SerializeField] private bool loop = false;
+        [SerializeField] private bool loop = true;
 
         [Header("--- 隨機抖動設定 ---")]
         [Tooltip("是否啟用隨機目標縮放")]
-        [SerializeField] private bool useRandomScale = false;
+        [SerializeField] private bool useRandomScale = true;
 
         [Tooltip("X 與 Y 軸的隨機震幅範圍 (以原始縮放為基準進行加減，例如 0.05 代表 1 +- 0.05)")]
         [SerializeField] private Vector2 randomRange = new Vector2(0.05f, 0.05f);
@@ -95,7 +95,7 @@ namespace Gameplay
             Vector3 startScale = transform.localScale;
             while (elapsed < durationUp)
             {
-                elapsed += Time.deltaTime;
+                elapsed += Time.unscaledDeltaTime;
                 float t = Mathf.Clamp01(elapsed / durationUp);
                 // 使用 SmoothStep 做平滑插值，讓加速減速更具彈性果汁感
                 transform.localScale = Vector3.Lerp(startScale, finalTargetScale, Mathf.SmoothStep(0f, 1f, t));
@@ -107,7 +107,7 @@ namespace Gameplay
             elapsed = 0f;
             while (elapsed < durationDown)
             {
-                elapsed += Time.deltaTime;
+                elapsed += Time.unscaledDeltaTime;
                 float t = Mathf.Clamp01(elapsed / durationDown);
                 transform.localScale = Vector3.Lerp(finalTargetScale, originalScale, Mathf.SmoothStep(0f, 1f, t));
                 yield return null;
@@ -122,7 +122,7 @@ namespace Gameplay
             {
                 yield return PunchScaleRoutine();
                 // 每次循環間隔一下，可在此處調整呼吸節奏
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForSecondsRealtime(0.1f);
             }
         }
     }
