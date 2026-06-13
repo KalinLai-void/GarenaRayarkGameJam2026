@@ -23,12 +23,16 @@ namespace Gameplay
         private float nextFireTime;
         private float initialMuzzleY;
 
+        private GameObject pool;
+
         private void Awake()
         {
             if (muzzlePoint != null)
             {
                 initialMuzzleY = muzzlePoint.localPosition.y;
             }
+
+            pool = new GameObject("GhostBullets_Pool");
         }
 
         /// <summary>
@@ -84,7 +88,7 @@ namespace Gameplay
                 Quaternion bulletRotation = Quaternion.Euler(0f, 0f, fireAngle);
 
                 GameObject bulletGo = Instantiate(ghostBulletPrefab, muzzlePoint.position, bulletRotation);
-
+                bulletGo.transform.parent = pool.transform;
                 GhostBullet bulletScript = bulletGo.GetComponent<GhostBullet>();
                 if (bulletScript != null)
                 {

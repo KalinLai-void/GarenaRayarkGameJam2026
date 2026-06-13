@@ -34,6 +34,8 @@ namespace Gameplay
         [Header("--- 參照輸入組件 (選填) ---")]
         [SerializeField] private PlayerInput playerInput;
 
+        private GameObject pool;
+
         // --- 未來升級系統可直接修改的加成值 ---
         private int bonusDamage = 0;
         private float bonusFireRate = 0f;
@@ -73,6 +75,8 @@ namespace Gameplay
             {
                 initialMuzzleY = muzzlePoint.localPosition.y;
             }
+
+            pool = new GameObject("Bullets_Pool");
         }
 
         private void Start()
@@ -212,6 +216,7 @@ namespace Gameplay
                 Quaternion bulletRotation = Quaternion.Euler(0f, 0f, fireAngle);
 
                 GameObject bulletGo = Instantiate(bulletPrefab, muzzlePoint.position, bulletRotation);
+                bulletGo.transform.parent = pool.transform;
                 Bullet bulletScript = bulletGo.GetComponent<Bullet>();
                 
                 if (bulletScript != null)
