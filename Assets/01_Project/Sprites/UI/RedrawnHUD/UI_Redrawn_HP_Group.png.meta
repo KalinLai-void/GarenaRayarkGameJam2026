@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: d71acfd242b4a8e49ac2dbcdd28e3f81
+guid: cdf6ca0e1e27b8342aec7d57a9ca931a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4020761081105048927
-    second: Obstacle_Tree_01_0
+      213: -8341802633102691767
+    second: UI_Redrawn_HP_Group_0
+  - first:
+      213: 2809118530639024723
+    second: UI_Redrawn_HP_Group_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +54,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 500
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -100,13 +103,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Obstacle_Tree_01_0
+      name: UI_Redrawn_HP_Group_0
       rect:
         serializedVersion: 2
-        x: 17
-        y: 17
-        width: 912
-        height: 936
+        x: 1
+        y: 28
+        width: 27
+        height: 18
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +118,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f556bfd76ec9cc730800000000000000
-      internalID: 4020761081105048927
+      spriteID: 942fe73b3b6fb3c80800000000000000
+      internalID: -8341802633102691767
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UI_Redrawn_HP_Group_1
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 0
+        width: 186
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 352d4b69b6efbf620800000000000000
+      internalID: 2809118530639024723
       vertices: []
       indices: 
       edges: []
@@ -135,7 +160,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Obstacle_Tree_01_0: 4020761081105048927
+      UI_Redrawn_HP_Group_0: -8341802633102691767
+      UI_Redrawn_HP_Group_1: 2809118530639024723
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
