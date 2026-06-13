@@ -19,7 +19,7 @@ public static class TempUISetup
         
         GameObject iconGo = new GameObject("MiniIcon", typeof(RectTransform), typeof(Image));
         RectTransform iconRt = iconGo.GetComponent<RectTransform>();
-        iconRt.sizeDelta = new Vector2(40f, 40f);
+        iconRt.sizeDelta = new Vector2(60f, 60f); // 放大為 60x60
         Image iconImg = iconGo.GetComponent<Image>();
         iconImg.sprite = uiSprite;
         iconImg.color = new Color(1f, 0.85f, 0f, 1f); // Gold
@@ -265,14 +265,14 @@ public static class TempUISetup
         // Spawn 2 placeholders: Map and Key
         GameObject mapGo = new GameObject("Slot_Item_Map", typeof(RectTransform));
         mapGo.transform.SetParent(miniContainerGo.transform, false);
-        mapGo.GetComponent<RectTransform>().sizeDelta = new Vector2(40f, 40f);
+        mapGo.GetComponent<RectTransform>().sizeDelta = new Vector2(60f, 60f);
         Image mapImg = mapGo.AddComponent<Image>();
         mapImg.sprite = uiSprite;
         mapImg.color = new Color(1f, 0.85f, 0f, 1f);
 
         GameObject keyGo = new GameObject("Slot_Item_Key", typeof(RectTransform));
         keyGo.transform.SetParent(miniContainerGo.transform, false);
-        keyGo.GetComponent<RectTransform>().sizeDelta = new Vector2(40f, 40f);
+        keyGo.GetComponent<RectTransform>().sizeDelta = new Vector2(60f, 60f);
         Image keyImg = keyGo.AddComponent<Image>();
         keyImg.sprite = uiSprite;
         keyImg.color = new Color(1f, 0.85f, 0f, 1f);
