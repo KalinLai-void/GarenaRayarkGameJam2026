@@ -22,6 +22,9 @@ namespace Gameplay
         [Tooltip("怪物最大生命值，預設為 3")]
         [SerializeField] private int maxHealth = 3;
 
+        [Tooltip("擊殺此怪物可獲得的經驗值，預設為 2")]
+        [SerializeField] private int xpReward = 2;
+
         [Header("【受傷視覺反饋】")]
         [Tooltip("受傷紅閃持續時間 (秒)")]
         [SerializeField] private float flashDuration = 0.15f;
@@ -120,6 +123,14 @@ namespace Gameplay
         {
             currentState = EnemyState.Dead;
             Debug.Log($"【Console Log】怪物 {gameObject.name} 已被消滅！狀態變更為: [Dead]");
+
+            // 尋找場景中的玩家經驗系統，將經驗值送過去
+            PlayerLevelSystem playerXP = Object.FindFirstObjectByType<PlayerLevelSystem>();
+            if (playerXP != null)
+            {
+                playerXP.AddExperience(xpReward);
+            }
+
             Destroy(gameObject);
         }
     }

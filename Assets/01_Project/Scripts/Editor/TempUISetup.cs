@@ -278,6 +278,54 @@ public static class TempUISetup
         keyImg.color = new Color(1f, 0.85f, 0f, 1f);
 
         // ───────────────────────────────────────────
+        // 4. XP_Bar_HUD (Bottom-Stretch)
+        // ───────────────────────────────────────────
+        GameObject xpBarHUDGo = GameObject.Find("XP_Bar_HUD");
+        if (xpBarHUDGo != null) Object.DestroyImmediate(xpBarHUDGo);
+
+        xpBarHUDGo = new GameObject("XP_Bar_HUD", typeof(RectTransform));
+        xpBarHUDGo.transform.SetParent(canvasRoot.transform, false);
+        // Bottom-Stretch: Min X=0, Max X=1, Min Y=0, Max Y=0, height 15f
+        SetupRectTransform(xpBarHUDGo.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 0f), new Vector2(0f, 15f));
+
+        // XP_Slider
+        GameObject xpSliderGo = new GameObject("XP_Slider", typeof(RectTransform));
+        xpSliderGo.transform.SetParent(xpBarHUDGo.transform, false);
+        SetupRectTransform(xpSliderGo.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        Slider xpSlider = xpSliderGo.AddComponent<Slider>();
+        xpSlider.interactable = false;
+        xpSlider.transition = Selectable.Transition.None;
+
+        // Background
+        GameObject xpBgGo = new GameObject("Background", typeof(RectTransform));
+        xpBgGo.transform.SetParent(xpSliderGo.transform, false);
+        SetupRectTransform(xpBgGo.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        Image xpBgImg = xpBgGo.AddComponent<Image>();
+        xpBgImg.sprite = uiSprite;
+        xpBgImg.type = Image.Type.Sliced;
+        xpBgImg.color = new Color(0.12f, 0.12f, 0.12f, 0.85f); // Translucent Dark Gray/Black
+
+        // Fill Area
+        GameObject xpFillAreaGo = new GameObject("Fill Area", typeof(RectTransform));
+        xpFillAreaGo.transform.SetParent(xpSliderGo.transform, false);
+        SetupRectTransform(xpFillAreaGo.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+
+        // Fill
+        GameObject xpFillGo = new GameObject("Fill", typeof(RectTransform));
+        xpFillGo.transform.SetParent(xpFillAreaGo.transform, false);
+        SetupRectTransform(xpFillGo.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        Image xpFillImg = xpFillGo.AddComponent<Image>();
+        xpFillImg.sprite = uiSprite;
+        xpFillImg.type = Image.Type.Sliced;
+        xpFillImg.color = new Color(0f, 0.88f, 0.88f, 1f); // Bright Cyan
+
+        xpSlider.targetGraphic = xpBgImg;
+        xpSlider.fillRect = xpFillGo.GetComponent<RectTransform>();
+        xpSlider.minValue = 0;
+        xpSlider.maxValue = 10;
+        xpSlider.value = 0;
+
+        // ───────────────────────────────────────────
         // Serialized Object reference wiring
         // ───────────────────────────────────────────
         SerializedObject so = new SerializedObject(uiManager);
@@ -297,6 +345,7 @@ public static class TempUISetup
 
         so.FindProperty("inventoryIconContainer").objectReferenceValue = miniContainerGo.transform;
         so.FindProperty("miniIconPrefab").objectReferenceValue = miniIconPrefabAsset;
+        so.FindProperty("xpSlider").objectReferenceValue = xpSlider;
 
         so.ApplyModifiedProperties();
 
@@ -305,5 +354,19 @@ public static class TempUISetup
         EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
 
         Debug.Log("Successfully created UI elements, prefab, and successfully wired up SkillUIManager references!");
+    }
+
+    [MenuItem("Tools/Test Add 5 XP")]
+    public static void TestAddXP()
+    {
+        PlayerLevelSystem playerXP = Object.FindFirstObjectByType<PlayerLevelSystem>();
+        if (playerXP != null)
+        {
+            playerXP.AddExperience(5);
+        }
+        else
+        {
+            Debug.LogError("PlayerLevelSystem not found in scene!");
+        }
     }
 }

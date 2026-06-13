@@ -30,6 +30,9 @@ namespace Gameplay
         [SerializeField] private Transform inventoryIconContainer; // 掛有 Horizontal Layout Group 的容器
         [SerializeField] private GameObject miniIconPrefab;       // 小圖示 Prefab
 
+        [Header("--- 下方：經驗值 UI 組件 ---")]
+        [SerializeField] private Slider xpSlider;
+
         private void Start()
         {
             // 初始化：隱藏冷卻遮罩與文字
@@ -148,6 +151,17 @@ namespace Gameplay
                     img.sprite = itemSprite;
                 }
             }
+        }
+
+        /// <summary>
+        /// 公開方法：動態更新底部經驗值條
+        /// </summary>
+        public void UpdateXPUI(int currentXP, int maxXP)
+        {
+            if (xpSlider == null) return;
+            
+            xpSlider.maxValue = maxXP;
+            xpSlider.value = currentXP;
         }
     }
 }
