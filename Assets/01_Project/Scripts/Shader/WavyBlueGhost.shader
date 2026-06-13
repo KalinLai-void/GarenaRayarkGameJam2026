@@ -1,15 +1,14 @@
-﻿Shader "Custom/WavyBlueGhost"
+﻿Shader "Custom/RGBGlitchGhost"
 {
     Properties
     {
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
         
-        [Header(Ghost Settings)]
-        // 把這裡的預設值改成偏淺的藍色，相乘後才不會太暗
-        _GhostColor ("Ghost Tint Color", Color) = (0.5, 0.8, 1.0, 0.7) 
-        _WaveSpeed ("Wave Speed", Float) = 5.0                    
-        _WaveFreq ("Wave Frequency", Float) = 15.0                
-        _WaveAmp ("Wave Amplitude", Float) = 0.03                 
+        [Header(Glitch Settings)]
+        _GlitchStrength ("Glitch Distance", Float) = 0.05    // 殘影分離的距離 (數值越小越精緻)
+        _GlitchSpeed ("Glitch Speed", Float) = 8.0           // 殘影蠕動的速度
+        _GhostAlpha ("Overall Transparency", Range(0, 1)) = 0.7 // 殘影整體的透明度
+        _Tint ("Global Tint", Color) = (0.8, 0.9, 1.0, 1.0)  // 整體染色 (預設微微偏冷藍色)
     }
 
     SubShader
@@ -50,10 +49,10 @@
             };
 
             sampler2D _MainTex;
-            fixed4 _GhostColor;
-            float _WaveSpeed;
-            float _WaveFreq;
-            float _WaveAmp;
+            float _GlitchStrength;
+            float _GlitchSpeed;
+            float _GhostAlpha;
+            fixed4 _Tint;
 
             v2f vert(appdata_t IN)
             {
@@ -66,19 +65,32 @@
 
             fixed4 frag(v2f IN) : SV_Target
             {
-                // 1. 迷幻波浪扭曲 UV
                 float2 uv = IN.texcoord;
-                uv.x += sin(uv.y * _WaveFreq + _Time.y * _WaveSpeed) * _WaveAmp;
+                float t = _Time.y * _GlitchSpeed;
 
-                // 2. 讀取扭曲後的貼圖像素 (這裡包含了美術畫的所有線條與明暗細節)
-                fixed4 texColor = tex2D(_MainTex, uv);
+                // 【核心運算】：讓 R, G, B 三個通道朝著不同的三角函數軌跡移動
+                // 使用不同的質數乘數，確保它們的移動軌跡看起來是隨機且混亂的
+                float2 offsetR = float2(sin(t * 1.1), cos(t * 0.8)) * _GlitchStrength;
+                float2 offsetG = float2(sin(t * 1.3 + 1.0), cos(t * 1.5 + 1.0)) * _GlitchStrength;
+                float2 offsetB = float2(sin(t * 0.9 + 2.0), cos(t * 1.2 + 2.0)) * _GlitchStrength;
 
-                // 3. 【核心修改：保留細節並染色】
-                // 將原本的圖片顏色與我們的 _GhostColor 進行相乘
-                // 白色區域會變成藍色，黑色線條依然保持黑色，完美保留立體感與細節
-                fixed4 finalColor = texColor * _GhostColor;
+                // 分別在不同的偏移位置上取樣貼圖
+                fixed4 colR = tex2D(_MainTex, uv + offsetR);
+                fixed4 colG = tex2D(_MainTex, uv + offsetG); // G 通道也可以設為不偏移 (只用 uv)，會更有靈魂出竅感
+                fixed4 colB = tex2D(_MainTex, uv + offsetB);
 
-                // 4. 疊加 SpriteRenderer 本身的顏色與透明度設定
+                // 【重組顏色】：把偏移後的紅、綠、藍重新組合在一起
+                fixed4 finalColor = fixed4(colR.r, colG.g, colB.b, 1.0);
+
+                // 【處理透明度】：只要任何一個通道有圖案(Alpha > 0)，該像素就要顯示
+                // 這樣才能完美保留殘影邊緣的剪影
+                finalColor.a = max(colR.a, max(colG.a, colB.a));
+
+                // 疊加整體的透明度與染色
+                finalColor.a *= _GhostAlpha;
+                finalColor *= _Tint;
+                
+                // 完美支援 SpriteRenderer 上的 Color 設定 (淡入淡出)
                 finalColor *= IN.color;
 
                 return finalColor;

@@ -42,6 +42,9 @@ Material:
     m_Ints: []
     m_Floats:
     - _EnableExternalAlpha: 0
+    - _GhostAlpha: 0.7
+    - _GlitchSpeed: 4
+    - _GlitchStrength: 0.05
     - _WaveAmp: 0.03
     - _WaveFreq: 15
     - _WaveSpeed: 5
@@ -50,5 +53,6 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _GhostColor: {r: 0, g: 0.31886786, b: 0.6377357, a: 0.8}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Tint: {r: 0.8, g: 0.9, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
