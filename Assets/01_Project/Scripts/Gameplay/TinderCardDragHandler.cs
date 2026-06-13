@@ -161,7 +161,7 @@ namespace Gameplay
                 // 按下去 (0.07秒)
                 while (t < 1f)
                 {
-                    t += Time.deltaTime * 14f;
+                    t += Time.unscaledDeltaTime * 14f;
                     targetBtn.localScale = Vector3.one * Mathf.Lerp(1f, 0.8f, t);
                     yield return null;
                 }
@@ -169,7 +169,7 @@ namespace Gameplay
                 // 彈起來 (0.07秒)
                 while (t < 1f)
                 {
-                    t += Time.deltaTime * 14f;
+                    t += Time.unscaledDeltaTime * 14f;
                     targetBtn.localScale = Vector3.one * Mathf.Lerp(0.8f, 1f, t);
                     yield return null;
                 }
@@ -185,7 +185,7 @@ namespace Gameplay
             float t = 0f;
             while (t < 1f)
             {
-                t += Time.deltaTime * returnSpeed;
+                t += Time.unscaledDeltaTime * returnSpeed;
                 rectTransform.anchoredPosition = Vector2.Lerp(currentPos, startPosition, t);
                 rectTransform.localRotation = Quaternion.Slerp(currentRot, Quaternion.identity, t);
 
@@ -219,7 +219,7 @@ namespace Gameplay
             if (isFlyingAway)
             {
                 // 卡片往左或往右飛行移出螢幕
-                rectTransform.anchoredPosition += flyDirection * currentFlySpeed * Time.deltaTime;
+                rectTransform.anchoredPosition += flyDirection * currentFlySpeed * Time.unscaledDeltaTime;
                 
                 // 超出螢幕裁剪遮罩一定範圍後自動銷毀
                 if (Mathf.Abs(rectTransform.anchoredPosition.x) > 1200f)
