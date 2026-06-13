@@ -118,66 +118,85 @@ public static class TinderUISetup
         SetupRectTransform(containerGo.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
 
         // 9. UI_TinderCard_Prefab (Card Template)
-        GameObject cardGo = new GameObject("UI_TinderCard_Prefab", typeof(RectTransform));
-        cardGo.transform.SetParent(containerGo.transform, false);
-        RectTransform cardRt = cardGo.GetComponent<RectTransform>();
-        // Top-Center Alignment, Perfect Square 380x380 matching the mockup
-        SetupRectTransform(cardRt, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -15f), new Vector2(380f, 380f));
+        GameObject cardGo = null;
+        string prefabFolderPath = "Assets/01_Project/Prefabs";
+        string cardPrefabPath = $"{prefabFolderPath}/UI_TinderCard.prefab";
+        GameObject cardPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(cardPrefabPath);
 
-        // Add TinderCardDragHandler script to the prefab
-        TinderCardDragHandler dragHandler = cardGo.AddComponent<TinderCardDragHandler>();
+        if (cardPrefab != null)
+        {
+            // If the prefab already exists, instantiate it to preserve user customizations!
+            cardGo = (GameObject)PrefabUtility.InstantiatePrefab(cardPrefab);
+            cardGo.transform.SetParent(containerGo.transform, false);
+            cardGo.name = "UI_TinderCard_Prefab";
+        }
+        else
+        {
+            // Otherwise, construct a default template card
+            cardGo = new GameObject("UI_TinderCard_Prefab", typeof(RectTransform));
+            cardGo.transform.SetParent(containerGo.transform, false);
+            RectTransform cardRt = cardGo.GetComponent<RectTransform>();
+            SetupRectTransform(cardRt, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -15f), new Vector2(380f, 380f));
 
-        // 9.1 Card_Background (Image: Bright Cyan Square, Stretches to fill the card)
-        GameObject cardBgGo = new GameObject("Card_Background", typeof(RectTransform), typeof(Image));
-        cardBgGo.transform.SetParent(cardGo.transform, false);
-        SetupRectTransform(cardBgGo.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-        Image cardBgImg = cardBgGo.GetComponent<Image>();
-        cardBgImg.sprite = uiSprite;
-        cardBgImg.type = Image.Type.Sliced;
-        cardBgImg.color = new Color(0.35f, 0.82f, 0.92f, 1f); // Bright Cyan Box (mockup)
+            // Add TinderCardDragHandler script to the prefab
+            cardGo.AddComponent<TinderCardDragHandler>();
 
-        // 9.2 Character_Illustration (Image: Gray placeholder, top portion 48% to 95% using percentage anchors)
-        GameObject charGo = new GameObject("Character_Illustration", typeof(RectTransform), typeof(Image));
-        charGo.transform.SetParent(cardGo.transform, false);
-        RectTransform charRt = charGo.GetComponent<RectTransform>();
-        SetupRectTransform(charRt, new Vector2(0.05f, 0.48f), new Vector2(0.95f, 0.95f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-        Image charImg = charGo.GetComponent<Image>();
-        charImg.sprite = uiSprite;
-        charImg.type = Image.Type.Sliced;
-        charImg.color = new Color(0.85f, 0.85f, 0.85f, 1f); // Character Portrait
+            // 9.1 Card_Background (Image: Bright Cyan Square, Stretches to fill the card)
+            GameObject cardBgGo = new GameObject("Card_Background", typeof(RectTransform), typeof(Image));
+            cardBgGo.transform.SetParent(cardGo.transform, false);
+            SetupRectTransform(cardBgGo.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            Image cardBgImg = cardBgGo.GetComponent<Image>();
+            cardBgImg.sprite = uiSprite;
+            cardBgImg.type = Image.Type.Sliced;
+            cardBgImg.color = new Color(0.35f, 0.82f, 0.92f, 1f); // Bright Cyan Box (mockup)
 
-        // 9.3 Dialog_Bubble (Image: Semi-transparent Black, bottom portion 4% to 44% using percentage anchors)
-        GameObject bubbleGo = new GameObject("Dialog_Bubble", typeof(RectTransform), typeof(Image));
-        bubbleGo.transform.SetParent(cardGo.transform, false);
-        RectTransform bubbleRt = bubbleGo.GetComponent<RectTransform>();
-        SetupRectTransform(bubbleRt, new Vector2(0.04f, 0.04f), new Vector2(0.96f, 0.44f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-        Image bubbleImg = bubbleGo.GetComponent<Image>();
-        bubbleImg.sprite = uiSprite;
-        bubbleImg.type = Image.Type.Sliced;
-        bubbleImg.color = new Color(0.08f, 0.08f, 0.08f, 0.88f); // Dialog Box
+            // 9.2 Character_Illustration (Image: Gray placeholder, top portion 48% to 95% using percentage anchors)
+            GameObject charGo = new GameObject("Character_Illustration", typeof(RectTransform), typeof(Image));
+            charGo.transform.SetParent(cardGo.transform, false);
+            RectTransform charRt = charGo.GetComponent<RectTransform>();
+            SetupRectTransform(charRt, new Vector2(0.05f, 0.48f), new Vector2(0.95f, 0.95f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            Image charImg = charGo.GetComponent<Image>();
+            charImg.sprite = uiSprite;
+            charImg.type = Image.Type.Sliced;
+            charImg.color = new Color(0.85f, 0.85f, 0.85f, 1f); // Character Portrait
 
-        // 9.3.1 Skill_Name_Text (Inside Bubble, percentage anchors)
-        GameObject skillNameGo = new GameObject("Skill_Name_Text", typeof(RectTransform), typeof(TextMeshProUGUI));
-        skillNameGo.transform.SetParent(bubbleGo.transform, false);
-        RectTransform nameRt = skillNameGo.GetComponent<RectTransform>();
-        SetupRectTransform(nameRt, new Vector2(0.05f, 0.72f), new Vector2(0.95f, 0.92f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-        TextMeshProUGUI skillNameText = skillNameGo.GetComponent<TextMeshProUGUI>();
-        skillNameText.text = "主動技能: 閃爍彈";
-        skillNameText.fontSize = 16f;
-        skillNameText.alignment = TextAlignmentOptions.Center;
-        skillNameText.color = Color.yellow;
-        skillNameText.fontStyle = FontStyles.Bold;
+            // 9.3 Dialog_Bubble (Image: Semi-transparent Black, bottom portion 4% to 44% using percentage anchors)
+            GameObject bubbleGo = new GameObject("Dialog_Bubble", typeof(RectTransform), typeof(Image));
+            bubbleGo.transform.SetParent(cardGo.transform, false);
+            RectTransform bubbleRt = bubbleGo.GetComponent<RectTransform>();
+            SetupRectTransform(bubbleRt, new Vector2(0.04f, 0.04f), new Vector2(0.96f, 0.44f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            Image bubbleImg = bubbleGo.GetComponent<Image>();
+            bubbleImg.sprite = uiSprite;
+            bubbleImg.type = Image.Type.Sliced;
+            bubbleImg.color = new Color(0.08f, 0.08f, 0.08f, 0.88f); // Dialog Box
 
-        // 9.3.2 Skill_Desc_Text (Inside Bubble, percentage anchors)
-        GameObject skillDescGo = new GameObject("Skill_Desc_Text", typeof(RectTransform), typeof(TextMeshProUGUI));
-        skillDescGo.transform.SetParent(bubbleGo.transform, false);
-        RectTransform descRt = skillDescGo.GetComponent<RectTransform>();
-        SetupRectTransform(descRt, new Vector2(0.05f, 0.08f), new Vector2(0.95f, 0.68f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-        TextMeshProUGUI skillDescText = skillDescGo.GetComponent<TextMeshProUGUI>();
-        skillDescText.text = "朝鼠標位置發射一枚會爆炸並致盲周圍敵人的閃光彈，冷卻時間 8 秒。";
-        skillDescText.fontSize = 12f;
-        skillDescText.alignment = TextAlignmentOptions.Left;
-        skillDescText.color = Color.white;
+            // 9.3.1 Skill_Name_Text (Inside Bubble, percentage anchors)
+            GameObject skillNameGo = new GameObject("Skill_Name_Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+            skillNameGo.transform.SetParent(bubbleGo.transform, false);
+            RectTransform nameRt = skillNameGo.GetComponent<RectTransform>();
+            SetupRectTransform(nameRt, new Vector2(0.05f, 0.72f), new Vector2(0.95f, 0.92f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            TextMeshProUGUI skillNameText = skillNameGo.GetComponent<TextMeshProUGUI>();
+            skillNameText.text = "主動技能: 閃爍彈";
+            skillNameText.fontSize = 16f;
+            skillNameText.alignment = TextAlignmentOptions.Center;
+            skillNameText.color = Color.yellow;
+            skillNameText.fontStyle = FontStyles.Bold;
+
+            // 9.3.2 Skill_Desc_Text (Inside Bubble, percentage anchors)
+            GameObject skillDescGo = new GameObject("Skill_Desc_Text", typeof(RectTransform), typeof(TextMeshProUGUI));
+            skillDescGo.transform.SetParent(bubbleGo.transform, false);
+            RectTransform descRt = skillDescGo.GetComponent<RectTransform>();
+            SetupRectTransform(descRt, new Vector2(0.05f, 0.08f), new Vector2(0.95f, 0.68f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            TextMeshProUGUI skillDescText = skillDescGo.GetComponent<TextMeshProUGUI>();
+            skillDescText.text = "朝鼠標位置發射一枚會爆炸並致盲周圍敵人的閃光彈，冷卻時間 8 秒。";
+            skillDescText.fontSize = 12f;
+            skillDescText.alignment = TextAlignmentOptions.Left;
+            skillDescText.color = Color.white;
+
+            // Save card as Prefab
+            System.IO.Directory.CreateDirectory(prefabFolderPath);
+            cardPrefab = PrefabUtility.SaveAsPrefabAsset(cardGo, cardPrefabPath);
+        }
 
         // 10. Button_Group (HorizontalLayoutGroup - Parented to Phone_Frame to sit OUTSIDE Screen_Mask_Area!)
         GameObject btnGroupGo = new GameObject("Button_Group", typeof(RectTransform), typeof(HorizontalLayoutGroup));
@@ -229,11 +248,6 @@ public static class TinderUISetup
         likeLabel.color = Color.white;
         likeLabel.fontStyle = FontStyles.Bold;
 
-        // 11. Save card as Prefab
-        string prefabFolderPath = "Assets/01_Project/Prefabs";
-        System.IO.Directory.CreateDirectory(prefabFolderPath);
-        string cardPrefabPath = $"{prefabFolderPath}/UI_TinderCard.prefab";
-        GameObject cardPrefab = PrefabUtility.SaveAsPrefabAsset(cardGo, cardPrefabPath);
 
         // 12. Wire TinderSwipeManager References
         SerializedObject so = new SerializedObject(swipeManager);

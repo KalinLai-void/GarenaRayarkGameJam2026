@@ -46,6 +46,21 @@ namespace Gameplay
 
         private void Start()
         {
+            // 清除編輯器留下的預覽/佔位卡片，避免干擾執行期的卡片堆疊與射線阻擋
+            if (cardContainer != null)
+            {
+                var placeholders = new List<GameObject>();
+                foreach (Transform child in cardContainer)
+                {
+                    placeholders.Add(child.gameObject);
+                }
+                foreach (var placeholder in placeholders)
+                {
+                    placeholder.transform.SetParent(null);
+                    Destroy(placeholder);
+                }
+            }
+
             currentTimer = maxTime;
             isTimerRunning = true;
             
