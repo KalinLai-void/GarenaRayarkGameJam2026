@@ -15,8 +15,6 @@ public static class TempUISetup
 
         // Create MiniIcon Prefab first
         string prefabPath = "Assets/01_Project/Prefabs/MiniIcon.prefab";
-        
-        // Ensure folder exists
         System.IO.Directory.CreateDirectory("Assets/01_Project/Prefabs");
         
         GameObject iconGo = new GameObject("MiniIcon", typeof(RectTransform), typeof(Image));
@@ -95,7 +93,7 @@ public static class TempUISetup
 
         playerStatusGo = new GameObject("PlayerStatus_HUD", typeof(RectTransform));
         playerStatusGo.transform.SetParent(canvasRoot.transform, false);
-        SetupRectTransform(playerStatusGo.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(20f, -20f), new Vector2(350f, 180f));
+        SetupRectTransform(playerStatusGo.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(20f, -20f), new Vector2(380f, 180f));
 
         // HP_Bar_Group
         GameObject hpBarGroup = new GameObject("HP_Bar_Group", typeof(RectTransform));
@@ -151,26 +149,67 @@ public static class TempUISetup
         // Skill_Hotbar_Group
         GameObject skillHotbarGo = new GameObject("Skill_Hotbar_Group", typeof(RectTransform));
         skillHotbarGo.transform.SetParent(playerStatusGo.transform, false);
-        SetupRectTransform(skillHotbarGo.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, -40f), new Vector2(320f, 70f));
+        SetupRectTransform(skillHotbarGo.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, -40f), new Vector2(350f, 85f));
         HorizontalLayoutGroup skillLayout = skillHotbarGo.AddComponent<HorizontalLayoutGroup>();
         skillLayout.spacing = 10f;
         skillLayout.childControlWidth = false;
         skillLayout.childControlHeight = false;
         skillLayout.childForceExpandWidth = false;
         skillLayout.childForceExpandHeight = false;
+        skillLayout.childAlignment = TextAnchor.MiddleLeft; // Align vertically
 
         TextMeshProUGUI[] skillTexts = new TextMeshProUGUI[4];
+        Image activeCooldownMask = null;
+        TextMeshProUGUI activeCooldownText = null;
 
         for (int i = 0; i < 4; i++)
         {
             GameObject slotGo = new GameObject($"Slot_Skill_{i + 1}", typeof(RectTransform));
             slotGo.transform.SetParent(skillHotbarGo.transform, false);
             RectTransform slotRt = slotGo.GetComponent<RectTransform>();
-            slotRt.sizeDelta = new Vector2(65f, 65f);
             Image slotImg = slotGo.AddComponent<Image>();
             slotImg.sprite = uiSprite;
             slotImg.type = Image.Type.Sliced;
-            slotImg.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
+
+            if (i == 0)
+            {
+                // Slot 1: Active Skill (Different size and color)
+                slotRt.sizeDelta = new Vector2(80f, 80f);
+                slotImg.color = new Color(0.45f, 0.15f, 0.2f, 0.95f); // Distinct Dark Red-Purple
+
+                // CooldownMask
+                GameObject maskGo = new GameObject("CooldownMask", typeof(RectTransform));
+                maskGo.transform.SetParent(slotGo.transform, false);
+                SetupRectTransform(maskGo.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+                Image maskImg = maskGo.AddComponent<Image>();
+                maskImg.sprite = uiSprite;
+                maskImg.color = new Color(0f, 0f, 0f, 0.58f); // Half-transparent black
+                maskImg.type = Image.Type.Filled;
+                maskImg.fillMethod = Image.FillMethod.Radial360;
+                maskImg.fillOrigin = (int)Image.Origin360.Top;
+                maskImg.fillAmount = 0f;
+                maskGo.SetActive(false);
+                activeCooldownMask = maskImg;
+
+                // CooldownText
+                GameObject cdTextGo = new GameObject("CooldownText", typeof(RectTransform));
+                cdTextGo.transform.SetParent(slotGo.transform, false);
+                SetupRectTransform(cdTextGo.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+                TextMeshProUGUI cdText = cdTextGo.AddComponent<TextMeshProUGUI>();
+                cdText.text = "5";
+                cdText.fontSize = 26f;
+                cdText.alignment = TextAlignmentOptions.Center;
+                cdText.color = Color.white;
+                cdText.fontStyle = FontStyles.Bold;
+                cdTextGo.SetActive(false);
+                activeCooldownText = cdText;
+            }
+            else
+            {
+                // Slots 2, 3, 4: Passive Skills (Normal style)
+                slotRt.sizeDelta = new Vector2(65f, 65f);
+                slotImg.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
+            }
 
             // LV_Badge
             GameObject badgeGo = new GameObject("LV_Badge", typeof(RectTransform));
@@ -196,70 +235,13 @@ public static class TempUISetup
         }
 
         // ───────────────────────────────────────────
-        // 2. ActiveSkill_HUD (Bottom-Left)
+        // 2. ActiveSkill_HUD (Bottom-Left) -> REMOVED
         // ───────────────────────────────────────────
         GameObject activeStatusGo = GameObject.Find("ActiveSkill_HUD");
         if (activeStatusGo != null) Object.DestroyImmediate(activeStatusGo);
 
-        activeStatusGo = new GameObject("ActiveSkill_HUD", typeof(RectTransform));
-        activeStatusGo.transform.SetParent(canvasRoot.transform, false);
-        SetupRectTransform(activeStatusGo.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(20f, 20f), new Vector2(200f, 85f));
-
-        // Skill_Slot_Group
-        GameObject skillSlotGroup = new GameObject("Skill_Slot_Group", typeof(RectTransform));
-        skillSlotGroup.transform.SetParent(activeStatusGo.transform, false);
-        SetupRectTransform(skillSlotGroup.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-        HorizontalLayoutGroup slotLayout = skillSlotGroup.AddComponent<HorizontalLayoutGroup>();
-        slotLayout.spacing = 15f;
-        slotLayout.childControlWidth = false;
-        slotLayout.childControlHeight = false;
-        slotLayout.childForceExpandWidth = false;
-        slotLayout.childForceExpandHeight = false;
-
-        Image[] cdMasks = new Image[2];
-        TextMeshProUGUI[] cdTexts = new TextMeshProUGUI[2];
-
-        for (int i = 0; i < 2; i++)
-        {
-            GameObject slotGo = new GameObject($"Slot_Active_{i + 1}", typeof(RectTransform));
-            slotGo.transform.SetParent(skillSlotGroup.transform, false);
-            RectTransform slotRt = slotGo.GetComponent<RectTransform>();
-            slotRt.sizeDelta = new Vector2(75f, 75f);
-            Image slotImg = slotGo.AddComponent<Image>();
-            slotImg.sprite = uiSprite;
-            slotImg.type = Image.Type.Sliced;
-            slotImg.color = new Color(0.15f, 0.15f, 0.15f, 1f);
-
-            // CooldownMask
-            GameObject maskGo = new GameObject("CooldownMask", typeof(RectTransform));
-            maskGo.transform.SetParent(slotGo.transform, false);
-            SetupRectTransform(maskGo.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            Image maskImg = maskGo.AddComponent<Image>();
-            maskImg.sprite = uiSprite;
-            maskImg.color = new Color(0f, 0f, 0f, 0.58f);
-            maskImg.type = Image.Type.Filled;
-            maskImg.fillMethod = Image.FillMethod.Radial360;
-            maskImg.fillOrigin = (int)Image.Origin360.Top;
-            maskImg.fillAmount = 0f;
-            maskGo.SetActive(false);
-            cdMasks[i] = maskImg;
-
-            // CooldownText
-            GameObject cdTextGo = new GameObject("CooldownText", typeof(RectTransform));
-            cdTextGo.transform.SetParent(slotGo.transform, false);
-            SetupRectTransform(cdTextGo.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            TextMeshProUGUI cdText = cdTextGo.AddComponent<TextMeshProUGUI>();
-            cdText.text = "5";
-            cdText.fontSize = 24f;
-            cdText.alignment = TextAlignmentOptions.Center;
-            cdText.color = Color.white;
-            cdText.fontStyle = FontStyles.Bold;
-            cdTextGo.SetActive(false);
-            cdTexts[i] = cdText;
-        }
-
         // ───────────────────────────────────────────
-        // 3. Inventory_HUD (Top-Right)
+        // 3. Inventory_HUD (Top-Right - Stacking to the Left)
         // ───────────────────────────────────────────
         GameObject inventoryHUDGo = GameObject.Find("Inventory_HUD");
         if (inventoryHUDGo != null) Object.DestroyImmediate(inventoryHUDGo);
@@ -271,13 +253,14 @@ public static class TempUISetup
         // MiniIcon_Container
         GameObject miniContainerGo = new GameObject("MiniIcon_Container", typeof(RectTransform));
         miniContainerGo.transform.SetParent(inventoryHUDGo.transform, false);
-        SetupRectTransform(miniContainerGo.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        SetupRectTransform(miniContainerGo.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(1f, 0.5f), Vector2.zero, Vector2.zero);
         HorizontalLayoutGroup containerLayout = miniContainerGo.AddComponent<HorizontalLayoutGroup>();
         containerLayout.spacing = 8f;
         containerLayout.childControlWidth = false;
         containerLayout.childControlHeight = false;
         containerLayout.childForceExpandWidth = false;
         containerLayout.childForceExpandHeight = false;
+        containerLayout.childAlignment = TextAnchor.MiddleRight; // Dynamic items appear from right going leftwards
 
         // Spawn 2 placeholders: Map and Key
         GameObject mapGo = new GameObject("Slot_Item_Map", typeof(RectTransform));
@@ -309,15 +292,8 @@ public static class TempUISetup
             skillTextsProp.GetArrayElementAtIndex(i).objectReferenceValue = skillTexts[i];
         }
 
-        SerializedProperty activeSkillsProp = so.FindProperty("activeSkills");
-        activeSkillsProp.ClearArray();
-        activeSkillsProp.arraySize = 2;
-        for (int i = 0; i < 2; i++)
-        {
-            SerializedProperty element = activeSkillsProp.GetArrayElementAtIndex(i);
-            element.FindPropertyRelative("cooldownMask").objectReferenceValue = cdMasks[i];
-            element.FindPropertyRelative("cooldownText").objectReferenceValue = cdTexts[i];
-        }
+        so.FindProperty("activeCooldownMask").objectReferenceValue = activeCooldownMask;
+        so.FindProperty("activeCooldownText").objectReferenceValue = activeCooldownText;
 
         so.FindProperty("inventoryIconContainer").objectReferenceValue = miniContainerGo.transform;
         so.FindProperty("miniIconPrefab").objectReferenceValue = miniIconPrefabAsset;

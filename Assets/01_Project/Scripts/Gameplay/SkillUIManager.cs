@@ -7,27 +7,24 @@ using TMPro;
 namespace Gameplay
 {
     /// <summary>
-    /// UI 總管腳本，管理左上生命值與能力階級、左下主動戰術技能冷卻、右上持有道具欄。
+    /// UI 總管腳本，管理左上生命值與能力階級（第一格為主動技能，其餘為被動能力）、右上持有道具欄（從右上往左排）。
     /// </summary>
     public sealed class SkillUIManager : MonoBehaviour
     {
-        [Header("--- 左上角：角色狀態與技能階級 (Player Status HUD) ---")]
+        [Header("--- 左上角：角色狀態與生命值 (Player Status HUD) ---")]
         [SerializeField] private Slider hpSlider;
         [SerializeField] private TextMeshProUGUI hpText;
-        [SerializeField] private TextMeshProUGUI[] skillLevelTexts = new TextMeshProUGUI[4];
 
-        [System.Serializable]
-        public struct ActiveSkillUI
-        {
-            public Image cooldownMask;
-            public TextMeshProUGUI cooldownText;
-            [HideInInspector] public float cooldownDuration;
-            [HideInInspector] public float timer;
-            [HideInInspector] public bool isOnCooldown;
-        }
+        [Header("--- 左上角：技能與能力格子 (第一格為主動技能，2~4為被動) ---")]
+        [SerializeField] private TextMeshProUGUI[] skillLevelTexts = new TextMeshProUGUI[4]; // 0:主動, 1~3:被動
 
-        [Header("--- 左下角：主動戰術技能 (Active Skills HUD) ---")]
-        [SerializeField] private ActiveSkillUI[] activeSkills = new ActiveSkillUI[2];
+        [Header("--- 主動技能冷卻 (對應第一格) ---")]
+        [SerializeField] private Image activeCooldownMask;
+        [SerializeField] private TextMeshProUGUI activeCooldownText;
+        
+        private float activeCooldownDuration;
+        private float activeCooldownTimer;
+        private bool isActiveOnCooldown;
 
         [Header("--- 右上角：持有道具欄 (Inventory Quick-View) ---")]
         [SerializeField] private Transform inventoryIconContainer; // 掛有 Horizontal Layout Group 的容器
@@ -36,55 +33,49 @@ namespace Gameplay
         private void Start()
         {
             // 初始化：隱藏冷卻遮罩與文字
-            for (int i = 0; i < activeSkills.Length; i++)
+            if (activeCooldownMask != null)
             {
-                if (activeSkills[i].cooldownMask != null)
-                {
-                    activeSkills[i].cooldownMask.gameObject.SetActive(false);
-                }
-                if (activeSkills[i].cooldownText != null)
-                {
-                    activeSkills[i].cooldownText.gameObject.SetActive(false);
-                }
+                activeCooldownMask.gameObject.SetActive(false);
+            }
+            if (activeCooldownText != null)
+            {
+                activeCooldownText.gameObject.SetActive(false);
             }
         }
 
         private void Update()
         {
-            // 處理技能冷卻倒數與 FillAmount 更新
-            for (int i = 0; i < activeSkills.Length; i++)
+            // 處理主動技能冷卻倒數與 FillAmount 更新
+            if (isActiveOnCooldown)
             {
-                if (activeSkills[i].isOnCooldown)
+                activeCooldownTimer -= Time.deltaTime;
+                
+                if (activeCooldownTimer <= 0f)
                 {
-                    activeSkills[i].timer -= Time.deltaTime;
+                    // 冷卻結束
+                    isActiveOnCooldown = false;
+                    activeCooldownTimer = 0f;
                     
-                    if (activeSkills[i].timer <= 0f)
+                    if (activeCooldownMask != null)
                     {
-                        // 冷卻結束
-                        activeSkills[i].isOnCooldown = false;
-                        activeSkills[i].timer = 0f;
-                        
-                        if (activeSkills[i].cooldownMask != null)
-                        {
-                            activeSkills[i].cooldownMask.fillAmount = 0f;
-                            activeSkills[i].cooldownMask.gameObject.SetActive(false);
-                        }
-                        if (activeSkills[i].cooldownText != null)
-                        {
-                            activeSkills[i].cooldownText.gameObject.SetActive(false);
-                        }
+                        activeCooldownMask.fillAmount = 0f;
+                        activeCooldownMask.gameObject.SetActive(false);
                     }
-                    else
+                    if (activeCooldownText != null)
                     {
-                        // 更新冷卻遮罩與文字
-                        if (activeSkills[i].cooldownMask != null)
-                        {
-                            activeSkills[i].cooldownMask.fillAmount = activeSkills[i].timer / activeSkills[i].cooldownDuration;
-                        }
-                        if (activeSkills[i].cooldownText != null)
-                        {
-                            activeSkills[i].cooldownText.text = Mathf.CeilToInt(activeSkills[i].timer).ToString();
-                        }
+                        activeCooldownText.gameObject.SetActive(false);
+                    }
+                }
+                else
+                {
+                    // 更新冷卻遮罩與文字
+                    if (activeCooldownMask != null)
+                    {
+                        activeCooldownMask.fillAmount = activeCooldownTimer / activeCooldownDuration;
+                    }
+                    if (activeCooldownText != null)
+                    {
+                        activeCooldownText.text = Mathf.CeilToInt(activeCooldownTimer).ToString();
                     }
                 }
             }
@@ -109,7 +100,7 @@ namespace Gameplay
         }
 
         /// <summary>
-        /// 升級對應 Index 的能力文字 (例如 0: 攻擊力, 1: 防禦力, 2: 多子彈, 3: 攻速)
+        /// 升級對應 Index 的能力文字 (0:主動技能, 1~3:被動技能)
         /// </summary>
         public void UpgradeSkillLevel(int index, int nextLevel)
         {
@@ -123,26 +114,23 @@ namespace Gameplay
         }
 
         /// <summary>
-        /// 觸發指定欄位的主動技能冷卻
+        /// 觸發主動技能冷卻 (不論傳入何 slotIndex，均對應左上第一格)
         /// </summary>
         public void TriggerSkillCooldown(int slotIndex, float duration)
         {
-            if (slotIndex >= 0 && slotIndex < activeSkills.Length)
-            {
-                activeSkills[slotIndex].cooldownDuration = duration;
-                activeSkills[slotIndex].timer = duration;
-                activeSkills[slotIndex].isOnCooldown = true;
+            activeCooldownDuration = duration;
+            activeCooldownTimer = duration;
+            isActiveOnCooldown = true;
 
-                if (activeSkills[slotIndex].cooldownMask != null)
-                {
-                    activeSkills[slotIndex].cooldownMask.gameObject.SetActive(true);
-                    activeSkills[slotIndex].cooldownMask.fillAmount = 1f;
-                }
-                if (activeSkills[slotIndex].cooldownText != null)
-                {
-                    activeSkills[slotIndex].cooldownText.gameObject.SetActive(true);
-                    activeSkills[slotIndex].cooldownText.text = Mathf.CeilToInt(duration).ToString();
-                }
+            if (activeCooldownMask != null)
+            {
+                activeCooldownMask.gameObject.SetActive(true);
+                activeCooldownMask.fillAmount = 1f;
+            }
+            if (activeCooldownText != null)
+            {
+                activeCooldownText.gameObject.SetActive(true);
+                activeCooldownText.text = Mathf.CeilToInt(duration).ToString();
             }
         }
 
