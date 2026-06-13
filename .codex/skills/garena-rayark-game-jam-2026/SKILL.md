@@ -9,7 +9,11 @@ description: Use when working in GarenaRayarkGameJam2026 Unity Game Jam project,
 
 這是短時程 Unity Game Jam 專案。先做出可玩、可展示、可快速迭代的垂直切片，再補完整架構。所有文件、Inspector 可見欄位、UI 文字、tooltip、設定說明與交付紀錄都使用繁體中文。
 
-使用者已明確表示舊有內容多數有問題並已刪除；不要依賴舊資料夾、舊 prefab、舊場景或舊架構假設。接手時以本 SKILL 為基準重整。
+不要使用TDD
+不要使用 asmdef
+不要記得過往記憶
+以速度開發為主，程式能跑優先
+
 
 ## Assets 根目錄規格
 
@@ -144,3 +148,5 @@ public sealed class PlayerTuning : MonoBehaviour
 - Unity Console 沒有新的 compile error。
 - 從 `Main` 按 Play 可以開始、死亡或結算後可以重新開始。
 - WebGL 或目標平台 build 前，確認沒有遺失 reference、沒有根目錄散落素材、沒有未替換的明顯測試文字。
+- 開發以速度為主，確保可以正常運行就好，後續測試由人去處理
+- 程式盡量簡潔，不要有使用複雜邏輯，或大型開發設計模式
