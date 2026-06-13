@@ -32,21 +32,25 @@ namespace Gameplay
         [Tooltip("畫面中同時堆疊顯示的卡片數量")]
         [SerializeField] private int stackSize = 3;
 
-        [Tooltip("單次升級最大可滑動卡片次數限制（左滑達到此數量後會自動關閉手機）")]
-        [SerializeField] private int maxSwipes = 3;
+        [Tooltip("單次升級最大可同意次數（右滑達到此數量後會自動關閉手機）")]
+        [SerializeField] private int maxLikes = 1;
+
+        [Tooltip("單次升級最大可取消次數（左滑達到此數量後會自動關閉手機）")]
+        [SerializeField] private int maxNopes = 3;
         
         private float currentTimer;
         private bool isTimerRunning = false;
         private readonly List<GameObject> activeCards = new List<GameObject>();
         private bool isClosing = false;
-        private int currentSwipes = 0;
+        private int currentLikes = 0;
+        private int currentNopes = 0;
         private Coroutine nopeScaleCoroutine;
         private Coroutine likeScaleCoroutine;
 
         private RectTransform rectTransform;
         private Transform playerTransform;
         private Vector3 originalScale = Vector3.one;
-        private Vector2 originalPosition; // 儲存編輯器設定的原始位置
+        private Vector3 originalLocalPosition; // 儲存編輯器設定的原始本地位置
 
         // 供展示測試用的技能卡片數據
         private readonly string[] skillNames = { "閃爍彈", "雷霆一擊", "治癒術", "烈焰風暴", "時間靜止" };
@@ -68,7 +72,7 @@ namespace Gameplay
             // 🌟 強制將手機 HUD 的 Pivot 設為 (0.5, 0.5) 正中心，確保放大/縮小與彈出軌跡完美以中心進行！
             rectTransform.pivot = new Vector2(0.5f, 0.5f);
             originalScale = transform.localScale; // 記住您在編輯器中設定的原始縮放比例！
-            originalPosition = rectTransform.anchoredPosition; // 記住您在編輯器中設定的原始位置！
+            originalLocalPosition = rectTransform.localPosition; // 記住您在編輯器中設定的原始本地位置！
         }
 
         private void FindPlayer()
@@ -102,7 +106,8 @@ namespace Gameplay
             isClosing = false;
             currentTimer = maxTime;
             isTimerRunning = false; // 彈出動畫進行中先不計時，彈完才計時
-            currentSwipes = 0; // 重置已滑動卡牌次數
+            currentLikes = 0;
+            currentNopes = 0;
 
             // 清除上次或編輯器留下的卡片，避免干擾執行期的卡片堆疊與射線阻擋
             if (cardContainer != null)
@@ -182,7 +187,7 @@ namespace Gameplay
             isClosing = true; // 動畫執行期間禁止使用者進行卡牌互動
 
             // 取得玩家最新的螢幕位置作為彈出起點
-            Vector2 startPos = Vector2.zero;
+            Vector2 startLocalPos = Vector2.zero;
             FindPlayer();
             if (playerTransform != null && Camera.main != null)
             {
@@ -190,17 +195,20 @@ namespace Gameplay
                 Canvas parentCanvas = GetComponentInParent<Canvas>();
                 if (parentCanvas != null)
                 {
-                    RectTransform canvasRect = parentCanvas.GetComponent<RectTransform>();
-                    RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPoint, parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : Camera.main, out startPos);
+                    RectTransform parentRect = rectTransform.parent as RectTransform;
+                    if (parentRect != null)
+                    {
+                        RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRect, screenPoint, parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : Camera.main, out startLocalPos);
+                    }
                 }
             }
 
-            rectTransform.anchoredPosition = startPos;
+            rectTransform.localPosition = new Vector3(startLocalPos.x, startLocalPos.y, rectTransform.localPosition.z);
             rectTransform.localScale = Vector3.zero;
 
             float t = 0f;
             float duration = 0.5f; // 0.5 秒彈出動畫
-            Vector2 endPos = originalPosition; // 使用設定的原始位置！
+            Vector3 endLocalPos = originalLocalPosition; // 使用設定的原始本地位置！
 
             while (t < 1f)
             {
@@ -209,13 +217,13 @@ namespace Gameplay
                 float eased = EaseOutBack(progress);
 
                 rectTransform.localScale = originalScale * eased; // 🌟 乘以您設定的原始 Scale！
-                rectTransform.anchoredPosition = Vector2.Lerp(startPos, endPos, progress);
+                rectTransform.localPosition = Vector3.Lerp(new Vector3(startLocalPos.x, startLocalPos.y, rectTransform.localPosition.z), endLocalPos, progress);
 
                 yield return null;
             }
 
             rectTransform.localScale = originalScale; // 🌟 還原為原始 Scale！
-            rectTransform.anchoredPosition = originalPosition; // 🌟 還原為原始位置！
+            rectTransform.localPosition = originalLocalPosition; // 🌟 還原為原始本地位置！
 
             isClosing = false;
             isTimerRunning = true; // 動畫完成後正式開始計時
@@ -289,7 +297,7 @@ namespace Gameplay
 
         private System.Collections.IEnumerator PlayScaleDownToPlayerRoutine()
         {
-            Vector2 targetPos = Vector2.zero;
+            Vector2 targetLocalPos = Vector2.zero;
             FindPlayer();
             if (playerTransform != null && Camera.main != null)
             {
@@ -297,14 +305,17 @@ namespace Gameplay
                 Canvas parentCanvas = GetComponentInParent<Canvas>();
                 if (parentCanvas != null)
                 {
-                    RectTransform canvasRect = parentCanvas.GetComponent<RectTransform>();
-                    RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPoint, parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : Camera.main, out targetPos);
+                    RectTransform parentRect = rectTransform.parent as RectTransform;
+                    if (parentRect != null)
+                    {
+                        RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRect, screenPoint, parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : Camera.main, out targetLocalPos);
+                    }
                 }
             }
 
             float t = 0f;
             float duration = 0.4f; // 0.4 秒關閉動畫
-            Vector2 startPos = rectTransform.anchoredPosition;
+            Vector3 startLocalPos = rectTransform.localPosition;
 
             while (t < 1f)
             {
@@ -313,13 +324,13 @@ namespace Gameplay
                 float eased = EaseInBack(progress);
 
                 rectTransform.localScale = originalScale * (1f - eased); // 🌟 乘以您設定的原始 Scale！
-                rectTransform.anchoredPosition = Vector2.Lerp(startPos, targetPos, progress);
+                rectTransform.localPosition = Vector3.Lerp(startLocalPos, new Vector3(targetLocalPos.x, targetLocalPos.y, rectTransform.localPosition.z), progress);
 
                 yield return null;
             }
 
             rectTransform.localScale = Vector3.zero;
-            rectTransform.anchoredPosition = targetPos;
+            rectTransform.localPosition = new Vector3(targetLocalPos.x, targetLocalPos.y, rectTransform.localPosition.z);
         }
 
         private void OnButtonClick(bool isLike)
@@ -362,21 +373,30 @@ namespace Gameplay
                 activeCards.Remove(swipedCard);
                 Debug.Log($"【Tinder UI】卡片被滑動：{(isLike ? "右滑 (Like)" : "左滑 (Nope)")} - {swipedCard.name}");
 
-                currentSwipes++;
-
                 if (isLike)
                 {
-                    // 🌟 玩家選擇了這個技能！執行選中邏輯並關閉 UI
-                    StartCoroutine(SelectAndCloseRoutine(swipedCard));
-                }
-                else if (currentSwipes >= maxSwipes)
-                {
-                    // 🌟 左滑次數已達上限，自動高速飛出剩餘卡片並關閉 UI
-                    StartCoroutine(CloseRoutine());
+                    currentLikes++;
                 }
                 else
                 {
-                    // 總計倒數模式：左滑且次數未滿，繼續補牌
+                    currentNopes++;
+                }
+
+                if (currentLikes >= maxLikes || currentNopes >= maxNopes)
+                {
+                    // 🌟 同意或取消次數已達上限，自動關閉手機 UI
+                    if (isLike)
+                    {
+                        StartCoroutine(SelectAndCloseRoutine(swipedCard));
+                    }
+                    else
+                    {
+                        StartCoroutine(CloseRoutine());
+                    }
+                }
+                else
+                {
+                    // 未達上限，繼續補牌
                     SpawnCardToStack();
                     UpdateTopCardDragState();
                 }
@@ -402,8 +422,8 @@ namespace Gameplay
             newCard.name = $"Card_{skillNames[skillDataIndex]}";
             
             // 尋找卡片內的文字組件並指派內容
-            TextMeshProUGUI nameText = newCard.transform.Find("Card_Background/Dialog_Bubble/Skill_Name_Text")?.GetComponent<TextMeshProUGUI>();
-            TextMeshProUGUI descText = newCard.transform.Find("Card_Background/Dialog_Bubble/Skill_Desc_Text")?.GetComponent<TextMeshProUGUI>();
+            TextMeshProUGUI nameText = newCard.transform.Find("Dialog_Bubble/Skill_Name_Text")?.GetComponent<TextMeshProUGUI>();
+            TextMeshProUGUI descText = newCard.transform.Find("Dialog_Bubble/Skill_Desc_Text")?.GetComponent<TextMeshProUGUI>();
             
             if (nameText != null) nameText.text = skillNames[skillDataIndex];
             if (descText != null) descText.text = skillDescs[skillDataIndex];

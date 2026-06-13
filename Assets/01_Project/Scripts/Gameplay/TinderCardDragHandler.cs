@@ -39,15 +39,17 @@ namespace Gameplay
         private void Awake()
         {
             rectTransform = GetComponent<RectTransform>();
-            // 🌟 強制將卡片的 Pivot 設為 (0.5, 0.5) 正中心，確保拖曳旋轉時以正中心為旋轉點，軌跡不偏移！
-            rectTransform.pivot = new Vector2(1f, 0.5f);
             canvas = GetComponentInParent<Canvas>();
             swipeManager = Object.FindFirstObjectByType<TinderSwipeManager>();
+
+            // 🌟 強制將卡片的 Pivot 設為 (0.5, 0.5) 正中心，確保拖曳旋轉時以正中心為旋轉點，軌跡不偏移！
+            // 同時計算並補償 Pivot 改變所造成的位移，保留 Prefab 的原始設計位置！
+            Vector2 size = rectTransform.rect.size;
+            Vector2 deltaPivot = new Vector2(0.5f, 0.5f) - rectTransform.pivot;
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            rectTransform.anchoredPosition += new Vector2(deltaPivot.x * size.x, deltaPivot.y * size.y);
             
-            // 強制將生成的卡片定位在容器正中心，防止 Prefab 本身帶有的位移影響生成與定位
-            rectTransform.anchoredPosition = Vector2.zero;
-            startPosition = Vector2.zero;
-            
+            startPosition = rectTransform.anchoredPosition;
             currentFlySpeed = flyOutSpeed;
         }
 
