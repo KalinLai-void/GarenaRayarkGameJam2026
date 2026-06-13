@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ba038fbaf5b76847abc5fda0360462a, type: 3}
+  m_Name: R_ButtonMushroom
+  m_EditorClassIdentifier: Assembly-CSharp::Gameplay.SkillData
+  skillID: R_ButtonMushroom
+  skillName: "\u6D0B\u83C7"
+  rarity: 0
+  skillTitle: "\u51B0\u51CD\u5C04\u64CA"
+  description: "\u5B50\u5F48\u6253\u4E2D\u7684\u6575\u4EBA\u79FB\u52D5\u901F\u5EA6\u4E0B\u964D5%"
+  flavorText: "\u300C\u4FEE\u4F46\u5E7E\u7D2F!\u300D"
+  avatarSprite: {fileID: -6658423937520437624, guid: e307b5dabbc6b00479d1ba31f1653502, type: 3}
+  rarityBackground: {fileID: 21300000, guid: 141600b92b3b8af49bb86dd11f4b9ccd, type: 3}
+  rarityTag: {fileID: 21300000, guid: 6e85559c94d1416459ed2ef3347c0544, type: 3}
+  hudIcon: {fileID: -6658423937520437624, guid: e307b5dabbc6b00479d1ba31f1653502, type: 3}
+  cooldown: 0
+  maxLevel: 5

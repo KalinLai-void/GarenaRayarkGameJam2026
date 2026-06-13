@@ -62,16 +62,30 @@ namespace Gameplay
         private Vector3 originalScale = Vector3.one;
         private Vector3 originalLocalPosition; // 儲存編輯器設定的原始本地位置
 
-        // 供展示測試用的技能卡片數據
-        private readonly string[] skillNames = { "閃爍彈", "雷霆一擊", "治癒術", "烈焰風暴", "時間靜止" };
-        private readonly string[] skillDescs = {
-            "朝鼠標位置發射一枚會爆炸並致盲周圍敵人的閃光彈，冷卻時間 8 秒。",
-            "重擊地面釋放衝擊波，造成 20 點傷害並使周圍敵人暈眩 1.5 秒。",
-            "瞬間恢復自身 30 點生命值，並在接下來的 5 秒內每秒恢復 2 點生命值。",
-            "召喚引導火雨，對區域內的怪物每秒造成 15 點魔法傷害，持續 4 秒。",
-            "使周圍所有怪物和子彈的速度降低 90%，持續 3 秒，冷卻時間 25 秒。"
-        };
-        private int skillDataIndex = 0;
+        // 🌟 儲存編輯器中擺放的卡片範本排版，使動態生成的卡片尺寸、錨點與縮放完全契合
+        private Vector2 templateAnchorMin = new Vector2(0f, 0.5f);
+        private Vector2 templateAnchorMax = new Vector2(1f, 0.5f);
+        private Vector2 templatePivot = new Vector2(0.5f, 0.5f);
+        private Vector2 templateSizeDelta = new Vector2(-28.85f, 534.23f);
+        private Vector2 templateAnchoredPosition = new Vector2(6.57f, 312.0f);
+        private Vector3 templateLocalScale = Vector3.one;
+        private bool hasTemplate = false;
+
+        [Header("--- 技能池與隨機抽取設定 ---")]
+        [Tooltip("所有的技能 ScriptableObjects 列表")]
+        [SerializeField] private List<SkillData> allSkills = new List<SkillData>();
+
+        [Tooltip("R 級卡片抽中權重")]
+        [SerializeField] private float rWeight = 70f;
+
+        [Tooltip("SR 級卡片抽中權重")]
+        [SerializeField] private float srWeight = 25f;
+
+        [Tooltip("SSR 級卡片抽中權重")]
+        [SerializeField] private float ssrWeight = 5f;
+
+        // 用於儲存已被生成卡牌所關聯的 SkillData 參考
+        private readonly Dictionary<GameObject, SkillData> cardToSkillMap = new Dictionary<GameObject, SkillData>();
 
         private void Awake()
         {
@@ -79,10 +93,25 @@ namespace Gameplay
             {
                 rectTransform = GetComponent<RectTransform>();
             }
-            // 🌟 強制將手機 HUD 的 Pivot 設為 (0.5, 0.5) 正中心，確保放大/縮小與彈出軌跡完美以中心進行！
-            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            
+            // 🌟 動態更置 Pivot 並進行位移補償，確保執行期的視覺位置與 Scene 編輯器中完全一致！
+            SetPivotWithoutShifting(new Vector2(0.5f, 0.5f));
+            
             originalScale = transform.localScale; // 記住您在編輯器中設定的原始縮放比例！
             originalLocalPosition = rectTransform.localPosition; // 記住您在編輯器中設定的原始本地位置！
+        }
+
+        private void SetPivotWithoutShifting(Vector2 targetPivot)
+        {
+            if (rectTransform == null) return;
+            Vector2 deltaPivot = targetPivot - rectTransform.pivot;
+            Vector3 deltaPosition = new Vector3(
+                deltaPivot.x * rectTransform.rect.width * rectTransform.localScale.x,
+                deltaPivot.y * rectTransform.rect.height * rectTransform.localScale.y,
+                0f
+            );
+            rectTransform.pivot = targetPivot;
+            rectTransform.localPosition += rectTransform.localRotation * deltaPosition;
         }
 
         private void FindPlayer()
@@ -112,12 +141,32 @@ namespace Gameplay
                 rectTransform = GetComponent<RectTransform>();
             }
 
+            // 🌟 一啟用立刻將縮放設為 0，防止在開始彈出動畫前出現一影格的「原尺寸閃爍」！
+            rectTransform.localScale = Vector3.zero;
+
             // 初始化或重置狀態
             isClosing = false;
             currentTimer = maxTime;
             isTimerRunning = false; // 彈出動畫進行中先不計時，彈完才計時
             currentLikes = 0;
             currentNopes = 0;
+
+            // 🌟 讀取編輯器中的卡片範本設定，以便動態生成的卡片完全契合您在編輯器中排版的位置與大小！
+            hasTemplate = false;
+            if (cardContainer != null && cardContainer.childCount > 0)
+            {
+                RectTransform templateRt = cardContainer.GetChild(0).GetComponent<RectTransform>();
+                if (templateRt != null)
+                {
+                    templateAnchorMin = templateRt.anchorMin;
+                    templateAnchorMax = templateRt.anchorMax;
+                    templatePivot = templateRt.pivot;
+                    templateSizeDelta = templateRt.sizeDelta;
+                    templateAnchoredPosition = templateRt.anchoredPosition;
+                    templateLocalScale = templateRt.localScale;
+                    hasTemplate = true;
+                }
+            }
 
             // 清除上次或編輯器留下的卡片，避免干擾執行期的卡片堆疊與射線阻擋
             if (cardContainer != null)
@@ -134,6 +183,7 @@ namespace Gameplay
                 }
             }
             activeCards.Clear();
+            cardToSkillMap.Clear();
 
             // 為實體按鈕綁定點擊事件，讓點擊也能觸發滑動
             if (nopeButton != null)
@@ -383,14 +433,25 @@ namespace Gameplay
                 activeCards.Remove(swipedCard);
                 Debug.Log($"【Tinder UI】卡片被滑動：{(isLike ? "右滑 (Like)" : "左滑 (Nope)")} - {swipedCard.name}");
 
+                // 處理 Like 時的技能升級/解鎖
                 if (isLike)
                 {
                     currentLikes++;
+                    if (cardToSkillMap.TryGetValue(swipedCard, out SkillData skill))
+                    {
+                        if (PlayerSkillSystem.Instance != null)
+                        {
+                            PlayerSkillSystem.Instance.AcquireOrUpgradeSkill(skill);
+                        }
+                    }
                 }
                 else
                 {
                     currentNopes++;
                 }
+
+                // 清除映射
+                cardToSkillMap.Remove(swipedCard);
 
                 if (currentLikes >= maxLikes || currentNopes >= maxNopes)
                 {
@@ -426,25 +487,138 @@ namespace Gameplay
                 return;
             }
 
-            GameObject newCard = Instantiate(cardPrefab, cardContainer);
-            // 🌟 強制將新生成卡片的 localScale 設為 Prefab 的 localScale，以防被 Canvas/Instantiate 自動重設為 Vector3.one
-            newCard.transform.localScale = cardPrefab.transform.localScale;
-            newCard.name = $"Card_{skillNames[skillDataIndex]}";
+            // 1. 取得目前在畫面上的所有 SkillData，以確保不重複生成
+            List<SkillData> activeSkills = GetActiveSkills();
             
-            // 尋找卡片內的文字組件並指派內容
-            TextMeshProUGUI nameText = newCard.transform.Find("Dialog_Bubble/Skill_Name_Text")?.GetComponent<TextMeshProUGUI>();
-            TextMeshProUGUI descText = newCard.transform.Find("Dialog_Bubble/Skill_Desc_Text")?.GetComponent<TextMeshProUGUI>();
-            
-            if (nameText != null) nameText.text = skillNames[skillDataIndex];
-            if (descText != null) descText.text = skillDescs[skillDataIndex];
+            // 2. 根據加權權重選擇一個不重複的 SkillData
+            SkillData selectedSkill = SelectRandomSkill(activeSkills);
+            if (selectedSkill == null)
+            {
+                Debug.LogWarning("【Tinder UI】無更多可升級技能或沒有滿足稀有度條件的技能！");
+                return;
+            }
 
-            // 數據輪播
-            skillDataIndex = (skillDataIndex + 1) % skillNames.Length;
+            GameObject newCard = Instantiate(cardPrefab, cardContainer);
+            
+            // 🌟 讓新生成卡片完美套用模版排版，防止與編輯器內大小不一
+            RectTransform cardRt = newCard.GetComponent<RectTransform>();
+            if (cardRt != null && hasTemplate)
+            {
+                cardRt.anchorMin = templateAnchorMin;
+                cardRt.anchorMax = templateAnchorMax;
+                cardRt.pivot = templatePivot;
+                cardRt.sizeDelta = templateSizeDelta;
+                cardRt.anchoredPosition = templateAnchoredPosition;
+                newCard.transform.localScale = templateLocalScale;
+            }
+            else
+            {
+                newCard.transform.localScale = cardPrefab.transform.localScale;
+            }
+
+            // 🌟 重新設定卡片原點位置以防拖拽回彈位置偏移！
+            var dragHandler = newCard.GetComponent<TinderCardDragHandler>();
+            if (dragHandler != null)
+            {
+                dragHandler.ResetStartPosition();
+            }
+
+            newCard.name = $"Card_{selectedSkill.skillID}";
+            cardToSkillMap[newCard] = selectedSkill;
+
+            // 3. 套用 UI_TinderCard 資料連結
+            UI_TinderCard cardUI = newCard.GetComponent<UI_TinderCard>();
+            if (cardUI != null)
+            {
+                cardUI.Setup(selectedSkill);
+            }
 
             // 🌟 關鍵：將新卡片移到 Hierarchy 最上方 (Sibling Index 0)
             // 在 Layout 渲染順序中，排在最前面的會被畫在最底層，這樣後面進來的卡片就不會遮住最頂層正在滑動的卡片
             newCard.transform.SetAsFirstSibling();
             activeCards.Add(newCard);
+        }
+
+        private List<SkillData> GetActiveSkills()
+        {
+            List<SkillData> list = new List<SkillData>();
+            foreach (var card in activeCards)
+            {
+                if (card != null && cardToSkillMap.TryGetValue(card, out SkillData skill))
+                {
+                    list.Add(skill);
+                }
+            }
+            return list;
+        }
+
+        private SkillData SelectRandomSkill(List<SkillData> excluded)
+        {
+            if (allSkills == null || allSkills.Count == 0) return null;
+
+            List<SkillData> rPool = new List<SkillData>();
+            List<SkillData> srPool = new List<SkillData>();
+            List<SkillData> ssrPool = new List<SkillData>();
+
+            foreach (var skill in allSkills)
+            {
+                if (skill == null) continue;
+                if (excluded.Contains(skill)) continue;
+
+                // 檢查是否已達最高等級
+                if (PlayerSkillSystem.Instance != null && PlayerSkillSystem.Instance.IsSkillAtMaxLevel(skill))
+                {
+                    continue;
+                }
+
+                // 檢查 SSR 是否已被獲得過 (整局僅一次)
+                if (skill.rarity == Rarity.SSR && PlayerSkillSystem.Instance != null && PlayerSkillSystem.Instance.HasAcquiredSSR())
+                {
+                    continue;
+                }
+
+                switch (skill.rarity)
+                {
+                    case Rarity.R: rPool.Add(skill); break;
+                    case Rarity.SR: srPool.Add(skill); break;
+                    case Rarity.SSR: ssrPool.Add(skill); break;
+                }
+            }
+
+            float total = 0f;
+            if (rPool.Count > 0) total += rWeight;
+            if (srPool.Count > 0) total += srWeight;
+            if (ssrPool.Count > 0) total += ssrWeight;
+
+            if (total <= 0f) return null;
+
+            float r = Random.Range(0f, total);
+            float currentSum = 0f;
+
+            if (rPool.Count > 0)
+            {
+                currentSum += rWeight;
+                if (r < currentSum)
+                {
+                    return rPool[Random.Range(0, rPool.Count)];
+                }
+            }
+
+            if (srPool.Count > 0)
+            {
+                currentSum += srWeight;
+                if (r < currentSum)
+                {
+                    return srPool[Random.Range(0, srPool.Count)];
+                }
+            }
+
+            if (ssrPool.Count > 0)
+            {
+                return ssrPool[Random.Range(0, ssrPool.Count)];
+            }
+
+            return null;
         }
 
         private void UpdateTopCardDragState()

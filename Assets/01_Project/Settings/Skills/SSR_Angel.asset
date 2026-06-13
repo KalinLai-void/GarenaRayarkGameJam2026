@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ba038fbaf5b76847abc5fda0360462a, type: 3}
+  m_Name: SSR_Angel
+  m_EditorClassIdentifier: Assembly-CSharp::Gameplay.SkillData
+  skillID: SSR_Angel
+  skillName: "\u5929\u4F7F\u91D1\u5149\u83C7"
+  rarity: 2
+  skillTitle: "\u8611\u83C7\u6CBB\u7642\u5291"
+  description: "\u56DE\u884050%or\u5C07\u7B49\u7D1A\u6700\u4F4E\u7684\u6280\u80FD\u5F37\u884C\u6062\u5FA9\u81F3lv.2(\u7576\u524D\u7B49\u7D1A\u5747\u9AD8\u65BClv.2\u5247\u7121\u6548)"
+  flavorText: "\u300C\u5DF2\u8CFC\u8CB7\uFF0C\u662F\u500B\u4EBA\u90FD\u611B!\u300D"
+  avatarSprite: {fileID: -8882604789696179207, guid: 54e211fc8817a7b46aa46f3881327a71, type: 3}
+  rarityBackground: {fileID: 7272243660297046984, guid: a50f63fc708d31b44ab4fd6ec17811c5, type: 3}
+  rarityTag: {fileID: 4313237860023825539, guid: 1aab3285dae810042b03fc747e394f8d, type: 3}
+  hudIcon: {fileID: -8882604789696179207, guid: 54e211fc8817a7b46aa46f3881327a71, type: 3}
+  cooldown: 0
+  maxLevel: 5

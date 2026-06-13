@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ba038fbaf5b76847abc5fda0360462a, type: 3}
+  m_Name: R_KingOyster
+  m_EditorClassIdentifier: Assembly-CSharp::Gameplay.SkillData
+  skillID: R_KingOyster
+  skillName: "\u674F\u9B91\u83C7"
+  rarity: 0
+  skillTitle: "\u5DE8\u5927\u5B50\u5F48"
+  description: "\u5B50\u5F48\u78B0\u649E\u9762\u7A4D\u63D0\u534710%\uFF0C\u50B7\u5BB3\u63D0\u53475%"
+  flavorText: "\u300C\u83C7\u7684\u5F88\u5927\uFF0C\u4F60\u5FCD\u4E00\u4E0B\u300D"
+  avatarSprite: {fileID: -2032420724913930829, guid: e54e1d817d7da064aad8f4cdc5e2c046, type: 3}
+  rarityBackground: {fileID: 21300000, guid: 141600b92b3b8af49bb86dd11f4b9ccd, type: 3}
+  rarityTag: {fileID: 21300000, guid: 6e85559c94d1416459ed2ef3347c0544, type: 3}
+  hudIcon: {fileID: -2032420724913930829, guid: e54e1d817d7da064aad8f4cdc5e2c046, type: 3}
+  cooldown: 0
+  maxLevel: 5

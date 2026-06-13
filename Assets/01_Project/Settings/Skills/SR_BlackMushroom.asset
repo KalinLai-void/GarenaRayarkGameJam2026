@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ba038fbaf5b76847abc5fda0360462a, type: 3}
+  m_Name: SR_BlackMushroom
+  m_EditorClassIdentifier: Assembly-CSharp::Gameplay.SkillData
+  skillID: SR_BlackMushroom
+  skillName: "\u9ED1\u6728\u8033"
+  rarity: 1
+  skillTitle: "\u9ED1\u6697\u6E67\u52D5"
+  description: "\u4F7F\u7528\u6280\u80FD\u5F8C10\u79D2\u5167\u5B50\u5F48\u6253\u4E2D\u9670\u5F71\u5F8C\u5728\u539F\u5730\u7559\u4E0B\u4E00\u500B\u9ED1\u8272\u9ECF\u8457\u65B9\u584A\u7DE9\u901F\u7D93\u904E\u7684\u6575\u4EBA10%\uFF0C\u6301\u7E8C\u9020\u6210\u6BCF\u79D25%\u50B7\u5BB3\uFF0C\u5B58\u57282\u79D2"
+  flavorText: "\u300C\u88AB\u6253\u4E2D\u5C31\u5225\u8D77\u4F86\u4E86~\u300D"
+  avatarSprite: {fileID: -4471167106541859635, guid: 2f7027555e7840148882117925d710c7, type: 3}
+  rarityBackground: {fileID: 7231667575090401544, guid: ff0348b5dfa7d9145972d74ac067f98f, type: 3}
+  rarityTag: {fileID: 1845671642190416673, guid: 5e5a51da72db16d45b71cd8fa77a6c97, type: 3}
+  hudIcon: {fileID: -4471167106541859635, guid: 2f7027555e7840148882117925d710c7, type: 3}
+  cooldown: 15
+  maxLevel: 5

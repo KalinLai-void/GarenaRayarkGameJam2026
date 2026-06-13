@@ -11,27 +11,55 @@ namespace Gameplay
     {
         [Header("--- 縮放設定 ---")]
         [Tooltip("目標中間狀態的縮放比例")]
-        [SerializeField] private Vector3 targetScale = new Vector3(1.3f, 1.3f, 1.3f);
+        [SerializeField] private Vector3 targetScale = new Vector3(0.95f, 1.05f, 1f);
         
         [Tooltip("放大至目標值所需時間 (秒)")]
-        [SerializeField] private float durationUp = 0.2f;
+        [SerializeField] private float durationUp = 0.5f;
         
         [Tooltip("縮回原始大小所需時間 (秒)")]
-        [SerializeField] private float durationDown = 0.2f;
+        [SerializeField] private float durationDown = 0.5f;
 
         [Header("--- 自動觸發設定 ---")]
         [Tooltip("是否在物件啟用 (OnEnable) 時自動播放一次 (適合 UI 彈出或物件生成)")]
         [SerializeField] private bool playOnEnable = true;
 
         [Tooltip("是否循環播放 (脈動呼吸效果)")]
-        [SerializeField] private bool loop = false;
+        [SerializeField] private bool loop = true;
+
+        [Header("--- 隨機抖動設定 ---")]
+        [Tooltip("是否啟用隨機目標縮放")]
+        [SerializeField] private bool useRandomScale = false;
+
+        [Tooltip("X 與 Y 軸的隨機震幅範圍 (以原始縮放為基準進行加減，例如 0.05 代表 1 +- 0.05)")]
+        [SerializeField] private Vector2 randomRange = new Vector2(0.05f, 0.05f);
+
+        [Header("--- 子物件同步設定 ---")]
+        [Tooltip("是否同步影響所有子物件的縮放 (等比套用至子物件的 localScale)")]
+        [SerializeField] private bool affectChildren = false;
+
+        [Tooltip("是否套用縮放至自身物件")]
+        [SerializeField] private bool scaleParent = true;
 
         private Vector3 originalScale;
         private Coroutine scaleCoroutine;
+        private readonly System.Collections.Generic.Dictionary<Transform, Vector3> childOriginalScales = new System.Collections.Generic.Dictionary<Transform, Vector3>();
 
         private void Awake()
         {
             originalScale = transform.localScale;
+            CacheChildOriginalScales();
+        }
+
+        public void CacheChildOriginalScales()
+        {
+            childOriginalScales.Clear();
+            if (affectChildren)
+            {
+                foreach (Transform child in transform)
+                {
+                    childOriginalScales[child] = child.localScale;
+                }
+            }
         }
 
         private void OnEnable()
@@ -54,7 +82,7 @@ namespace Gameplay
                 StopCoroutine(scaleCoroutine);
                 scaleCoroutine = null;
             }
-            transform.localScale = originalScale;
+            ApplyScaleMultiplier(Vector3.one);
         }
 
         /// <summary>
@@ -72,31 +100,66 @@ namespace Gameplay
             scaleCoroutine = StartCoroutine(PunchScaleRoutine());
         }
 
+        private void ApplyScaleMultiplier(Vector3 multiplier)
+        {
+            if (scaleParent)
+            {
+                transform.localScale = new Vector3(
+                    originalScale.x * multiplier.x,
+                    originalScale.y * multiplier.y,
+                    originalScale.z * multiplier.z
+                );
+            }
+
+            if (affectChildren)
+            {
+                foreach (var kvp in childOriginalScales)
+                {
+                    if (kvp.Key != null)
+                    {
+                        kvp.Key.localScale = new Vector3(
+                            kvp.Value.x * multiplier.x,
+                            kvp.Value.y * multiplier.y,
+                            kvp.Value.z * multiplier.z
+                        );
+                    }
+                }
+            }
+        }
+
         private IEnumerator PunchScaleRoutine()
         {
-            // 1. 漸進放大至目標 Scale
+            Vector3 finalTargetMultiplier = targetScale;
+            if (useRandomScale)
+            {
+                float randX = Random.Range(-randomRange.x, randomRange.x);
+                float randY = Random.Range(-randomRange.y, randomRange.y);
+                finalTargetMultiplier = new Vector3(1f + randX, 1f + randY, 1f);
+            }
+
+            // 1. 漸進放大至目標 Multiplier
             float elapsed = 0f;
-            Vector3 startScale = transform.localScale;
             while (elapsed < durationUp)
             {
-                elapsed += Time.deltaTime;
+                elapsed += Time.unscaledDeltaTime;
                 float t = Mathf.Clamp01(elapsed / durationUp);
-                // 使用 SmoothStep 做平滑插值，讓加速減速更具彈性果汁感
-                transform.localScale = Vector3.Lerp(startScale, targetScale, Mathf.SmoothStep(0f, 1f, t));
+                Vector3 currentMultiplier = Vector3.Lerp(Vector3.one, finalTargetMultiplier, Mathf.SmoothStep(0f, 1f, t));
+                ApplyScaleMultiplier(currentMultiplier);
                 yield return null;
             }
-            transform.localScale = targetScale;
+            ApplyScaleMultiplier(finalTargetMultiplier);
 
-            // 2. 漸進縮回至原始 Scale
+            // 2. 漸進縮回至原始 1.0
             elapsed = 0f;
             while (elapsed < durationDown)
             {
-                elapsed += Time.deltaTime;
+                elapsed += Time.unscaledDeltaTime;
                 float t = Mathf.Clamp01(elapsed / durationDown);
-                transform.localScale = Vector3.Lerp(targetScale, originalScale, Mathf.SmoothStep(0f, 1f, t));
+                Vector3 currentMultiplier = Vector3.Lerp(finalTargetMultiplier, Vector3.one, Mathf.SmoothStep(0f, 1f, t));
+                ApplyScaleMultiplier(currentMultiplier);
                 yield return null;
             }
-            transform.localScale = originalScale;
+            ApplyScaleMultiplier(Vector3.one);
             scaleCoroutine = null;
         }
 
@@ -106,7 +169,7 @@ namespace Gameplay
             {
                 yield return PunchScaleRoutine();
                 // 每次循環間隔一下，可在此處調整呼吸節奏
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForSecondsRealtime(0.1f);
             }
         }
     }
