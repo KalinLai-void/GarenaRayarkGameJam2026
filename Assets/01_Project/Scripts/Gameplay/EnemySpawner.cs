@@ -36,6 +36,7 @@ namespace Gameplay
         private float spawnTimer = 0f;
         private bool isSpawningFinished = false;
 
+        private GameObject pool;
         void Start()
         {
             // 防呆：如果沒拖入玩家，嘗試自動藉由 Tag 抓取
@@ -47,6 +48,8 @@ namespace Gameplay
                     playerTransform = playerGo.transform;
                 }
             }
+
+            pool = new GameObject("Enemy_Pool");
         }
 
         void Update()
@@ -106,7 +109,8 @@ namespace Gameplay
                 GameObject currentEnemyPrefab = currentWave.enemyPrefab;
                 if (currentEnemyPrefab != null)
                 {
-                    Instantiate(currentEnemyPrefab, finalSpawnPos, Quaternion.identity);
+                    GameObject enemy = Instantiate(currentEnemyPrefab, finalSpawnPos, Quaternion.identity);
+                    enemy.transform.parent = pool.transform;
                 }
             }
         }
