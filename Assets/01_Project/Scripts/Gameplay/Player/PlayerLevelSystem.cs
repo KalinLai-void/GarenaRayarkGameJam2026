@@ -86,6 +86,8 @@ namespace Gameplay
             {
                 tinderHUD.SetActive(true);
             }
+
+            GameManager.TriggerPhase1Start();
         }
 
         private void UpdateXPSystem()

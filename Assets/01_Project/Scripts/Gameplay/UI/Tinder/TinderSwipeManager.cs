@@ -238,7 +238,7 @@ namespace Gameplay
         }
 
         private void OnTimerExpired()
-        {
+        {   
             StartCoroutine(CloseRoutine());
         }
 
@@ -694,6 +694,11 @@ namespace Gameplay
             float c1 = bounceIntensity;
             float c3 = c1 + 1f;
             return c3 * x * x * x - c1 * x * x;
+        }
+
+        private void OnDisable()
+        {
+            GameManager.TriggerPhase1Finish();
         }
     }
 }

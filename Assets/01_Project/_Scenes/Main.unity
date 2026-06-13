@@ -597,6 +597,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c666307df93be32449af13b6a1ebb81f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  reloadScene:
+    sceneAsset: {fileID: 102900000, guid: 9dd841c78df49184baaadab1622f9502, type: 3}
+    sceneName: Main
   onGameStartEvent:
     m_PersistentCalls:
       m_Calls: []

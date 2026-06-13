@@ -33,9 +33,20 @@ public class GameManager : Singleton<GameManager>
     public static void TriggerPhase2Finish() => Instance?.FinishPhase2();
     public static void TriggerGameEnd(bool isWin) => Instance?.EndGame(isWin);
 
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        DontDestroyOnLoad(gameObject);
+    }
+
     private void Start()
     {
-        Invoke(nameof(StartGame), 0.1f);
+        TriggerGameStart();
     }
 
     private void StartGame()
@@ -57,7 +68,7 @@ public class GameManager : Singleton<GameManager>
         Debug.Log("[GameManager] FinishPhase1");
         currentStage = State.OnPhase1Finish;
         onPhase1FinishEvent?.Invoke();
-        Invoke(nameof(EnterPhase2), 0f);
+        TriggerPhase2Start();
     }
 
     private void EnterPhase2()
@@ -81,6 +92,10 @@ public class GameManager : Singleton<GameManager>
         currentStage = State.OnGameEnd;
         onGameEndEvent?.Invoke(isWin);
 
-        if (!isWin) SceneManager.LoadScene(reloadScene?.SceneName); // Reload Game
+        if (!isWin)
+        {
+            TriggerGameStart();
+            SceneManager.LoadScene(reloadScene?.SceneName); // Reload Game
+        }
     }
 }
