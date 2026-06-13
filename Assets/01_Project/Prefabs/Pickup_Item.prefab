@@ -97,7 +97,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 06fd01f0451b473880552d5e759da1dd, type: 3}
+  m_Sprite: {fileID: 867797792659465375, guid: 2051801e895860f428e04b485052741d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -135,8 +135,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -3.64458, y: -1.91416, z: 0}
-  m_LocalScale: {x: 4, y: 4, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.15, y: 0.15, z: 0.15}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8484120563075476966}
   m_Father: {fileID: 0}
@@ -199,5 +199,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffdb4c004eb752240ba1354b052de9c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gameplay.PickupItem
-  itemSprite: {fileID: 21300000, guid: 06fd01f0451b473880552d5e759da1dd, type: 3}
+  itemSprite: {fileID: 5343827454415870253, guid: ef54360756326954e85d77651e39d554, type: 3}
   itemName: Item

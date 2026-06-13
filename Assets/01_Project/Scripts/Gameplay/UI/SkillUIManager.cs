@@ -156,6 +156,7 @@ namespace Gameplay
                 if (img != null && itemSprite != null)
                 {
                     img.sprite = itemSprite;
+                    img.color = Color.white;
                 }
             }
         }
