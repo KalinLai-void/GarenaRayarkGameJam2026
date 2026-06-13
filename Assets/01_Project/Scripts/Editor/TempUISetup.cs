@@ -285,8 +285,8 @@ public static class TempUISetup
 
         xpBarHUDGo = new GameObject("XP_Bar_HUD", typeof(RectTransform));
         xpBarHUDGo.transform.SetParent(canvasRoot.transform, false);
-        // Bottom-Stretch: Min X=0, Max X=1, Min Y=0, Max Y=0, height 15f
-        SetupRectTransform(xpBarHUDGo.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 0f), new Vector2(0f, 15f));
+        // Bottom-Stretch: Min X=0, Max X=1, Min Y=0, Max Y=0, height from UIManager settings
+        SetupRectTransform(xpBarHUDGo.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 0f), new Vector2(0f, uiManager.XPBarHeight));
 
         // XP_Slider
         GameObject xpSliderGo = new GameObject("XP_Slider", typeof(RectTransform));
@@ -303,7 +303,7 @@ public static class TempUISetup
         Image xpBgImg = xpBgGo.AddComponent<Image>();
         xpBgImg.sprite = uiSprite;
         xpBgImg.type = Image.Type.Sliced;
-        xpBgImg.color = new Color(0.12f, 0.12f, 0.12f, 0.85f); // Translucent Dark Gray/Black
+        xpBgImg.color = uiManager.XPBackgroundColor; // Configurable Color from UIManager
 
         // Fill Area
         GameObject xpFillAreaGo = new GameObject("Fill Area", typeof(RectTransform));
@@ -317,7 +317,7 @@ public static class TempUISetup
         Image xpFillImg = xpFillGo.AddComponent<Image>();
         xpFillImg.sprite = uiSprite;
         xpFillImg.type = Image.Type.Sliced;
-        xpFillImg.color = new Color(0f, 0.88f, 0.88f, 1f); // Bright Cyan
+        xpFillImg.color = uiManager.XPFillColor; // Configurable Color from UIManager
 
         xpSlider.targetGraphic = xpBgImg;
         xpSlider.fillRect = xpFillGo.GetComponent<RectTransform>();

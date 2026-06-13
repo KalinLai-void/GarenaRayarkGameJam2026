@@ -30,8 +30,15 @@ namespace Gameplay
         [SerializeField] private Transform inventoryIconContainer; // 掛有 Horizontal Layout Group 的容器
         [SerializeField] private GameObject miniIconPrefab;       // 小圖示 Prefab
 
-        [Header("--- 下方：經驗值 UI 組件 ---")]
+        [Header("--- 下方：經驗值 UI 組件與外觀設計 ---")]
         [SerializeField] private Slider xpSlider;
+        [SerializeField] private Color xpBackgroundColor = new Color(0.12f, 0.12f, 0.12f, 0.85f);
+        [SerializeField] private Color xpFillColor = new Color(0f, 0.88f, 0.88f, 1f);
+        [SerializeField] private float xpBarHeight = 15f;
+
+        public Color XPBackgroundColor => xpBackgroundColor;
+        public Color XPFillColor => xpFillColor;
+        public float XPBarHeight => xpBarHeight;
 
         private void Start()
         {
