@@ -2733,10 +2733,10 @@ MonoBehaviour:
   maxTime: 5
   stackSize: 5
   maxLikes: 1
-  maxNopes: 3
+  maxNopes: 4
   openDuration: 0.5
   closeDuration: 0.4
-  bounceIntensity: 1.70158
+  bounceIntensity: 1.7
 --- !u!1 &5059285723037711780
 GameObject:
   m_ObjectHideFlags: 0
