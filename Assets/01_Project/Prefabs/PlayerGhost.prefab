@@ -251,10 +251,9 @@ GameObject:
   - component: {fileID: 3888149024620374508}
   - component: {fileID: 87920919215773726}
   - component: {fileID: 2887448174914912822}
-  - component: {fileID: 6233016746868773651}
-  - component: {fileID: -7551629225629335355}
+  - component: {fileID: 7657831072164805822}
   m_Layer: 3
-  m_Name: Player
+  m_Name: PlayerGhost
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -342,7 +341,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5829120054308289531}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 28b58f57a9714e241ac54264d6a29735, type: 3}
   m_Name: 
@@ -401,7 +400,7 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: -0.20294762}
   m_Size: {x: 0.5, y: 1.4058952}
   m_Direction: 0
---- !u!114 &6233016746868773651
+--- !u!114 &7657831072164805822
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -410,27 +409,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5829120054308289531}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5957adae057eb33479458af16c7dd8d9, type: 3}
+  m_Script: {fileID: 11500000, guid: ad21ba3efa4348648b8c899eb60b3f42, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Gameplay.PlayerHealth
-  maxHealth: 100
-  flashDuration: 0.15
-  flashColor: {r: 1, g: 0, b: 0, a: 1}
-  damageCooldown: 0.5
-  overlapDamage: 10
---- !u!114 &-7551629225629335355
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5829120054308289531}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1385417fd7d34ff48ab5fe4ffad10d65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Gameplay.PlayerRecorder
-  playerInput: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::GhostPlayer
+  ghostWeapon: {fileID: 2888282287505167012}
+  spriteRenderer: {fileID: 1880142988931498685}
 --- !u!1 &7172883674496156205
 GameObject:
   m_ObjectHideFlags: 0
@@ -440,7 +423,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7372729902983444053}
-  - component: {fileID: 8545257877954291094}
+  - component: {fileID: 2888282287505167012}
   m_Layer: 0
   m_Name: Weapon_Pistol
   m_TagString: Untagged
@@ -465,7 +448,7 @@ Transform:
   - {fileID: 3974066014082294501}
   m_Father: {fileID: 4981364077509254019}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8545257877954291094
+--- !u!114 &2888282287505167012
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -474,20 +457,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 7172883674496156205}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ce7b88400466354585d8796b1daa059, type: 3}
+  m_Script: {fileID: 11500000, guid: 53a47fc12a50a384da634d832763b411, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Gameplay.WeaponController
-  baseDamage: 10
-  baseFireRate: 5
-  baseMaxAmmo: 30
-  reloadTime: 0.1
-  infiniteAmmo: 1
-  orbitRadius: 1.54
+  m_EditorClassIdentifier: Assembly-CSharp::Gameplay.GhostWeaponController
+  damage: 10
+  fireRate: 5
+  orbitRadius: 1.2
   spriteMuzzleDirection: {x: -1, y: 0}
-  bulletPrefab: {fileID: 6652034002896249891, guid: 017c031ce40c6c54cbea5bd82c044fa1, type: 3}
+  ghostBulletPrefab: {fileID: 6652034002896249891, guid: 9e5d8fa482098464b85774326aaf6c5f, type: 3}
   muzzlePoint: {fileID: 6425962006874782336}
-  spriteRenderer: {fileID: 0}
-  playerInput: {fileID: 0}
 --- !u!1 &8262024977718382237
 GameObject:
   m_ObjectHideFlags: 0
