@@ -760,9 +760,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4729812358534688520, guid: e45fac29f0a74904a868095ae57de925, type: 3}
+      propertyPath: orthographic size
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 6737275680951184431, guid: e45fac29f0a74904a868095ae57de925, type: 3}
       propertyPath: m_Name
       value: MainCamera
+      objectReference: {fileID: 0}
+    - target: {fileID: 6737275680951184431, guid: e45fac29f0a74904a868095ae57de925, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7446586173832165385, guid: e45fac29f0a74904a868095ae57de925, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3010,6 +3018,10 @@ PrefabInstance:
     - target: {fileID: 687369081007393266, guid: c933e0e23c68558438c6fd41ff16a937, type: 3}
       propertyPath: m_Name
       value: VirutalCamera
+      objectReference: {fileID: 0}
+    - target: {fileID: 687369081007393266, guid: c933e0e23c68558438c6fd41ff16a937, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7624946717697961149, guid: c933e0e23c68558438c6fd41ff16a937, type: 3}
       propertyPath: Target.TrackingTarget

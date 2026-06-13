@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: WavyBlueGhost
+  m_Name: M_WavyBlueGhost
   m_Shader: {fileID: 4800000, guid: 0ce48ba95ffddf4418557e75583c9151, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
