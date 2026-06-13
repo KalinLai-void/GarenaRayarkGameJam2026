@@ -32,6 +32,9 @@ namespace Gameplay
         private float currentTimer;
         private bool isTimerRunning = false;
         private readonly List<GameObject> activeCards = new List<GameObject>();
+        private bool isClosing = false;
+        private Coroutine nopeScaleCoroutine;
+        private Coroutine likeScaleCoroutine;
 
         // 供展示測試用的技能卡片數據
         private readonly string[] skillNames = { "閃爍彈", "雷霆一擊", "治癒術", "烈焰風暴", "時間靜止" };
@@ -61,8 +64,29 @@ namespace Gameplay
                 }
             }
 
+            // 為實體按鈕綁定點擊事件，讓點擊也能觸發滑動
+            if (nopeButton != null)
+            {
+                var btn = nopeButton.GetComponent<UnityEngine.UI.Button>();
+                if (btn != null)
+                {
+                    btn.onClick.RemoveAllListeners();
+                    btn.onClick.AddListener(() => OnButtonClick(false));
+                }
+            }
+            if (likeButton != null)
+            {
+                var btn = likeButton.GetComponent<UnityEngine.UI.Button>();
+                if (btn != null)
+                {
+                    btn.onClick.RemoveAllListeners();
+                    btn.onClick.AddListener(() => OnButtonClick(true));
+                }
+            }
+
             currentTimer = maxTime;
             isTimerRunning = true;
+            isClosing = false;
             
             // 初始化堆疊：一次生成 3 張卡片，方便透出下方卡面
             for (int i = 0; i < 3; i++)
@@ -75,14 +99,14 @@ namespace Gameplay
 
         private void Update()
         {
-            if (isTimerRunning && activeCards.Count > 0)
+            if (isTimerRunning && activeCards.Count > 0 && !isClosing)
             {
                 currentTimer -= Time.deltaTime;
                 if (currentTimer <= 0f)
                 {
                     currentTimer = 0f;
                     isTimerRunning = false;
-                    AutoSwipeTopCard();
+                    OnTimerExpired();
                 }
                 
                 // 更新 Home Button 上的數字倒數
@@ -93,50 +117,83 @@ namespace Gameplay
             }
         }
 
-        private void AutoSwipeTopCard()
+        private void OnTimerExpired()
         {
-            if (activeCards.Count > 0)
+            StartCoroutine(CloseRoutine());
+        }
+
+        private System.Collections.IEnumerator CloseRoutine()
+        {
+            isClosing = true;
+            isTimerRunning = false;
+
+            // 讓所有目前存在的卡片高速向左飛出
+            List<GameObject> cardsToSwipe = new List<GameObject>(activeCards);
+            activeCards.Clear(); // 清空 activeCards 以防重入或干擾
+
+            for (int i = 0; i < cardsToSwipe.Count; i++)
             {
-                GameObject topCard = activeCards[0];
-                var dragHandler = topCard.GetComponent<TinderCardDragHandler>();
-                if (dragHandler != null)
+                GameObject card = cardsToSwipe[i];
+                if (card != null)
                 {
-                    // 時間到，向右飛出 (Like) 並自動按壓 Like 按鈕
-                    dragHandler.AutoSwipe(true);
-                    OnCardSwiped(topCard, true);
+                    var dragHandler = card.GetComponent<TinderCardDragHandler>();
+                    if (dragHandler != null)
+                    {
+                        dragHandler.enabled = false; // 停用拖拽防止手動干擾
+                        dragHandler.AutoSwipe(false, 3.5f, false); // 3.5 倍速向左飛出，不播放按鈕動畫
+                    }
                 }
+                yield return new WaitForSeconds(0.05f); // 微幅間隔形成流水般飛出效果
+            }
+
+            // 等待卡片飛出螢幕 (高速飛出約 0.35s 內便超出 1200 像素被銷毀)
+            yield return new WaitForSeconds(0.35f);
+
+            // 關閉整個升級 UI 根物件
+            gameObject.SetActive(false);
+        }
+
+        private void OnButtonClick(bool isLike)
+        {
+            if (isClosing || activeCards.Count == 0) return;
+            
+            GameObject topCard = activeCards[0];
+            var dragHandler = topCard.GetComponent<TinderCardDragHandler>();
+            if (dragHandler != null)
+            {
+                // 模擬點擊效果與快速飛出
+                dragHandler.AutoSwipe(isLike, 1.5f, true);
+                OnCardSwiped(topCard, isLike);
             }
         }
 
         /// <summary>
-        /// 當卡片被拖曳時暫停計時
+        /// 當卡片被拖曳時暫停計時 (總倒數時間不受拖拽影響，持續倒數以防玩家作弊)
         /// </summary>
         public void PauseTimer()
         {
-            isTimerRunning = false;
         }
 
         /// <summary>
-        /// 當卡片拖曳被釋放回彈時恢復計時
+        /// 當卡片拖曳被釋放回彈時恢復計時 (總倒數時間不受拖拽影響，持續倒數以防玩家作弊)
         /// </summary>
         public void ResumeTimer()
         {
-            isTimerRunning = true;
         }
 
         /// <summary>
-        /// 當卡片被滑出銷毀時，由 DragHandler 呼叫。這會重置計時並補充卡片 stack。
+        /// 當卡片被滑出銷毀時，由 DragHandler 呼叫。這會補充卡片 stack。
         /// </summary>
         public void OnCardSwiped(GameObject swipedCard, bool isLike)
         {
+            if (isClosing) return;
+
             if (activeCards.Contains(swipedCard))
             {
                 activeCards.Remove(swipedCard);
                 Debug.Log($"【Tinder UI】卡片被滑動：{(isLike ? "右滑 (Like)" : "左滑 (Nope)")} - {swipedCard.name}");
 
-                // 重新計時與啟動
-                currentTimer = maxTime;
-                isTimerRunning = true;
+                // 總計倒數模式：滑動卡片不重置時間
 
                 // 生成一張新卡片放入最底層 (Sibling Index = 0)
                 SpawnCardToStack();
@@ -176,20 +233,58 @@ namespace Gameplay
             {
                 GameObject card = activeCards[i];
                 var dragHandler = card.GetComponent<TinderCardDragHandler>();
-                if (dragHandler == null)
+                if (dragHandler != null)
                 {
-                    dragHandler = card.AddComponent<TinderCardDragHandler>();
+                    dragHandler.enabled = (i == 0); // 只有第 0 張開啟拖曳
                 }
                 
-                // 只有第 0 張開啟拖曳
-                bool isTop = (i == 0);
-                dragHandler.enabled = isTop;
-                
-                if (isTop)
+                if (i == 0 && dragHandler != null)
                 {
                     dragHandler.SetupButtons(nopeButton, likeButton);
                 }
             }
+        }
+
+        public void AnimateButtonBounce(bool isLike)
+        {
+            if (isLike)
+            {
+                if (likeScaleCoroutine != null) StopCoroutine(likeScaleCoroutine);
+                likeScaleCoroutine = StartCoroutine(ButtonBounceRoutine(likeButton));
+            }
+            else
+            {
+                if (nopeScaleCoroutine != null) StopCoroutine(nopeScaleCoroutine);
+                nopeScaleCoroutine = StartCoroutine(ButtonBounceRoutine(nopeButton));
+            }
+        }
+
+        public void StopButtonScaleCoroutines()
+        {
+            if (nopeScaleCoroutine != null)
+            {
+                StopCoroutine(nopeScaleCoroutine);
+                nopeScaleCoroutine = null;
+            }
+            if (likeScaleCoroutine != null)
+            {
+                StopCoroutine(likeScaleCoroutine);
+                likeScaleCoroutine = null;
+            }
+        }
+
+        private System.Collections.IEnumerator ButtonBounceRoutine(Transform button)
+        {
+            if (button == null) yield break;
+            Vector3 startScale = button.localScale;
+            float t = 0f;
+            while (t < 1f)
+            {
+                t += Time.deltaTime * 12f; // 約 0.08 秒完成
+                button.localScale = Vector3.Lerp(startScale, Vector3.one, t);
+                yield return null;
+            }
+            button.localScale = Vector3.one;
         }
     }
 }

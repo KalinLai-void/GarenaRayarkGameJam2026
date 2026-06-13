@@ -27,6 +27,7 @@ namespace Gameplay
         [Tooltip("飛出螢幕的速度")]
         [SerializeField] private float flyOutSpeed = 1000f;
 
+        private float currentFlySpeed;
         private bool isDragging;
         private bool isFlyingAway;
         private Vector2 flyDirection;
@@ -41,6 +42,7 @@ namespace Gameplay
             canvas = GetComponentInParent<Canvas>();
             swipeManager = Object.FindFirstObjectByType<TinderSwipeManager>();
             startPosition = rectTransform.anchoredPosition;
+            currentFlySpeed = flyOutSpeed;
         }
 
         /// <summary>
@@ -60,6 +62,7 @@ namespace Gameplay
             if (swipeManager != null)
             {
                 swipeManager.PauseTimer();
+                swipeManager.StopButtonScaleCoroutines(); // 停止所有正在進行的按鈕回彈協程，防止拖拽衝突
             }
         }
 
@@ -116,10 +119,12 @@ namespace Gameplay
                 // 滑動超過閾值，開始飛出動畫
                 isFlyingAway = true;
                 flyDirection = new Vector2(Mathf.Sign(offsetX), 0.2f).normalized; // 帶有一點點微幅向上的飛行弧度
+                currentFlySpeed = flyOutSpeed; // 還原成正常飛出速度
                 
                 bool isLike = offsetX > 0f;
                 if (swipeManager != null)
                 {
+                    swipeManager.AnimateButtonBounce(isLike); // 讓按鈕平滑回彈
                     swipeManager.OnCardSwiped(gameObject, isLike);
                 }
             }
@@ -131,16 +136,20 @@ namespace Gameplay
         }
 
         /// <summary>
-        /// 提供給時間到自動右滑呼叫的方法
+        /// 提供給時間到自動滑動或按鈕點擊呼叫的方法
         /// </summary>
-        public void AutoSwipe(bool isLike)
+        public void AutoSwipe(bool isLike, float speedMultiplier = 1f, bool playButtonAnim = true)
         {
             if (isFlyingAway) return;
             isFlyingAway = true;
             flyDirection = new Vector2(isLike ? 1f : -1f, 0.1f).normalized;
+            currentFlySpeed = flyOutSpeed * speedMultiplier;
             
-            // 執行按鈕自動按壓的模擬動畫
-            StartCoroutine(AutoPressButtonRoutine(isLike));
+            if (playButtonAnim)
+            {
+                // 執行按鈕自動按壓的模擬動畫
+                StartCoroutine(AutoPressButtonRoutine(isLike));
+            }
         }
 
         private System.Collections.IEnumerator AutoPressButtonRoutine(bool isLike)
@@ -210,7 +219,7 @@ namespace Gameplay
             if (isFlyingAway)
             {
                 // 卡片往左或往右飛行移出螢幕
-                rectTransform.anchoredPosition += flyDirection * flyOutSpeed * Time.deltaTime;
+                rectTransform.anchoredPosition += flyDirection * currentFlySpeed * Time.deltaTime;
                 
                 // 超出螢幕裁剪遮罩一定範圍後自動銷毀
                 if (Mathf.Abs(rectTransform.anchoredPosition.x) > 1200f)
