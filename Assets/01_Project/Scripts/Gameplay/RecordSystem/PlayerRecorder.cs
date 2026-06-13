@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
@@ -60,23 +61,13 @@ namespace Gameplay
         /// <summary>
         /// Phase 2 結束 (死亡或通關) 時呼叫此方法停止並存檔
         /// </summary>
-        public void StopAndSave()
+        private void StopAndSave()
         {
             isRecording = false;
             GhostManager.Instance.SaveLoopData(currentLoopData);
             Debug.Log($"【Recorder】錄製結束，共儲存了 {currentLoopData.Count} 幀資料。");
         }
 
-        private void Update()
-        {
-            if (testGhostAction.IsPressed())
-            {
-                StopAndSave();
-
-                int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-                SceneManager.LoadScene(currentSceneIndex);
-            }
-        }
         private void FixedUpdate()
         {
             if (!isRecording) return;
