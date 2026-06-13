@@ -114,6 +114,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gameplay.EnemyHealth
   maxHealth: 3
+  xpReward: 2
   flashDuration: 0.15
   flashColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!114 &7394971189159301195
@@ -131,6 +132,7 @@ MonoBehaviour:
   moveSpeed: 3
   separationRadius: 1
   separationWeight: 1.5
+  overlapPushForce: 5
 --- !u!1 &5497522911275322254
 GameObject:
   m_ObjectHideFlags: 0
