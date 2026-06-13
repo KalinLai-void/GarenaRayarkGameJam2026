@@ -11,13 +11,13 @@ namespace Gameplay
     {
         [Header("--- 縮放設定 ---")]
         [Tooltip("目標中間狀態的縮放比例")]
-        [SerializeField] private Vector3 targetScale = new Vector3(1f, 1f, 1f);
+        [SerializeField] private Vector3 targetScale = new Vector3(0.95f, 1.05f, 1f);
         
         [Tooltip("放大至目標值所需時間 (秒)")]
-        [SerializeField] private float durationUp = 0.2f;
+        [SerializeField] private float durationUp = 0.5f;
         
         [Tooltip("縮回原始大小所需時間 (秒)")]
-        [SerializeField] private float durationDown = 0.2f;
+        [SerializeField] private float durationDown = 0.5f;
 
         [Header("--- 自動觸發設定 ---")]
         [Tooltip("是否在物件啟用 (OnEnable) 時自動播放一次 (適合 UI 彈出或物件生成)")]
@@ -28,7 +28,7 @@ namespace Gameplay
 
         [Header("--- 隨機抖動設定 ---")]
         [Tooltip("是否啟用隨機目標縮放")]
-        [SerializeField] private bool useRandomScale = true;
+        [SerializeField] private bool useRandomScale = false;
 
         [Tooltip("X 與 Y 軸的隨機震幅範圍 (以原始縮放為基準進行加減，例如 0.05 代表 1 +- 0.05)")]
         [SerializeField] private Vector2 randomRange = new Vector2(0.05f, 0.05f);

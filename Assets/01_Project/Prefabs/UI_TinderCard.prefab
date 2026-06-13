@@ -783,6 +783,7 @@ GameObject:
   - component: {fileID: 8847835574862273159}
   - component: {fileID: 3643990279662125365}
   - component: {fileID: 8961555136131585284}
+  - component: {fileID: 771956047279939899}
   m_Layer: 0
   m_Name: Avatar_Image
   m_TagString: Untagged
@@ -847,3 +848,22 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &771956047279939899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7349973047331325603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63f4254f5c8f76c428bb8aebedd2f579, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Gameplay.JuiceScaleEffect
+  targetScale: {x: 0.95, y: 1.05, z: 1}
+  durationUp: 1
+  durationDown: 1
+  playOnEnable: 1
+  loop: 1
+  useRandomScale: 0
+  randomRange: {x: 0.05, y: 0.05}
