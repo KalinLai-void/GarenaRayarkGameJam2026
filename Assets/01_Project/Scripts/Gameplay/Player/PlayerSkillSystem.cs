@@ -154,22 +154,24 @@ namespace Gameplay
                 }
                 else
                 {
-                    // 若無任何 LV.1 技能，則回血 50%
+                    // 若無任何 LV.1 技能，則回血
                     PlayerHealth hp = GetComponent<PlayerHealth>();
                     if (hp == null) hp = Object.FindFirstObjectByType<PlayerHealth>();
                     if (hp != null)
                     {
-                        hp.Heal(50);
-                        Debug.Log("【技能系統】天使金光菇：玩家技能均已 >= LV.2，觸發治癒回血 50%！");
+                        int healAmt = activeSkill != null ? activeSkill.angelHealAmount : 50;
+                        hp.Heal(healAmt);
+                        Debug.Log($"【技能系統】天使金光菇：玩家技能均已 >= LV.2，觸發治癒回血 {healAmt}！");
                     }
                 }
             }
             else
             {
-                // 其他主動技能（黑木耳、珊瑚菇、猴頭菇）：持續時間 10 秒
+                // 其他主動技能（黑木耳、珊瑚菇、猴頭菇）：持續時間
                 isActiveSkillEffectRunning = true;
-                activeSkillEffectDurationTimer = 10f;
-                Debug.Log($"【技能系統】{activeSkill.skillName} 效果啟動，持續 10 秒。");
+                float duration = activeSkill != null ? activeSkill.activeDuration : 10f;
+                activeSkillEffectDurationTimer = duration;
+                Debug.Log($"【技能系統】{activeSkill.skillName} 效果啟動，持續 {duration} 秒。");
             }
         }
 
@@ -194,6 +196,25 @@ namespace Gameplay
                     return;
                 }
             }
+        }
+
+        /// <summary>
+        /// 取得已獲得的技能資料物件
+        /// </summary>
+        public SkillData GetSkillData(string skillID)
+        {
+            if (activeSkill != null && activeSkill.skillID == skillID)
+            {
+                return activeSkill;
+            }
+            foreach (var passive in passiveSkills)
+            {
+                if (passive != null && passive.skillID == skillID)
+                {
+                    return passive;
+                }
+            }
+            return null;
         }
 
         /// <summary>

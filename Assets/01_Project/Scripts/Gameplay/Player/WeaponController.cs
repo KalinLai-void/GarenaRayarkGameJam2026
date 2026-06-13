@@ -49,7 +49,13 @@ namespace Gameplay
         private float GetNeedleFireRateBonus()
         {
             int lvl = PlayerSkillSystem.Instance.GetSkillLevel("R_NeedleMushroom");
-            return lvl > 0 ? baseFireRate * (0.15f + 0.05f * (lvl - 1)) : 0f;
+            if (lvl <= 0) return 0f;
+            SkillData data = PlayerSkillSystem.Instance.GetSkillData("R_NeedleMushroom");
+            if (data != null && data.needleFireRateBonusPercent != null && lvl <= data.needleFireRateBonusPercent.Length)
+            {
+                return baseFireRate * data.needleFireRateBonusPercent[lvl - 1];
+            }
+            return baseFireRate * (0.15f + 0.05f * (lvl - 1));
         }
 
         public int CurrentAmmo => currentAmmo;
@@ -230,33 +236,90 @@ namespace Gameplay
                 int damage = FinalDamage;
                 if (kingOysterLvl > 0)
                 {
-                    damage += (int)(baseDamage * 0.05f * kingOysterLvl);
+                    SkillData kingData = PlayerSkillSystem.Instance.GetSkillData("R_KingOyster");
+                    if (kingData != null && kingData.kingOysterDamageBonusPercent != null && kingOysterLvl <= kingData.kingOysterDamageBonusPercent.Length)
+                    {
+                        damage += (int)(baseDamage * kingData.kingOysterDamageBonusPercent[kingOysterLvl - 1]);
+                    }
+                    else
+                    {
+                        damage += (int)(baseDamage * 0.05f * kingOysterLvl);
+                    }
                 }
                 if (isCoralActive)
                 {
-                    damage += (int)(baseDamage * (0.10f + 0.10f * (coralLvl - 1)));
+                    SkillData coralData = PlayerSkillSystem.Instance.GetSkillData("SR_CoralMushroom");
+                    if (coralData != null && coralData.coralDamageBonusPercent != null && coralLvl <= coralData.coralDamageBonusPercent.Length)
+                    {
+                        damage += (int)(baseDamage * coralData.coralDamageBonusPercent[coralLvl - 1]);
+                    }
+                    else
+                    {
+                        damage += (int)(baseDamage * (0.10f + 0.10f * (coralLvl - 1)));
+                    }
                 }
 
                 float scaleMultiplier = 1.0f;
                 if (kingOysterLvl > 0)
                 {
-                    scaleMultiplier += 0.10f * kingOysterLvl;
+                    SkillData kingData = PlayerSkillSystem.Instance.GetSkillData("R_KingOyster");
+                    if (kingData != null && kingData.kingOysterScaleMultiplierBonus != null && kingOysterLvl <= kingData.kingOysterScaleMultiplierBonus.Length)
+                    {
+                        scaleMultiplier += kingData.kingOysterScaleMultiplierBonus[kingOysterLvl - 1];
+                    }
+                    else
+                    {
+                        scaleMultiplier += 0.10f * kingOysterLvl;
+                    }
                 }
 
                 float bulletSpeed = 15f; // Bullet.cs 預設基礎速度為 15f
                 if (needleLvl > 0)
                 {
-                    bulletSpeed *= 1.10f;
+                    SkillData needleData = PlayerSkillSystem.Instance.GetSkillData("R_NeedleMushroom");
+                    if (needleData != null && needleData.needleBulletSpeedMultiplier != null && needleLvl <= needleData.needleBulletSpeedMultiplier.Length)
+                    {
+                        bulletSpeed *= needleData.needleBulletSpeedMultiplier[needleLvl - 1];
+                    }
+                    else
+                    {
+                        bulletSpeed *= 1.10f;
+                    }
                 }
 
                 // 3. 處理白精靈菇的多發扇形子彈
                 int bulletCount = 1;
+                float spreadAngle = 30f;
                 if (whiteElfLvl > 0)
                 {
-                    bulletCount = whiteElfLvl + 1;
+                    SkillData whiteElfData = PlayerSkillSystem.Instance.GetSkillData("R_WhiteElf");
+                    if (whiteElfData != null)
+                    {
+                        if (whiteElfData.whiteElfBulletCount != null && whiteElfLvl <= whiteElfData.whiteElfBulletCount.Length)
+                        {
+                            bulletCount = whiteElfData.whiteElfBulletCount[whiteElfLvl - 1];
+                        }
+                        else
+                        {
+                            bulletCount = whiteElfLvl + 1;
+                        }
+
+                        if (whiteElfData.whiteElfSpreadAngle != null && whiteElfLvl <= whiteElfData.whiteElfSpreadAngle.Length)
+                        {
+                            spreadAngle = whiteElfData.whiteElfSpreadAngle[whiteElfLvl - 1];
+                        }
+                        else
+                        {
+                            spreadAngle = whiteElfLvl >= 4 ? 45f : 30f;
+                        }
+                    }
+                    else
+                    {
+                        bulletCount = whiteElfLvl + 1;
+                        spreadAngle = whiteElfLvl >= 4 ? 45f : 30f;
+                    }
                 }
 
-                float spreadAngle = whiteElfLvl >= 4 ? 45f : 30f;
                 float angleStep = bulletCount > 1 ? spreadAngle / (bulletCount - 1) : 0f;
                 float startAngle = fireAngle - (bulletCount > 1 ? spreadAngle / 2f : 0f);
 
@@ -271,7 +334,15 @@ namespace Gameplay
                     // 4. 設定子彈體積 (若為珊瑚菇光束，另外將 X 軸拉伸呈光束形狀)
                     if (isCoralActive)
                     {
-                        bulletGo.transform.localScale = new Vector3(3.5f, 0.8f, 1f) * scaleMultiplier;
+                        float beamW = 3.5f;
+                        float beamH = 0.8f;
+                        SkillData coralData = PlayerSkillSystem.Instance.GetSkillData("SR_CoralMushroom");
+                        if (coralData != null)
+                        {
+                            beamW = coralData.coralBeamWidth;
+                            beamH = coralData.coralBeamHeight;
+                        }
+                        bulletGo.transform.localScale = new Vector3(beamW, beamH, 1f) * scaleMultiplier;
                     }
                     else
                     {

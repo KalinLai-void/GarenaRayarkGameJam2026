@@ -14,6 +14,22 @@ namespace Gameplay
             level = skillLevel;
             baseBulletDamage = bulletDamage;
 
+            explosionRadius = 2.0f;
+            delay = 0.6f;
+
+            if (PlayerSkillSystem.Instance != null)
+            {
+                SkillData monkeyData = PlayerSkillSystem.Instance.GetSkillData("SR_MonkeyHead");
+                if (monkeyData != null)
+                {
+                    delay = monkeyData.monkeyBombDelay;
+                    if (monkeyData.monkeyExplosionRadius != null && level <= monkeyData.monkeyExplosionRadius.Length && level > 0)
+                    {
+                        explosionRadius = monkeyData.monkeyExplosionRadius[level - 1];
+                    }
+                }
+            }
+
             // 繪製橘紅色圓形炸彈貼圖
             SpriteRenderer sr = gameObject.AddComponent<SpriteRenderer>();
             Texture2D tex = new Texture2D(32, 32);
@@ -46,6 +62,14 @@ namespace Gameplay
             
             // 爆炸傷害：LV.1 = 110%，每次升級 +10%
             float damagePercent = 1.10f + 0.10f * (level - 1);
+            if (PlayerSkillSystem.Instance != null)
+            {
+                SkillData monkeyData = PlayerSkillSystem.Instance.GetSkillData("SR_MonkeyHead");
+                if (monkeyData != null && monkeyData.monkeyDamagePercent != null && level <= monkeyData.monkeyDamagePercent.Length && level > 0)
+                {
+                    damagePercent = monkeyData.monkeyDamagePercent[level - 1];
+                }
+            }
             int damage = Mathf.Max(1, Mathf.RoundToInt(baseBulletDamage * damagePercent));
 
             foreach (var col in colliders)

@@ -20,12 +20,31 @@ namespace Gameplay
             level = skillLevel;
             baseBulletDamage = bulletDamage;
 
-            // LV.1 = 10% slow, each upgrade lvl +5%
-            slowAmount = 0.10f + 0.05f * (level - 1);
-            // LV.1 = 5% dot, each upgrade lvl +5%
-            dotDamagePercent = 0.05f + 0.05f * (level - 1);
+            float slowAmt = 0.10f + 0.05f * (level - 1);
+            float dotPercent = 0.05f + 0.05f * (level - 1);
+            float duration = 2f;
 
-            Destroy(gameObject, 2f); // 存在 2 秒
+            if (PlayerSkillSystem.Instance != null)
+            {
+                SkillData blackData = PlayerSkillSystem.Instance.GetSkillData("SR_BlackMushroom");
+                if (blackData != null)
+                {
+                    duration = blackData.blackMushroomDuration;
+                    if (blackData.blackMushroomSlowPercent != null && level <= blackData.blackMushroomSlowPercent.Length && level > 0)
+                    {
+                        slowAmt = blackData.blackMushroomSlowPercent[level - 1];
+                    }
+                    if (blackData.blackMushroomDotPercent != null && level <= blackData.blackMushroomDotPercent.Length && level > 0)
+                    {
+                        dotPercent = blackData.blackMushroomDotPercent[level - 1];
+                    }
+                }
+            }
+
+            slowAmount = slowAmt;
+            dotDamagePercent = dotPercent;
+
+            Destroy(gameObject, duration);
         }
 
         private void Update()

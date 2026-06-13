@@ -127,9 +127,24 @@ namespace Gameplay
 
         public void ApplySlow(int level)
         {
-            // 洋菇被動緩速：LV.1 = 5%，每次升級 +3%
-            slowPercent = 0.05f + 0.03f * (level - 1);
-            slowTimer = 2.0f; // 緩速持續 2 秒
+            float percent = 0.05f + 0.03f * (level - 1);
+            float duration = 2.0f;
+
+            if (PlayerSkillSystem.Instance != null)
+            {
+                SkillData buttonData = PlayerSkillSystem.Instance.GetSkillData("R_ButtonMushroom");
+                if (buttonData != null)
+                {
+                    duration = buttonData.buttonSlowDuration;
+                    if (buttonData.buttonSlowPercent != null && level <= buttonData.buttonSlowPercent.Length && level > 0)
+                    {
+                        percent = buttonData.buttonSlowPercent[level - 1];
+                    }
+                }
+            }
+
+            slowPercent = percent;
+            slowTimer = duration;
 
             EnemyMovement mv = GetComponent<EnemyMovement>();
             if (mv != null)
@@ -180,11 +195,24 @@ namespace Gameplay
             UpdateColorTint();
             float duration = 3f;
             float interval = 1f;
-            float elapsed = 0f;
-
-            // 香菇燃燒：LV.1 = 5% DoT 傷害，每次升級 +3%
             float dotPercent = 0.05f + 0.03f * (burnLvl - 1);
+
+            if (PlayerSkillSystem.Instance != null)
+            {
+                SkillData shiitakeData = PlayerSkillSystem.Instance.GetSkillData("R_Shiitake");
+                if (shiitakeData != null)
+                {
+                    duration = shiitakeData.shiitakeBurnDuration;
+                    interval = shiitakeData.shiitakeBurnInterval;
+                    if (shiitakeData.shiitakeBurnDotPercent != null && burnLvl <= shiitakeData.shiitakeBurnDotPercent.Length && burnLvl > 0)
+                    {
+                        dotPercent = shiitakeData.shiitakeBurnDotPercent[burnLvl - 1];
+                    }
+                }
+            }
+
             int damage = Mathf.Max(1, Mathf.RoundToInt(burnBaseDamage * dotPercent));
+            float elapsed = 0f;
 
             while (elapsed < duration)
             {

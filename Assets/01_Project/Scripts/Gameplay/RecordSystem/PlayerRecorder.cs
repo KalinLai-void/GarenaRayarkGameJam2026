@@ -49,7 +49,7 @@ namespace Gameplay
         private void Update()
         {
             // 偵測空白鍵 (Space)，若按下則存檔並重開關卡以測試殘影
-            if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
+            if (Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
             {
                 if (isRecording)
                 {

@@ -157,7 +157,7 @@ namespace Gameplay
             {
                 if (skillLevelTexts[index] != null)
                 {
-                    skillLevelTexts[index].text = $"LV {nextLevel}";
+                    skillLevelTexts[index].text = $"{nextLevel}";
                     Debug.Log($"【SkillUI】Slot {index} 等級更新為 LV {nextLevel}");
                 }
                 else

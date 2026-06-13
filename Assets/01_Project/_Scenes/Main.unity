@@ -2257,7 +2257,7 @@ MonoBehaviour:
   timerText: {fileID: 478320694239300304}
   maxTime: 99
   stackSize: 5
-  maxLikes: 1
+  maxLikes: 4
   maxNopes: 4
   openDuration: 0.5
   closeDuration: 0.4
