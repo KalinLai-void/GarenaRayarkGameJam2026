@@ -40,9 +40,23 @@ namespace Gameplay
             // 偵測是否碰撞到玩家
             if (other.CompareTag("Player"))
             {
-                Debug.Log($"【Console Log】玩家拾取了道具: {itemName}");
+                // 1. 將道具登錄至玩家的 PlayerInventory 背包資料中
+                PlayerInventory inventory = other.GetComponent<PlayerInventory>();
+                if (inventory != null)
+                {
+                    inventory.AddItem(itemName);
+                }
+                else
+                {
+                    // 若玩家身上沒有掛載 PlayerInventory，嘗試在父層或子層尋找作為安全防呆
+                    inventory = other.GetComponentInParent<PlayerInventory>();
+                    if (inventory != null)
+                    {
+                        inventory.AddItem(itemName);
+                    }
+                }
 
-                // 尋找 UI 總管並新增圖示
+                // 2. 尋找 UI 總管並新增圖示
                 SkillUIManager uiManager = Object.FindFirstObjectByType<SkillUIManager>();
                 if (uiManager != null)
                 {
