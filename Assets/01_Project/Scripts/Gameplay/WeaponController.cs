@@ -16,6 +16,8 @@ namespace Gameplay
 
         [Header("--- 裝彈設定 ---")]
         [SerializeField] private float reloadTime = 0.1f;
+        [SerializeField] private bool infiniteAmmo = true; // 是否無限彈藥
+
 
         [Header("--- 圓圈軌道設定 ---")]
         [SerializeField] private float orbitRadius = 1.2f; // 武器離角色中心的固定距離
@@ -89,8 +91,8 @@ namespace Gameplay
 
             if (isReloading) return;
 
-            // 沒子彈自動裝彈
-            if (currentAmmo <= 0)
+            // 沒子彈自動裝彈 (無限彈藥時跳過)
+            if (!infiniteAmmo && currentAmmo <= 0)
             {
                 StartCoroutine(ReloadRoutine());
                 return;
@@ -196,8 +198,11 @@ namespace Gameplay
 
         private void Shoot()
         {
-            currentAmmo--;
-            Debug.Log($"【Console Log】武器射擊！剩餘彈藥: {currentAmmo}/{FinalMaxAmmo}");
+            if (!infiniteAmmo)
+            {
+                currentAmmo--;
+            }
+            Debug.Log($"【Console Log】武器射擊！剩餘彈藥: {(infiniteAmmo ? "無限" : currentAmmo.ToString())}/{FinalMaxAmmo}");
 
             if (bulletPrefab != null && muzzlePoint != null)
             {
