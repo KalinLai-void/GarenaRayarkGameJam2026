@@ -33,12 +33,33 @@ namespace Gameplay
         [Tooltip("X 與 Y 軸的隨機震幅範圍 (以原始縮放為基準進行加減，例如 0.05 代表 1 +- 0.05)")]
         [SerializeField] private Vector2 randomRange = new Vector2(0.05f, 0.05f);
 
+        [Header("--- 子物件同步設定 ---")]
+        [Tooltip("是否同步影響所有子物件的縮放 (等比套用至子物件的 localScale)")]
+        [SerializeField] private bool affectChildren = false;
+
+        [Tooltip("是否套用縮放至自身物件")]
+        [SerializeField] private bool scaleParent = true;
+
         private Vector3 originalScale;
         private Coroutine scaleCoroutine;
+        private readonly System.Collections.Generic.Dictionary<Transform, Vector3> childOriginalScales = new System.Collections.Generic.Dictionary<Transform, Vector3>();
 
         private void Awake()
         {
             originalScale = transform.localScale;
+            CacheChildOriginalScales();
+        }
+
+        public void CacheChildOriginalScales()
+        {
+            childOriginalScales.Clear();
+            if (affectChildren)
+            {
+                foreach (Transform child in transform)
+                {
+                    childOriginalScales[child] = child.localScale;
+                }
+            }
         }
 
         private void OnEnable()
@@ -61,7 +82,7 @@ namespace Gameplay
                 StopCoroutine(scaleCoroutine);
                 scaleCoroutine = null;
             }
-            transform.localScale = originalScale;
+            ApplyScaleMultiplier(Vector3.one);
         }
 
         /// <summary>
@@ -79,40 +100,66 @@ namespace Gameplay
             scaleCoroutine = StartCoroutine(PunchScaleRoutine());
         }
 
+        private void ApplyScaleMultiplier(Vector3 multiplier)
+        {
+            if (scaleParent)
+            {
+                transform.localScale = new Vector3(
+                    originalScale.x * multiplier.x,
+                    originalScale.y * multiplier.y,
+                    originalScale.z * multiplier.z
+                );
+            }
+
+            if (affectChildren)
+            {
+                foreach (var kvp in childOriginalScales)
+                {
+                    if (kvp.Key != null)
+                    {
+                        kvp.Key.localScale = new Vector3(
+                            kvp.Value.x * multiplier.x,
+                            kvp.Value.y * multiplier.y,
+                            kvp.Value.z * multiplier.z
+                        );
+                    }
+                }
+            }
+        }
+
         private IEnumerator PunchScaleRoutine()
         {
-            // 🌟 根據原始縮放 (originalScale) 進行等比相乘，防止非 1 的初始縮放物件被強制拉伸/變形！
-            Vector3 finalTargetScale = new Vector3(originalScale.x * targetScale.x, originalScale.y * targetScale.y, originalScale.z * targetScale.z);
+            Vector3 finalTargetMultiplier = targetScale;
             if (useRandomScale)
             {
                 float randX = Random.Range(-randomRange.x, randomRange.x);
                 float randY = Random.Range(-randomRange.y, randomRange.y);
-                finalTargetScale = new Vector3(originalScale.x * (1f + randX), originalScale.y * (1f + randY), originalScale.z);
+                finalTargetMultiplier = new Vector3(1f + randX, 1f + randY, 1f);
             }
 
-            // 1. 漸進放大至目標 Scale
+            // 1. 漸進放大至目標 Multiplier
             float elapsed = 0f;
-            Vector3 startScale = transform.localScale;
             while (elapsed < durationUp)
             {
                 elapsed += Time.unscaledDeltaTime;
                 float t = Mathf.Clamp01(elapsed / durationUp);
-                // 使用 SmoothStep 做平滑插值，讓加速減速更具彈性果汁感
-                transform.localScale = Vector3.Lerp(startScale, finalTargetScale, Mathf.SmoothStep(0f, 1f, t));
+                Vector3 currentMultiplier = Vector3.Lerp(Vector3.one, finalTargetMultiplier, Mathf.SmoothStep(0f, 1f, t));
+                ApplyScaleMultiplier(currentMultiplier);
                 yield return null;
             }
-            transform.localScale = finalTargetScale;
+            ApplyScaleMultiplier(finalTargetMultiplier);
 
-            // 2. 漸進縮回至原始 Scale
+            // 2. 漸進縮回至原始 1.0
             elapsed = 0f;
             while (elapsed < durationDown)
             {
                 elapsed += Time.unscaledDeltaTime;
                 float t = Mathf.Clamp01(elapsed / durationDown);
-                transform.localScale = Vector3.Lerp(finalTargetScale, originalScale, Mathf.SmoothStep(0f, 1f, t));
+                Vector3 currentMultiplier = Vector3.Lerp(finalTargetMultiplier, Vector3.one, Mathf.SmoothStep(0f, 1f, t));
+                ApplyScaleMultiplier(currentMultiplier);
                 yield return null;
             }
-            transform.localScale = originalScale;
+            ApplyScaleMultiplier(Vector3.one);
             scaleCoroutine = null;
         }
 
