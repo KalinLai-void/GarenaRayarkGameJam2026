@@ -135,45 +135,20 @@ namespace Gameplay
             currentState = PlayerState.Hurt;
             Debug.Log($"【Console Log】玩家受到 {damage} 點傷害，剩餘生命值: {currentHealth}，狀態變更為: [Hurt]");
 
-            // 優先嘗試使用 CustomJuiceAnimator 播放受擊與紅閃
-            CustomJuiceAnimator juice = GetComponentInChildren<CustomJuiceAnimator>();
-            if (juice != null)
+            // 觸發受傷紅閃
+            if (spriteRenderer != null)
             {
-                juice.PlayHurtEffect();
                 if (flashCoroutine != null)
                 {
                     StopCoroutine(flashCoroutine);
                 }
-                flashCoroutine = StartCoroutine(ResetStateAfterDelay(flashDuration));
-            }
-            else
-            {
-                // Fallback: 內置紅閃
-                if (spriteRenderer != null)
-                {
-                    if (flashCoroutine != null)
-                    {
-                        StopCoroutine(flashCoroutine);
-                    }
-                    flashCoroutine = StartCoroutine(FlashRedRoutine());
-                }
+                flashCoroutine = StartCoroutine(FlashRedRoutine());
             }
 
             if (currentHealth <= 0)
             {
                 Die();
             }
-        }
-
-        private IEnumerator ResetStateAfterDelay(float delay)
-        {
-            yield return new WaitForSeconds(delay);
-            if (currentState == PlayerState.Hurt)
-            {
-                currentState = PlayerState.Normal;
-                Debug.Log($"【Console Log】玩家受傷狀態結束，狀態恢復為: [Normal]");
-            }
-            flashCoroutine = null;
         }
 
         private IEnumerator FlashRedRoutine()
