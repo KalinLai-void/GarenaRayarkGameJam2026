@@ -62,6 +62,15 @@ namespace Gameplay
         private Vector3 originalScale = Vector3.one;
         private Vector3 originalLocalPosition; // 儲存編輯器設定的原始本地位置
 
+        // 🌟 儲存編輯器中擺放的卡片範本排版，使動態生成的卡片尺寸、錨點與縮放完全契合
+        private Vector2 templateAnchorMin = new Vector2(0f, 0.5f);
+        private Vector2 templateAnchorMax = new Vector2(1f, 0.5f);
+        private Vector2 templatePivot = new Vector2(0.5f, 0.5f);
+        private Vector2 templateSizeDelta = new Vector2(-28.85f, 534.23f);
+        private Vector2 templateAnchoredPosition = new Vector2(6.57f, 312.0f);
+        private Vector3 templateLocalScale = Vector3.one;
+        private bool hasTemplate = false;
+
         // 供展示測試用的技能卡片數據
         private readonly string[] skillNames = { "閃爍彈", "雷霆一擊", "治癒術", "烈焰風暴", "時間靜止" };
         private readonly string[] skillDescs = {
@@ -79,10 +88,25 @@ namespace Gameplay
             {
                 rectTransform = GetComponent<RectTransform>();
             }
-            // 🌟 強制將手機 HUD 的 Pivot 設為 (0.5, 0.5) 正中心，確保放大/縮小與彈出軌跡完美以中心進行！
-            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            
+            // 🌟 動態更置 Pivot 並進行位移補償，確保執行期的視覺位置與 Scene 編輯器中完全一致！
+            SetPivotWithoutShifting(new Vector2(0.5f, 0.5f));
+            
             originalScale = transform.localScale; // 記住您在編輯器中設定的原始縮放比例！
             originalLocalPosition = rectTransform.localPosition; // 記住您在編輯器中設定的原始本地位置！
+        }
+
+        private void SetPivotWithoutShifting(Vector2 targetPivot)
+        {
+            if (rectTransform == null) return;
+            Vector2 deltaPivot = targetPivot - rectTransform.pivot;
+            Vector3 deltaPosition = new Vector3(
+                deltaPivot.x * rectTransform.rect.width * rectTransform.localScale.x,
+                deltaPivot.y * rectTransform.rect.height * rectTransform.localScale.y,
+                0f
+            );
+            rectTransform.pivot = targetPivot;
+            rectTransform.localPosition += rectTransform.localRotation * deltaPosition;
         }
 
         private void FindPlayer()
@@ -112,12 +136,32 @@ namespace Gameplay
                 rectTransform = GetComponent<RectTransform>();
             }
 
+            // 🌟 一啟用立刻將縮放設為 0，防止在開始彈出動畫前出現一影格的「原尺寸閃爍」！
+            rectTransform.localScale = Vector3.zero;
+
             // 初始化或重置狀態
             isClosing = false;
             currentTimer = maxTime;
             isTimerRunning = false; // 彈出動畫進行中先不計時，彈完才計時
             currentLikes = 0;
             currentNopes = 0;
+
+            // 🌟 讀取編輯器中的卡片範本設定，以便動態生成的卡片完全契合您在編輯器中排版的位置與大小！
+            hasTemplate = false;
+            if (cardContainer != null && cardContainer.childCount > 0)
+            {
+                RectTransform templateRt = cardContainer.GetChild(0).GetComponent<RectTransform>();
+                if (templateRt != null)
+                {
+                    templateAnchorMin = templateRt.anchorMin;
+                    templateAnchorMax = templateRt.anchorMax;
+                    templatePivot = templateRt.pivot;
+                    templateSizeDelta = templateRt.sizeDelta;
+                    templateAnchoredPosition = templateRt.anchoredPosition;
+                    templateLocalScale = templateRt.localScale;
+                    hasTemplate = true;
+                }
+            }
 
             // 清除上次或編輯器留下的卡片，避免干擾執行期的卡片堆疊與射線阻擋
             if (cardContainer != null)
@@ -427,8 +471,30 @@ namespace Gameplay
             }
 
             GameObject newCard = Instantiate(cardPrefab, cardContainer);
-            // 🌟 強制將新生成卡片的 localScale 設為 Prefab 的 localScale，以防被 Canvas/Instantiate 自動重設為 Vector3.one
-            newCard.transform.localScale = cardPrefab.transform.localScale;
+            
+            // 🌟 讓新生成卡片完美套用模版排版，防止與編輯器內大小不一
+            RectTransform cardRt = newCard.GetComponent<RectTransform>();
+            if (cardRt != null && hasTemplate)
+            {
+                cardRt.anchorMin = templateAnchorMin;
+                cardRt.anchorMax = templateAnchorMax;
+                cardRt.pivot = templatePivot;
+                cardRt.sizeDelta = templateSizeDelta;
+                cardRt.anchoredPosition = templateAnchoredPosition;
+                newCard.transform.localScale = templateLocalScale;
+            }
+            else
+            {
+                newCard.transform.localScale = cardPrefab.transform.localScale;
+            }
+
+            // 🌟 重新設定卡片原點位置以防拖拽回彈位置偏移！
+            var dragHandler = newCard.GetComponent<TinderCardDragHandler>();
+            if (dragHandler != null)
+            {
+                dragHandler.ResetStartPosition();
+            }
+
             newCard.name = $"Card_{skillNames[skillDataIndex]}";
             
             // 尋找卡片內的文字組件並指派內容

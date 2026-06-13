@@ -62,6 +62,18 @@ namespace Gameplay
             likeButton = like;
         }
 
+        /// <summary>
+        /// 重新計算並設定卡片的原點位置 (當 Manager 動態變更卡片的錨點或排版後呼叫)
+        /// </summary>
+        public void ResetStartPosition()
+        {
+            if (rectTransform == null)
+            {
+                rectTransform = GetComponent<RectTransform>();
+            }
+            startPosition = rectTransform.anchoredPosition;
+        }
+
         public void OnBeginDrag(PointerEventData eventData)
         {
             if (isFlyingAway) return;
