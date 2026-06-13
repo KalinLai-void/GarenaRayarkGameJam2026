@@ -1,0 +1,4 @@
+interface:
+  display_name: "Garena Rayark Game Jam"
+  short_description: "Unity Game Jam 結構與快速開發守則"
+  default_prompt: "使用 $garena-rayark-game-jam-2026 整理 Unity 專案結構、中文 Inspector Label 與 Game Jam 快速開發規格。"
