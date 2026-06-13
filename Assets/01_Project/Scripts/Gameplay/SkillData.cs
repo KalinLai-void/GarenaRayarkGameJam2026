@@ -30,7 +30,10 @@ namespace Gameplay
         public Sprite hudIcon;
 
         [Header("--- Gameplay Settings ---")]
-        public float cooldown; // 0 for passive
+        [Tooltip("勾選表示此為主動技能（由 Space 觸發），不勾選則為被動技能")]
+        public bool isActive = false; // true = 主動技能 (放到 Slot 0)，false = 被動
+        public float cooldown; // 主動技能的冷卻時間（秒），被動填 0
         public int maxLevel = 5;
     }
 }
+
