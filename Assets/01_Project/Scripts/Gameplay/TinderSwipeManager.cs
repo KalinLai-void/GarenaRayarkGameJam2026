@@ -45,6 +45,8 @@ namespace Gameplay
 
         private RectTransform rectTransform;
         private Transform playerTransform;
+        private Vector3 originalScale = Vector3.one;
+        private Vector2 originalPosition; // 儲存編輯器設定的原始位置
 
         // 供展示測試用的技能卡片數據
         private readonly string[] skillNames = { "閃爍彈", "雷霆一擊", "治癒術", "烈焰風暴", "時間靜止" };
@@ -63,6 +65,10 @@ namespace Gameplay
             {
                 rectTransform = GetComponent<RectTransform>();
             }
+            // 🌟 強制將手機 HUD 的 Pivot 設為 (0.5, 0.5) 正中心，確保放大/縮小與彈出軌跡完美以中心進行！
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            originalScale = transform.localScale; // 記住您在編輯器中設定的原始縮放比例！
+            originalPosition = rectTransform.anchoredPosition; // 記住您在編輯器中設定的原始位置！
         }
 
         private void FindPlayer()
@@ -194,7 +200,7 @@ namespace Gameplay
 
             float t = 0f;
             float duration = 0.5f; // 0.5 秒彈出動畫
-            Vector2 endPos = Vector2.zero; // 畫面正中央
+            Vector2 endPos = originalPosition; // 使用設定的原始位置！
 
             while (t < 1f)
             {
@@ -202,14 +208,14 @@ namespace Gameplay
                 float progress = Mathf.Clamp01(t);
                 float eased = EaseOutBack(progress);
 
-                rectTransform.localScale = Vector3.one * eased;
+                rectTransform.localScale = originalScale * eased; // 🌟 乘以您設定的原始 Scale！
                 rectTransform.anchoredPosition = Vector2.Lerp(startPos, endPos, progress);
 
                 yield return null;
             }
 
-            rectTransform.localScale = Vector3.one;
-            rectTransform.anchoredPosition = Vector2.zero;
+            rectTransform.localScale = originalScale; // 🌟 還原為原始 Scale！
+            rectTransform.anchoredPosition = originalPosition; // 🌟 還原為原始位置！
 
             isClosing = false;
             isTimerRunning = true; // 動畫完成後正式開始計時
@@ -306,7 +312,7 @@ namespace Gameplay
                 float progress = Mathf.Clamp01(t);
                 float eased = EaseInBack(progress);
 
-                rectTransform.localScale = Vector3.one * (1f - eased);
+                rectTransform.localScale = originalScale * (1f - eased); // 🌟 乘以您設定的原始 Scale！
                 rectTransform.anchoredPosition = Vector2.Lerp(startPos, targetPos, progress);
 
                 yield return null;
@@ -379,9 +385,20 @@ namespace Gameplay
 
         private void SpawnCardToStack()
         {
-            if (cardPrefab == null || cardContainer == null) return;
+            if (cardPrefab == null)
+            {
+                Debug.LogError("【Tinder UI】Card Prefab 欄位未指派，或被錯誤指派成 Hierarchy 中的物件而被銷毀了！請將 Project (Assets) 視窗中的 UI_TinderCard Prefab 拖入 TinderSwipeManager 的 Card Prefab 欄位中。");
+                return;
+            }
+            if (cardContainer == null)
+            {
+                Debug.LogError("【Tinder UI】Card Container 欄位未指派！");
+                return;
+            }
 
             GameObject newCard = Instantiate(cardPrefab, cardContainer);
+            // 🌟 強制將新生成卡片的 localScale 設為 Prefab 的 localScale，以防被 Canvas/Instantiate 自動重設為 Vector3.one
+            newCard.transform.localScale = cardPrefab.transform.localScale;
             newCard.name = $"Card_{skillNames[skillDataIndex]}";
             
             // 尋找卡片內的文字組件並指派內容
