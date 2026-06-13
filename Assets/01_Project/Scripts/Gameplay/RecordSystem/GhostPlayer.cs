@@ -12,8 +12,7 @@ public sealed class GhostPlayer : MonoBehaviour
     [Tooltip("殘影專用的武器控制器 (不能掛原本的 WeaponController)")]
     [SerializeField] private GhostWeaponController ghostWeapon;
 
-    [Tooltip("角色貼圖 (用來處理殘影的左右翻面)")]
-    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Animator animator;
 
     private List<FrameData> replayData;
     private int currentFrame = 0;
@@ -21,10 +20,6 @@ public sealed class GhostPlayer : MonoBehaviour
 
     private void Awake()
     {
-        if (spriteRenderer == null)
-        {
-            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        }
     }
 
     /// <summary>
@@ -55,11 +50,17 @@ public sealed class GhostPlayer : MonoBehaviour
             transform.position = data.position;
 
             // 2. 處理本體的左右翻面 (計算當前幀與上一幀的位移差距)
-            if (currentFrame > 0 && spriteRenderer != null)
+            if (currentFrame > 0 && animator != null)
             {
                 float deltaX = data.position.x - replayData[currentFrame - 1].position.x;
-                if (deltaX < -0.01f) spriteRenderer.flipX = true;
-                else if (deltaX > 0.01f) spriteRenderer.flipX = false;
+                if (deltaX < -0.01f)
+                {
+                    animator.SetBool("IsFaceLeft", true);
+                }
+                else if (deltaX > 0.01f)
+                {
+                    animator.SetBool("IsFaceLeft", false);
+                }
             }
 
             // 3. 把「瞄準座標」與「是否開火」交給殘影專用武器去處理
