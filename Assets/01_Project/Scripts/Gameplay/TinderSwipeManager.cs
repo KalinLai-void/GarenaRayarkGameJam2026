@@ -37,6 +37,16 @@ namespace Gameplay
 
         [Tooltip("單次升級最大可取消次數（左滑達到此數量後會自動關閉手機）")]
         [SerializeField] private int maxNopes = 3;
+
+        [Header("--- 打開/關閉動畫設定 ---")]
+        [Tooltip("打開動畫的持續時間 (秒)")]
+        [SerializeField] private float openDuration = 0.5f;
+
+        [Tooltip("關閉動畫的持續時間 (秒)")]
+        [SerializeField] private float closeDuration = 0.4f;
+
+        [Tooltip("動畫彈跳強度 (數值越大彈跳與放大越明顯，預設 1.70158)")]
+        [SerializeField] private float bounceIntensity = 1.70158f;
         
         private float currentTimer;
         private bool isTimerRunning = false;
@@ -207,7 +217,7 @@ namespace Gameplay
             rectTransform.localScale = Vector3.zero;
 
             float t = 0f;
-            float duration = 0.5f; // 0.5 秒彈出動畫
+            float duration = openDuration; // 使用設定的開啟時長
             Vector3 endLocalPos = originalLocalPosition; // 使用設定的原始本地位置！
 
             while (t < 1f)
@@ -217,7 +227,7 @@ namespace Gameplay
                 float eased = EaseOutBack(progress);
 
                 rectTransform.localScale = originalScale * eased; // 🌟 乘以您設定的原始 Scale！
-                rectTransform.localPosition = Vector3.Lerp(new Vector3(startLocalPos.x, startLocalPos.y, rectTransform.localPosition.z), endLocalPos, progress);
+                rectTransform.localPosition = Vector3.Lerp(new Vector3(startLocalPos.x, startLocalPos.y, rectTransform.localPosition.z), endLocalPos, eased);
 
                 yield return null;
             }
@@ -314,7 +324,7 @@ namespace Gameplay
             }
 
             float t = 0f;
-            float duration = 0.4f; // 0.4 秒關閉動畫
+            float duration = closeDuration; // 使用設定的關閉時長
             Vector3 startLocalPos = rectTransform.localPosition;
 
             while (t < 1f)
@@ -324,7 +334,7 @@ namespace Gameplay
                 float eased = EaseInBack(progress);
 
                 rectTransform.localScale = originalScale * (1f - eased); // 🌟 乘以您設定的原始 Scale！
-                rectTransform.localPosition = Vector3.Lerp(startLocalPos, new Vector3(targetLocalPos.x, targetLocalPos.y, rectTransform.localPosition.z), progress);
+                rectTransform.localPosition = Vector3.Lerp(startLocalPos, new Vector3(targetLocalPos.x, targetLocalPos.y, rectTransform.localPosition.z), eased);
 
                 yield return null;
             }
@@ -500,15 +510,15 @@ namespace Gameplay
 
         private float EaseOutBack(float x)
         {
-            const float c1 = 1.70158f;
-            const float c3 = c1 + 1f;
+            float c1 = bounceIntensity;
+            float c3 = c1 + 1f;
             return 1f + c3 * Mathf.Pow(x - 1f, 3f) + c1 * Mathf.Pow(x - 1f, 2f);
         }
 
         private float EaseInBack(float x)
         {
-            const float c1 = 1.70158f;
-            const float c3 = c1 + 1f;
+            float c1 = bounceIntensity;
+            float c3 = c1 + 1f;
             return c3 * x * x * x - c1 * x * x;
         }
     }
