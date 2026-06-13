@@ -93,9 +93,12 @@ namespace Gameplay
             // 3. 最終移動方向 = 朝向玩家的引力 + 避開隊友的排斥力 (乘以權重)
             Vector2 finalVelocity = moveDirection + (separationShared * separationWeight);
 
+            float currentMaxSlow = Mathf.Max(passiveSlowPercent, blockSlowPercent);
+            float actualSpeed = moveSpeed * (1f - currentMaxSlow);
+
             if (finalVelocity.sqrMagnitude > 0.001f)
             {
-                rb.linearVelocity = finalVelocity.normalized * moveSpeed;
+                rb.linearVelocity = finalVelocity.normalized * actualSpeed;
             }
             else
             {
@@ -104,6 +107,35 @@ namespace Gameplay
 
             // 4. 根據速度方向更新翻面 (水平翻轉)
             UpdateFacing(rb.linearVelocity.x);
+        }
+
+        private float passiveSlowPercent = 0f;
+        private float blockSlowPercent = 0f;
+
+        public bool IsSlowed => (passiveSlowPercent > 0f || blockSlowPercent > 0f);
+
+        public void ApplyPassiveSlow(float amount)
+        {
+            passiveSlowPercent = amount;
+        }
+
+        public void RemovePassiveSlow()
+        {
+            passiveSlowPercent = 0f;
+        }
+
+        public void ApplyBlockSlow(float amount)
+        {
+            blockSlowPercent = amount;
+        }
+
+        public void RemoveBlockSlow(float amount)
+        {
+            // 防呆移除對應數值
+            if (blockSlowPercent == amount)
+            {
+                blockSlowPercent = 0f;
+            }
         }
 
         private void UpdateFacing(float vx)

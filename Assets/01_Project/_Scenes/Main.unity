@@ -2334,7 +2334,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9004317540371561615, guid: 7d1527a0ec32cdf4bb6f00c674835bf3, type: 3}
       propertyPath: m_Name
-      value: Slot_Skill_1
+      value: Slot_Active_Skill
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

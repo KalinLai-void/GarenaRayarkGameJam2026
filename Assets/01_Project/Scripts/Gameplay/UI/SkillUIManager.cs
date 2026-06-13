@@ -40,6 +40,59 @@ namespace Gameplay
         public Color XPFillColor => xpFillColor;
         public float XPBarHeight => xpBarHeight;
 
+        private Image[] skillIconImages = new Image[4];
+
+        private void Awake()
+        {
+            string[] slotNames = new string[] {
+                "Slot_Active_Skill",
+                "Slot_Passive_Skill",
+                "Slot_Passive_Skill (1)",
+                "Slot_Passive_Skill (2)"
+            };
+
+            for (int i = 0; i < 4; i++)
+            {
+                GameObject slotGo = GameObject.Find(slotNames[i]);
+                if (slotGo == null)
+                {
+                    foreach (GameObject root in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects())
+                    {
+                        Transform t = FindDeepChild(root.transform, slotNames[i]);
+                        if (t != null)
+                        {
+                            slotGo = t.gameObject;
+                            break;
+                        }
+                    }
+                }
+
+                if (slotGo != null)
+                {
+                    Transform iconTrans = slotGo.transform.Find("Skill_Icon");
+                    if (iconTrans != null)
+                    {
+                        skillIconImages[i] = iconTrans.GetComponent<Image>();
+                        if (skillIconImages[i] != null)
+                        {
+                            skillIconImages[i].gameObject.SetActive(false); // 初始隱藏，直到獲得技能
+                        }
+                    }
+                }
+            }
+        }
+
+        private Transform FindDeepChild(Transform parent, string name)
+        {
+            if (parent.name == name) return parent;
+            foreach (Transform child in parent)
+            {
+                Transform t = FindDeepChild(child, name);
+                if (t != null) return t;
+            }
+            return null;
+        }
+
         private void Start()
         {
             // 初始化：隱藏冷卻遮罩與文字
@@ -169,6 +222,31 @@ namespace Gameplay
             
             xpSlider.maxValue = maxXP;
             xpSlider.value = currentXP;
+        }
+
+        /// <summary>
+        /// 設定對應 Index 的技能圖示 (0:主動技能, 1~3:被動技能)
+        /// </summary>
+        public void SetSkillIcon(int index, Sprite icon)
+        {
+            if (index >= 0 && index < skillIconImages.Length)
+            {
+                Image img = skillIconImages[index];
+                if (img != null)
+                {
+                    if (icon != null)
+                    {
+                        img.sprite = icon;
+                        img.gameObject.SetActive(true);
+                        img.enabled = true;
+                    }
+                    else
+                    {
+                        img.gameObject.SetActive(false);
+                        img.enabled = false;
+                    }
+                }
+            }
         }
     }
 }

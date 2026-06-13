@@ -43,8 +43,14 @@ namespace Gameplay
 
         // --- 供內部與外部讀取的「最終實際數值」 ---
         public int FinalDamage => baseDamage + bonusDamage;
-        public float FinalFireRate => baseFireRate + bonusFireRate;
+        public float FinalFireRate => baseFireRate + bonusFireRate + (PlayerSkillSystem.Instance != null ? GetNeedleFireRateBonus() : 0f);
         public int FinalMaxAmmo => baseMaxAmmo + bonusMaxAmmo;
+
+        private float GetNeedleFireRateBonus()
+        {
+            int lvl = PlayerSkillSystem.Instance.GetSkillLevel("R_NeedleMushroom");
+            return lvl > 0 ? baseFireRate * (0.15f + 0.05f * (lvl - 1)) : 0f;
+        }
 
         public int CurrentAmmo => currentAmmo;
         public bool IsReloading => isReloading;
@@ -210,18 +216,74 @@ namespace Gameplay
 
             if (bulletPrefab != null && muzzlePoint != null)
             {
-                // 計算從武器中心指向槍口的精確世界方向向量，確保子彈沿着槍口指向的直線往前飛行
                 Vector2 fireDirection = ((Vector2)(muzzlePoint.position - transform.position)).normalized;
                 float fireAngle = Mathf.Atan2(fireDirection.y, fireDirection.x) * Mathf.Rad2Deg;
-                Quaternion bulletRotation = Quaternion.Euler(0f, 0f, fireAngle);
 
-                GameObject bulletGo = Instantiate(bulletPrefab, muzzlePoint.position, bulletRotation);
-                bulletGo.transform.parent = pool.transform;
-                Bullet bulletScript = bulletGo.GetComponent<Bullet>();
-                
-                if (bulletScript != null)
+                // 1. 讀取技能系統的各項加成數值
+                int needleLvl = PlayerSkillSystem.Instance != null ? PlayerSkillSystem.Instance.GetSkillLevel("R_NeedleMushroom") : 0;
+                int whiteElfLvl = PlayerSkillSystem.Instance != null ? PlayerSkillSystem.Instance.GetSkillLevel("R_WhiteElf") : 0;
+                int kingOysterLvl = PlayerSkillSystem.Instance != null ? PlayerSkillSystem.Instance.GetSkillLevel("R_KingOyster") : 0;
+                bool isCoralActive = PlayerSkillSystem.Instance != null && PlayerSkillSystem.Instance.IsActiveSkillEffectRunning && PlayerSkillSystem.Instance.ActiveSkill.skillID == "SR_CoralMushroom";
+                int coralLvl = PlayerSkillSystem.Instance != null ? PlayerSkillSystem.Instance.GetSkillLevel("SR_CoralMushroom") : 0;
+
+                // 2. 計算傷害、體積與速度
+                int damage = FinalDamage;
+                if (kingOysterLvl > 0)
                 {
-                    bulletScript.Setup(FinalDamage); // 帶入最終加成傷害
+                    damage += (int)(baseDamage * 0.05f * kingOysterLvl);
+                }
+                if (isCoralActive)
+                {
+                    damage += (int)(baseDamage * (0.10f + 0.10f * (coralLvl - 1)));
+                }
+
+                float scaleMultiplier = 1.0f;
+                if (kingOysterLvl > 0)
+                {
+                    scaleMultiplier += 0.10f * kingOysterLvl;
+                }
+
+                float bulletSpeed = 15f; // Bullet.cs 預設基礎速度為 15f
+                if (needleLvl > 0)
+                {
+                    bulletSpeed *= 1.10f;
+                }
+
+                // 3. 處理白精靈菇的多發扇形子彈
+                int bulletCount = 1;
+                if (whiteElfLvl > 0)
+                {
+                    bulletCount = whiteElfLvl + 1;
+                }
+
+                float spreadAngle = whiteElfLvl >= 4 ? 45f : 30f;
+                float angleStep = bulletCount > 1 ? spreadAngle / (bulletCount - 1) : 0f;
+                float startAngle = fireAngle - (bulletCount > 1 ? spreadAngle / 2f : 0f);
+
+                for (int i = 0; i < bulletCount; i++)
+                {
+                    float angle = startAngle + i * angleStep;
+                    Quaternion bulletRotation = Quaternion.Euler(0f, 0f, angle);
+
+                    GameObject bulletGo = Instantiate(bulletPrefab, muzzlePoint.position, bulletRotation);
+                    bulletGo.transform.parent = pool.transform;
+
+                    // 4. 設定子彈體積 (若為珊瑚菇光束，另外將 X 軸拉伸呈光束形狀)
+                    if (isCoralActive)
+                    {
+                        bulletGo.transform.localScale = new Vector3(3.5f, 0.8f, 1f) * scaleMultiplier;
+                    }
+                    else
+                    {
+                        bulletGo.transform.localScale = Vector3.one * scaleMultiplier;
+                    }
+
+                    Bullet bulletScript = bulletGo.GetComponent<Bullet>();
+                    if (bulletScript != null)
+                    {
+                        // 帶入最終傷害、速度、是否為珊瑚菇光束等設定
+                        bulletScript.Setup(damage, bulletSpeed, -1f, isCoralActive);
+                    }
                 }
             }
         }
