@@ -28,6 +28,9 @@ namespace Gameplay
         [Header("--- 倒數計時設定 ---")]
         [Tooltip("每張卡片的選擇倒數時間 (秒)")]
         [SerializeField] private float maxTime = 5.0f;
+
+        [Tooltip("畫面中同時堆疊顯示的卡片數量")]
+        [SerializeField] private int stackSize = 3;
         
         private float currentTimer;
         private bool isTimerRunning = false;
@@ -126,8 +129,8 @@ namespace Gameplay
                 }
             }
 
-            // 初始化堆疊：一次生成 3 張卡片，方便透出下方卡面
-            for (int i = 0; i < 3; i++)
+            // 初始化堆疊：一次生成 stackSize 張卡片，方便透出下方卡面
+            for (int i = 0; i < stackSize; i++)
             {
                 SpawnCardToStack();
             }
