@@ -31,11 +31,15 @@ namespace Gameplay
 
         [Tooltip("畫面中同時堆疊顯示的卡片數量")]
         [SerializeField] private int stackSize = 3;
+
+        [Tooltip("單次升級最大可滑動卡片次數限制（左滑達到此數量後會自動關閉手機）")]
+        [SerializeField] private int maxSwipes = 3;
         
         private float currentTimer;
         private bool isTimerRunning = false;
         private readonly List<GameObject> activeCards = new List<GameObject>();
         private bool isClosing = false;
+        private int currentSwipes = 0;
         private Coroutine nopeScaleCoroutine;
         private Coroutine likeScaleCoroutine;
 
@@ -92,6 +96,7 @@ namespace Gameplay
             isClosing = false;
             currentTimer = maxTime;
             isTimerRunning = false; // 彈出動畫進行中先不計時，彈完才計時
+            currentSwipes = 0; // 重置已滑動卡牌次數
 
             // 清除上次或編輯器留下的卡片，避免干擾執行期的卡片堆疊與射線阻擋
             if (cardContainer != null)
@@ -351,14 +356,21 @@ namespace Gameplay
                 activeCards.Remove(swipedCard);
                 Debug.Log($"【Tinder UI】卡片被滑動：{(isLike ? "右滑 (Like)" : "左滑 (Nope)")} - {swipedCard.name}");
 
+                currentSwipes++;
+
                 if (isLike)
                 {
                     // 🌟 玩家選擇了這個技能！執行選中邏輯並關閉 UI
                     StartCoroutine(SelectAndCloseRoutine(swipedCard));
                 }
+                else if (currentSwipes >= maxSwipes)
+                {
+                    // 🌟 左滑次數已達上限，自動高速飛出剩餘卡片並關閉 UI
+                    StartCoroutine(CloseRoutine());
+                }
                 else
                 {
-                    // 總計倒數模式：左滑不重置時間，只補牌
+                    // 總計倒數模式：左滑且次數未滿，繼續補牌
                     SpawnCardToStack();
                     UpdateTopCardDragState();
                 }
