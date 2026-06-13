@@ -60,6 +60,16 @@ namespace Gameplay
             {
                 Debug.LogWarning("PlayerMovement: 找不到 PlayerInput 元件，將無法透過 Input Action 移動！");
             }
+
+            // 關閉 Player 與 Enemy，以及 Enemy 與 Enemy 的硬物理碰撞
+            int playerLayer = LayerMask.NameToLayer("Player");
+            int enemyLayer = LayerMask.NameToLayer("Enemy");
+            if (playerLayer != -1 && enemyLayer != -1)
+            {
+                Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, true);
+                Physics2D.IgnoreLayerCollision(enemyLayer, enemyLayer, true);
+                Debug.Log("【物理設定】已成功忽略 Player-Enemy 與 Enemy-Enemy 的硬物理碰撞。");
+            }
         }
 
         private void Update()
