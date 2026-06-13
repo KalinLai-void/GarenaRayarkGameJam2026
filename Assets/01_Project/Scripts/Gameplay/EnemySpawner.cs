@@ -15,6 +15,8 @@ namespace Gameplay
             [Tooltip("這一波生成的怪物預製體 (Enemy Prefab)")] public GameObject enemyPrefab;
             [Tooltip("生怪間隔 (秒)")] public float spawnInterval;
             [Tooltip("此波次持續時間 (秒)")] public float duration;
+            [Tooltip("每次生成數量 (設 1 為散怪，大於 1 為群聚)")] public int amountPerSpawn;
+            [Tooltip("群聚怪物隨機散佈的半徑範圍")] public float groupSpread;
         }
 
         [Header("--- 玩家參照 ---")]
@@ -76,15 +78,31 @@ namespace Gameplay
             Vector2 spawnOffset = new Vector2(Mathf.Cos(randomAngle), Mathf.Sin(randomAngle)) * spawnRadius;
 
             // 3. 加上玩家當前的位置，得到最終的世界座標
-            Vector3 spawnPosition = playerTransform.position + new Vector3(spawnOffset.x, spawnOffset.y, 0f);
+            Vector3 baseSpawnPosition = playerTransform.position + new Vector3(spawnOffset.x, spawnOffset.y, 0f);
 
-            // 4. 生成怪物
-            GameObject currentEnemyPrefab = waves[currentWaveIndex].enemyPrefab;
-            if (currentEnemyPrefab != null)
+            // 4. 取得當前波次設定，依據 amountPerSpawn 生出對應數量的怪物
+            SpawnWave currentWave = waves[currentWaveIndex];
+            int count = currentWave.amountPerSpawn > 0 ? currentWave.amountPerSpawn : 1;
+            float spread = currentWave.groupSpread;
+
+            for (int i = 0; i < count; i++)
             {
-                Instantiate(currentEnemyPrefab, spawnPosition, Quaternion.identity);
+                // 如果是一坨怪，在基準點周圍加上微小的隨機位移，防止重疊
+                Vector3 finalSpawnPos = baseSpawnPosition;
+                if (count > 1)
+                {
+                    finalSpawnPos.x += Random.Range(-spread, spread);
+                    finalSpawnPos.y += Random.Range(-spread, spread);
+                }
+
+                GameObject currentEnemyPrefab = currentWave.enemyPrefab;
+                if (currentEnemyPrefab != null)
+                {
+                    Instantiate(currentEnemyPrefab, finalSpawnPos, Quaternion.identity);
+                }
             }
         }
+
 
         private void GoToNextWave()
         {
