@@ -1079,6 +1079,71 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+--- !u!1 &1981846012
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1981846014}
+  - component: {fileID: 1981846013}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1981846013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1981846012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c666307df93be32449af13b6a1ebb81f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  reloadScene:
+    sceneAsset: {fileID: 102900000, guid: 9dd841c78df49184baaadab1622f9502, type: 3}
+    sceneName: Main
+  onGameStartEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  onPhase1StartEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  onPhase1FinishEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  onPhase2StartEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  onPhase2FinishEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  onGameEndEvent:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!4 &1981846014
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1981846012}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 517.09344, y: 509.7068, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1992783376
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2078,7 +2143,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6233016746868773651, guid: 04d34e8216ff85143a35c229a73c764c, type: 3}
       propertyPath: maxHealth
-      value: 100000
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3999,3 +4064,4 @@ SceneRoots:
   - {fileID: 1482640587}
   - {fileID: 1191915935}
   - {fileID: 413310151}
+  - {fileID: 1981846014}

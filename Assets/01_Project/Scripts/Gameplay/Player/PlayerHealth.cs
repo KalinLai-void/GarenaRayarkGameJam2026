@@ -217,6 +217,8 @@ namespace Gameplay
             {
                 rb.linearVelocity = Vector2.zero;
             }
+
+            GameManager.TriggerGameEnd(false);
         }
     }
 }

@@ -22,6 +22,16 @@ namespace Gameplay
         private InputAction attackAction;
         private Camera mainCamera;
 
+        private void OnEnable()
+        {
+            GameManager.OnGameEnd?.AddListener(StopAndSave);
+        }
+
+        private void OnDisable()
+        {
+            GameManager.OnGameEnd?.RemoveListener(StopAndSave);
+        }
+
         private void Awake()
         {
             // 自動獲取 PlayerInput
@@ -46,18 +56,7 @@ namespace Gameplay
             StartRecording();
         }
 
-        private void Update()
-        {
-            // 偵測空白鍵 (Space)，若按下則存檔並重開關卡以測試殘影
-            if (Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
-            {
-                if (isRecording)
-                {
-                    StopAndSave();
-                }
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-            }
-        }
+
 
         /// <summary>
         /// Phase 2 開始時呼叫此方法開始錄製
@@ -72,7 +71,7 @@ namespace Gameplay
         /// <summary>
         /// Phase 2 結束 (死亡或通關) 時呼叫此方法停止並存檔
         /// </summary>
-        private void StopAndSave()
+        private void StopAndSave(bool isWin)
         {
             isRecording = false;
             GhostManager.Instance.SaveLoopData(currentLoopData);
