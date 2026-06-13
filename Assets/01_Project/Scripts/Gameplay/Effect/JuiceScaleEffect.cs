@@ -11,7 +11,7 @@ namespace Gameplay
     {
         [Header("--- 縮放設定 ---")]
         [Tooltip("目標中間狀態的縮放比例")]
-        [SerializeField] private Vector3 targetScale = new Vector3(1.3f, 1.3f, 1.3f);
+        [SerializeField] private Vector3 targetScale = new Vector3(0.95f, 1.05f, 1f);
         
         [Tooltip("放大至目標值所需時間 (秒)")]
         [SerializeField] private float durationUp = 0.2f;
@@ -25,6 +25,13 @@ namespace Gameplay
 
         [Tooltip("是否循環播放 (脈動呼吸效果)")]
         [SerializeField] private bool loop = false;
+
+        [Header("--- 隨機抖動設定 ---")]
+        [Tooltip("是否啟用隨機目標縮放")]
+        [SerializeField] private bool useRandomScale = false;
+
+        [Tooltip("X 與 Y 軸的隨機震幅範圍 (以原始縮放為基準進行加減，例如 0.05 代表 1 +- 0.05)")]
+        [SerializeField] private Vector2 randomRange = new Vector2(0.05f, 0.05f);
 
         private Vector3 originalScale;
         private Coroutine scaleCoroutine;
@@ -74,6 +81,15 @@ namespace Gameplay
 
         private IEnumerator PunchScaleRoutine()
         {
+            // 🌟 根據設定決定是否隨機化目標縮放
+            Vector3 finalTargetScale = targetScale;
+            if (useRandomScale)
+            {
+                float randX = Random.Range(-randomRange.x, randomRange.x);
+                float randY = Random.Range(-randomRange.y, randomRange.y);
+                finalTargetScale = new Vector3(originalScale.x + randX, originalScale.y + randY, originalScale.z);
+            }
+
             // 1. 漸進放大至目標 Scale
             float elapsed = 0f;
             Vector3 startScale = transform.localScale;
@@ -82,10 +98,10 @@ namespace Gameplay
                 elapsed += Time.deltaTime;
                 float t = Mathf.Clamp01(elapsed / durationUp);
                 // 使用 SmoothStep 做平滑插值，讓加速減速更具彈性果汁感
-                transform.localScale = Vector3.Lerp(startScale, targetScale, Mathf.SmoothStep(0f, 1f, t));
+                transform.localScale = Vector3.Lerp(startScale, finalTargetScale, Mathf.SmoothStep(0f, 1f, t));
                 yield return null;
             }
-            transform.localScale = targetScale;
+            transform.localScale = finalTargetScale;
 
             // 2. 漸進縮回至原始 Scale
             elapsed = 0f;
@@ -93,7 +109,7 @@ namespace Gameplay
             {
                 elapsed += Time.deltaTime;
                 float t = Mathf.Clamp01(elapsed / durationDown);
-                transform.localScale = Vector3.Lerp(targetScale, originalScale, Mathf.SmoothStep(0f, 1f, t));
+                transform.localScale = Vector3.Lerp(finalTargetScale, originalScale, Mathf.SmoothStep(0f, 1f, t));
                 yield return null;
             }
             transform.localScale = originalScale;
