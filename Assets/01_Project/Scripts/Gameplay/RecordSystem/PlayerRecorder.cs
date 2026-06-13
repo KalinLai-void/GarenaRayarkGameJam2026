@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -20,7 +20,6 @@ namespace Gameplay
         private bool isRecording = false;
 
         private InputAction attackAction;
-        private InputAction testGhostAction;
         private Camera mainCamera;
 
         private void Awake()
@@ -35,7 +34,6 @@ namespace Gameplay
             if (playerInput != null)
             {
                 attackAction = playerInput.actions.FindAction("Attack");
-                testGhostAction = playerInput.actions.FindAction("Jump");
             }
             else
             {
@@ -46,6 +44,19 @@ namespace Gameplay
             mainCamera = Camera.main;
 
             StartRecording();
+        }
+
+        private void Update()
+        {
+            // 偵測空白鍵 (Space)，若按下則存檔並重開關卡以測試殘影
+            if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
+            {
+                if (isRecording)
+                {
+                    StopAndSave();
+                }
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            }
         }
 
         /// <summary>
