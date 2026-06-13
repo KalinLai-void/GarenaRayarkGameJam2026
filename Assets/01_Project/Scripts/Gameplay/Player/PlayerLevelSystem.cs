@@ -20,6 +20,7 @@ namespace Gameplay
 
         [Header("--- 參考組件對接 ---")]
         [SerializeField] private SkillUIManager uiManager;
+        [SerializeField] private GameObject tinderHUD;
 
         public int CurrentLevel => currentLevel;
         public int CurrentXP => currentXP;
@@ -30,6 +31,21 @@ namespace Gameplay
             {
                 uiManager = Object.FindFirstObjectByType<SkillUIManager>();
             }
+            
+            if (tinderHUD == null)
+            {
+                // 尋找 Canvas 下的 LevelUp_Tinder_HUD (包括非活動狀態的物件)
+                TinderSwipeManager[] managers = Resources.FindObjectsOfTypeAll<TinderSwipeManager>();
+                foreach (var manager in managers)
+                {
+                    if (manager.gameObject.scene.name != null) // 確保是場景執行個體而非 Prefab
+                    {
+                        tinderHUD = manager.gameObject;
+                        break;
+                    }
+                }
+            }
+
             UpdateXPSystem();
         }
 
@@ -65,7 +81,11 @@ namespace Gameplay
             currentLevel++;
             Debug.LogWarning($"【玩家升級！】目前等級提升至：LV {currentLevel}");
 
-            // TODO: 可以在這裡觸發升級介面或彈出技能選擇選單
+            // 觸發升級介面
+            if (tinderHUD != null)
+            {
+                tinderHUD.SetActive(true);
+            }
         }
 
         private void UpdateXPSystem()
