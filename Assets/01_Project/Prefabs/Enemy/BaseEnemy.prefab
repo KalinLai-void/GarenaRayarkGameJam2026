@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8815031146929012466}
   - component: {fileID: 2755343183517128404}
   - component: {fileID: 3967864241813144895}
+  - component: {fileID: 4569902679776508787}
   - component: {fileID: 1968671982505354932}
   - component: {fileID: 7394971189159301195}
   m_Layer: 6
@@ -62,7 +63,7 @@ Rigidbody2D:
     serializedVersion: 2
     m_Bits: 0
   m_Interpolate: 1
-  m_SleepingMode: 1
+  m_SleepingMode: 0
   m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!70 &3967864241813144895
@@ -102,6 +103,30 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: -0.2}
   m_Size: {x: 0.8, y: 1.4}
   m_Direction: 0
+--- !u!114 &4569902679776508787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5248197550425383133}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63f4254f5c8f76c428bb8aebedd2f579, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Gameplay.JuiceScaleEffect
+  targetScale: {x: 0.95, y: 1.05, z: 1}
+  durationUp: 0.5
+  durationDown: 0.5
+  playOnEnable: 1
+  loop: 1
+  useRandomScale: 0
+  randomRange: {x: 0.05, y: 0.05}
+  useRandomDuration: 0
+  randomDurationUpRange: {x: 0.3, y: 0.7}
+  randomDurationDownRange: {x: 0.3, y: 0.7}
+  affectChildren: 0
+  scaleParent: 1
 --- !u!114 &1968671982505354932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -336,6 +361,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8815031146929012466}
     m_Modifications:
+    - target: {fileID: 1116650664476597706, guid: 8483ca717d717df4a8e6d98b04368811, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3814324139455729296, guid: 8483ca717d717df4a8e6d98b04368811, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3939554155965605330, guid: 8483ca717d717df4a8e6d98b04368811, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4159601938123880257, guid: 8483ca717d717df4a8e6d98b04368811, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -416,6 +453,18 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4810500067192228593, guid: 8483ca717d717df4a8e6d98b04368811, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5000485026923556085, guid: 8483ca717d717df4a8e6d98b04368811, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5245483801402864180, guid: 8483ca717d717df4a8e6d98b04368811, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5694755536739673612, guid: 8483ca717d717df4a8e6d98b04368811, type: 3}
       propertyPath: m_Color.b
       value: 0
@@ -452,6 +501,14 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8054783311689652209, guid: 8483ca717d717df4a8e6d98b04368811, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8054783311689652209, guid: 8483ca717d717df4a8e6d98b04368811, type: 3}
+      propertyPath: m_UpdateMode
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8291104024063948739, guid: 8483ca717d717df4a8e6d98b04368811, type: 3}
       propertyPath: m_Color.b
       value: 0
@@ -474,6 +531,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8441114669271513796, guid: 8483ca717d717df4a8e6d98b04368811, type: 3}
       propertyPath: m_Color.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8738412076726199800, guid: 8483ca717d717df4a8e6d98b04368811, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8827524797713079848, guid: 8483ca717d717df4a8e6d98b04368811, type: 3}

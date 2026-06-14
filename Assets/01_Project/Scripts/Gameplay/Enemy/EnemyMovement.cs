@@ -31,7 +31,6 @@ namespace Gameplay
         private Rigidbody2D rb;
         private Transform playerTransform;
         private int enemyLayer;
-        private SpriteRenderer spriteRenderer;
 
         // 使用共享緩衝區以避免 Physics2D.OverlapCircle 產生垃圾回收 (GC Alloc)
         private static readonly Collider2D[] nearbyBuffer = new Collider2D[30];
@@ -44,7 +43,6 @@ namespace Gameplay
             rb = GetComponent<Rigidbody2D>();
             rb.interpolation = RigidbodyInterpolation2D.None;
             enemyLayer = LayerMask.GetMask("Enemy");
-            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             // 隨機錯開每個怪物的計算幀，避免所有怪物在同一幀同時執行物理查詢
             frameDelayCount = Random.Range(0, 5);
 
@@ -60,41 +58,24 @@ namespace Gameplay
             }
         }
 
-        private System.Collections.IEnumerator Start()
+        private void Start()
         {
-            // 1. 剛生成時，先強制把圖片隱藏起來！(穿上隱形斗篷)
-            if (spriteRenderer != null)
+            // ==========================================
+            // 🌟 核心修復：強制刷新動畫與骨架狀態
+            // ==========================================
+            if (animator != null)
             {
-                spriteRenderer.enabled = false;
+                // 強迫 Animator 忘記預設座標，重新綁定目前的 Transform
+                animator.Rebind();
+                // 強迫 Animator 在第 0 秒立刻更新一次骨架位置，確保 SpriteSkin 抓到正確的矩陣
+                animator.Update(0f);
             }
 
-            // 2. 尋找玩家
+            // 尋找玩家
             GameObject player = GameObject.FindWithTag("Player");
             if (player != null)
             {
                 playerTransform = player.transform;
-            }
-
-            // 3. 確保畫外更新開啟
-            var skins = GetComponentsInChildren<UnityEngine.U2D.Animation.SpriteSkin>(true);
-            if (skins != null)
-            {
-                foreach (var skin in skins)
-                {
-                    skin.alwaysUpdate = true;
-                }
-            }
-
-            // ==========================================
-            // 🌟 讓子彈飛一會兒：等待 0.1 秒 🌟
-            // 讓 Unity 的底層 Job System 和剛體有充足的時間把骨架跟位置綁定好
-            yield return new WaitForSeconds(0.1f);
-            // ==========================================
-
-            // 4. 0.1 秒後，骨架絕對算好了，這時候再把圖片顯示出來！
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.enabled = true;
             }
         }
 
@@ -229,10 +210,12 @@ namespace Gameplay
             if (dx < -0.1f)
             {
                 animator.SetBool("IsFaceLeft", true);
+                animator.gameObject.transform.localScale = new Vector3(1f,1f,1f);
             }
             else if (dx > 0.1f)
             {
                 animator.SetBool("IsFaceLeft", false);
+                animator.gameObject.transform.localScale = new Vector3(-1f, 1f, 1f);
             }
         }
 

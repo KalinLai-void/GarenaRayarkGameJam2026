@@ -35,4 +35,9 @@ public class GameEndManager : MonoBehaviour
         DieText.text = dieStr.Replace("X", GameManager.GetDieTime().ToString());
         DieText.gameObject.SetActive(true);
     }
+
+    public void BackTitle()
+    {
+        GameManager.TriggerGoToTitle();
+    }
 }

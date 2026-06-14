@@ -177,7 +177,6 @@ public class GameManager : Singleton<GameManager>
         {
             dieTime = 0;
             GameEndManager.instance.PassGame();
-            Invoke("GoToTitle", 1.5f);
         }
     }
 }

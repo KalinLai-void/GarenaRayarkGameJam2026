@@ -208,6 +208,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GhostPlayer
   ghostWeapon: {fileID: 2888282287505167012}
   animator: {fileID: 8190940997799730698}
+  ghostSkills: []
 --- !u!1 &7172883674496156205
 GameObject:
   m_ObjectHideFlags: 0
