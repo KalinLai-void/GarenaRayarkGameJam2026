@@ -2643,9 +2643,9 @@ MonoBehaviour:
   nopeButton: {fileID: 3651558105206242843}
   likeButton: {fileID: 1266322592121459311}
   timerText: {fileID: 478320694239300304}
-  maxTime: 10
-  stackSize: 5
-  maxLikes: 4
+  maxTime: 30
+  stackSize: 6
+  maxLikes: 1
   maxNopes: 4
   openDuration: 0.5
   closeDuration: 0.4
@@ -3715,7 +3715,7 @@ PrefabInstance:
     - target: {fileID: 3288295012484255869, guid: 7252a689fb6e131408c5f1d433dbd345, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 6e85559c94d1416459ed2ef3347c0544, type: 3}
+      objectReference: {fileID: 4313237860023825539, guid: 1aab3285dae810042b03fc747e394f8d, type: 3}
     - target: {fileID: 3770246783081326247, guid: 7252a689fb6e131408c5f1d433dbd345, type: 3}
       propertyPath: previewSkillData
       value: 
@@ -3727,7 +3727,7 @@ PrefabInstance:
     - target: {fileID: 3869900288351081438, guid: 7252a689fb6e131408c5f1d433dbd345, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 2053893646450974759, guid: 141600b92b3b8af49bb86dd11f4b9ccd, type: 3}
+      objectReference: {fileID: 7272243660297046984, guid: a50f63fc708d31b44ab4fd6ec17811c5, type: 3}
     - target: {fileID: 6293424388282417908, guid: 7252a689fb6e131408c5f1d433dbd345, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0.5
@@ -3859,7 +3859,7 @@ PrefabInstance:
     - target: {fileID: 8961555136131585284, guid: 7252a689fb6e131408c5f1d433dbd345, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 3708888898215159540, guid: d83dba2ac8f20794e9386f91b9be06f3, type: 3}
+      objectReference: {fileID: -8882604789696179207, guid: 54e211fc8817a7b46aa46f3881327a71, type: 3}
     - target: {fileID: 8961555136131585284, guid: 7252a689fb6e131408c5f1d433dbd345, type: 3}
       propertyPath: m_PreserveAspect
       value: 1
