@@ -154,8 +154,8 @@ namespace Gameplay
             currentLikes = 0;
             currentNopes = 0;
 
-            // 🎵 播放手機介面彈出音效
-            if (AudioManager.Instance != null)
+            // 🎵 播放手機介面彈出音效 (防範在遊戲啟動暖機時發出聲音)
+            if (AudioManager.Instance != null && Time.timeSinceLevelLoad > 0.5f)
             {
                 AudioManager.Instance.PlayPhonePopup();
             }
