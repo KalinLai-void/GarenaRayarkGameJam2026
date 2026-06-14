@@ -25,3 +25,96 @@ MonoBehaviour:
   isActive: 1
   cooldown: 15
   maxLevel: 5
+  activeDuration: 10
+  needleFireRateBonusPercent:
+  - 0.15
+  - 0.2
+  - 0.25
+  - 0.3
+  - 0.35
+  needleBulletSpeedMultiplier:
+  - 1.1
+  - 1.1
+  - 1.1
+  - 1.1
+  - 1.1
+  whiteElfBulletCount: 0200000003000000040000000500000006000000
+  whiteElfSpreadAngle:
+  - 30
+  - 30
+  - 30
+  - 45
+  - 45
+  kingOysterDamageBonusPercent:
+  - 0.05
+  - 0.1
+  - 0.15
+  - 0.2
+  - 0.25
+  kingOysterScaleMultiplierBonus:
+  - 0.1
+  - 0.2
+  - 0.3
+  - 0.4
+  - 0.5
+  buttonSlowPercent:
+  - 0.05
+  - 0.08
+  - 0.11
+  - 0.14
+  - 0.17
+  buttonSlowDuration: 2
+  shiitakeBurnDotPercent:
+  - 0.05
+  - 0.08
+  - 0.11
+  - 0.14
+  - 0.17
+  shiitakeBurnDuration: 3
+  shiitakeBurnInterval: 1
+  blackMushroomSlowPercent:
+  - 0.1
+  - 0.15
+  - 0.2
+  - 0.25
+  - 0.3
+  blackMushroomDotPercent:
+  - 0.05
+  - 0.1
+  - 0.15
+  - 0.2
+  - 0.25
+  blackMushroomDuration: 2
+  coralDamageBonusPercent:
+  - 0.1
+  - 0.2
+  - 0.3
+  - 0.4
+  - 0.5
+  coralBeamWidth: 3.5
+  coralBeamHeight: 0.8
+  coralBeamDuration: 1
+  coralBeamDotPercent: 1
+  coralBeamDotInterval: 0.25
+  monkeyExplosionRadius:
+  - 2
+  - 2.2
+  - 2.4
+  - 2.6
+  - 2.8
+  monkeyBombDelay: 0.6
+  monkeyDamagePercent:
+  - 1.1
+  - 1.2
+  - 1.3
+  - 1.4
+  - 1.5
+  angelHealAmount: 50
+  useCustomAvatarSize: 1
+  customAvatarSize: {x: 306.4, y: 316}
+  customAvatarOffset: {x: 0, y: 115.5}
+  customAvatarScale: {x: 1, y: 1, z: 1}
+  useCustomRareImageSize: 1
+  customRareImageSize: {x: 85, y: 90}
+  customRareImageOffset: {x: -135, y: 252}
+  customRareImageScale: {x: 1, y: 1, z: 1}
