@@ -2,6 +2,7 @@ using Common;
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
@@ -69,6 +70,24 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
+    private void Update()
+    {
+        // 【防呆修正】如果在標題畫面或劇情畫面，絕對不要執行滑鼠鎖定邏輯
+        if (currentStage == State.OnTitle || currentStage == State.OnStory) return;
+
+        // 偵測按下 ESC 鍵 -> 解除鎖定並顯示滑鼠
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            UnlockCursor();
+        }
+
+        // 玩家按 ESC 跳出後，如果點擊遊戲畫面，自動把滑鼠重新鎖回去
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            LockCursor();
+        }
+    }
+
     private void Init()
     {
         Debug.Log("[GameManager] Title");
@@ -86,6 +105,7 @@ public class GameManager : Singleton<GameManager>
     {
         Init();
         SceneManager.LoadScene(titleScene?.SceneName);
+        UnlockCursor();
     }
 
     public void GoToStory()
@@ -105,6 +125,8 @@ public class GameManager : Singleton<GameManager>
 
     private void StartGame()
     {
+        LockCursor();
+
         Debug.Log("[GameManager] GameStart");
         currentStage = State.OnGameStart;
         onGameStartEvent?.Invoke();
@@ -178,5 +200,23 @@ public class GameManager : Singleton<GameManager>
             GameEndManager.instance.PassGame();
             Invoke("GoToTitle", 1.5f);
         }
+    }
+
+    /// <summary>
+    /// 鎖定並隱藏游標 (遊戲進行中狀態)
+    /// </summary>
+    public void LockCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked; // 把游標鎖在視窗正中心
+        //Cursor.visible = false;                   // 隱藏游標圖案
+    }
+
+    /// <summary>
+    /// 解除鎖定並顯示游標 (按 ESC 跳出狀態)
+    /// </summary>
+    public void UnlockCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;   // 解除鎖定，讓游標可以自由移動
+        //Cursor.visible = true;                    // 顯示游標圖案
     }
 }
