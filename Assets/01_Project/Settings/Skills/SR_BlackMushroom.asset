@@ -16,8 +16,8 @@ MonoBehaviour:
   skillName: "\u9ED1\u6728\u8033"
   rarity: 1
   skillTitle: "\u9ED1\u6697\u6E67\u52D5"
-  description: "\u4F7F\u7528\u6280\u80FD\u5F8C10\u79D2\u5167\u5B50\u5F48\u6253\u4E2D\u9670\u5F71\u5F8C\u5728\u539F\u5730\u7559\u4E0B\u4E00\u500B\u9ED1\u8272\u9ECF\u8457\u65B9\u584A\u7DE9\u901F\u7D93\u904E\u7684\u6575\u4EBA10%\uFF0C\u6301\u7E8C\u9020\u6210\u6BCF\u79D25%\u50B7\u5BB3\uFF0C\u5B58\u57282\u79D2"
-  flavorText: "\u300C\u88AB\u6253\u4E2D\u5C31\u5225\u8D77\u4F86\u4E86~\u300D"
+  description: "\u4F7F\u7528\u6280\u80FD\u5F8C10\u79D2\u5167\u5B50\u5F48\u6253\u4E2D\u9670\u5F71\u5F8C\u5728\u539F\u5730\u7559\u4E0B\u4E00\u500B\u9ED1\u8272\u9ECF\u8457\u65B9\u584A"
+  flavorText: "\u88AB\u6253\u4E2D\u5C31\u5225\u8D77\u4F86\u4E86\uFF5E"
   avatarSprite: {fileID: -4471167106541859635, guid: 2f7027555e7840148882117925d710c7, type: 3}
   rarityBackground: {fileID: 7231667575090401544, guid: ff0348b5dfa7d9145972d74ac067f98f, type: 3}
   rarityTag: {fileID: 1845671642190416673, guid: 5e5a51da72db16d45b71cd8fa77a6c97, type: 3}
@@ -25,3 +25,96 @@ MonoBehaviour:
   isActive: 1
   cooldown: 15
   maxLevel: 5
+  activeDuration: 10
+  needleFireRateBonusPercent:
+  - 0.15
+  - 0.2
+  - 0.25
+  - 0.3
+  - 0.35
+  needleBulletSpeedMultiplier:
+  - 1.1
+  - 1.1
+  - 1.1
+  - 1.1
+  - 1.1
+  whiteElfBulletCount: 0200000003000000040000000500000006000000
+  whiteElfSpreadAngle:
+  - 30
+  - 30
+  - 30
+  - 45
+  - 45
+  kingOysterDamageBonusPercent:
+  - 0.05
+  - 0.1
+  - 0.15
+  - 0.2
+  - 0.25
+  kingOysterScaleMultiplierBonus:
+  - 0.1
+  - 0.2
+  - 0.3
+  - 0.4
+  - 0.5
+  buttonSlowPercent:
+  - 0.05
+  - 0.08
+  - 0.11
+  - 0.14
+  - 0.17
+  buttonSlowDuration: 2
+  shiitakeBurnDotPercent:
+  - 0.05
+  - 0.08
+  - 0.11
+  - 0.14
+  - 0.17
+  shiitakeBurnDuration: 3
+  shiitakeBurnInterval: 1
+  blackMushroomSlowPercent:
+  - 0.1
+  - 0.15
+  - 0.2
+  - 0.25
+  - 0.3
+  blackMushroomDotPercent:
+  - 0.05
+  - 0.1
+  - 0.15
+  - 0.2
+  - 0.25
+  blackMushroomDuration: 2
+  coralDamageBonusPercent:
+  - 0.1
+  - 0.2
+  - 0.3
+  - 0.4
+  - 0.5
+  coralBeamWidth: 3.5
+  coralBeamHeight: 0.8
+  coralBeamDuration: 1
+  coralBeamDotPercent: 1
+  coralBeamDotInterval: 0.25
+  monkeyExplosionRadius:
+  - 2
+  - 2.2
+  - 2.4
+  - 2.6
+  - 2.8
+  monkeyBombDelay: 0.6
+  monkeyDamagePercent:
+  - 1.1
+  - 1.2
+  - 1.3
+  - 1.4
+  - 1.5
+  angelHealAmount: 50
+  useCustomAvatarSize: 1
+  customAvatarSize: {x: 844, y: 321.9}
+  customAvatarOffset: {x: 0, y: 109.4}
+  customAvatarScale: {x: 1, y: 1, z: 1}
+  useCustomRareImageSize: 1
+  customRareImageSize: {x: 85, y: 90}
+  customRareImageOffset: {x: -135, y: 252}
+  customRareImageScale: {x: 1, y: 1, z: 1}

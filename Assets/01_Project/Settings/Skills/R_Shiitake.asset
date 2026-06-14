@@ -17,7 +17,7 @@ MonoBehaviour:
   rarity: 0
   skillTitle: "\u707C\u71D2\u5C04\u64CA"
   description: "\u5B50\u5F48\u9020\u6210\u707C\u71D2\u50B7\u5BB3\uFF0C\u6575\u4EBA\u6BCF\u79D2\u53D7\u52305%\u50B7\u5BB3"
-  flavorText: "\u300C\u53C8\u71D2\u53C8\u75DB\uFF0C\u9019\u6CE2\u53EB\u96D9\u8D0F!\u300D"
+  flavorText: "\u53C8\u71D2\u53C8\u75DB\uFF0C\u8212\u670D\u55CE\uFF1F"
   avatarSprite: {fileID: 4845602570016336723, guid: 192e043a17f5b564ab1fe102bfa2ce73, type: 3}
   rarityBackground: {fileID: 2053893646450974759, guid: 141600b92b3b8af49bb86dd11f4b9ccd, type: 3}
   rarityTag: {fileID: 21300000, guid: 6e85559c94d1416459ed2ef3347c0544, type: 3}
@@ -110,3 +110,11 @@ MonoBehaviour:
   - 1.4
   - 1.5
   angelHealAmount: 50
+  useCustomAvatarSize: 1
+  customAvatarSize: {x: 188.8, y: 316}
+  customAvatarOffset: {x: 0, y: 98.6}
+  customAvatarScale: {x: 1, y: 1, z: 1}
+  useCustomRareImageSize: 1
+  customRareImageSize: {x: 70, y: 90}
+  customRareImageOffset: {x: -120, y: 240}
+  customRareImageScale: {x: 1, y: 1, z: 1}
