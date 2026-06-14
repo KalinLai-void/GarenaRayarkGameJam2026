@@ -6,9 +6,17 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
-    public enum State { OnGameStart, OnPhase1Start, OnPhase1Finish, OnPhase2Start, OnPhase2Finish, OnGameEnd }
+    public enum State { OnTitle, OnStory, OnGameStart, OnPhase1Start, OnPhase1Finish, OnPhase2Start, OnPhase2Finish, OnGameEnd }
 
-    [SerializeField] private SceneReference reloadScene;
+    [SerializeField] private SceneReference titleScene;
+    [SerializeField] private SceneReference gameScene;
+    [SerializeField] private SceneReference storyScene;
+
+    [SerializeField] private UnityEvent onTitleEvent = new();
+    [SerializeField] private UnityEvent onStoryEvent = new();
+
+    public static UnityEvent OnTitle => Instance?.onTitleEvent;
+    public static UnityEvent OnStory => Instance?.onStoryEvent;
 
     [SerializeField] private UnityEvent onGameStartEvent = new();
     [SerializeField] private UnityEvent onPhase1StartEvent = new();
@@ -26,12 +34,17 @@ public class GameManager : Singleton<GameManager>
 
     public static State currentStage;
 
+    public static void TriggerGoToTitle() => Instance?.GoToTitle();
+    public static void TriggerGoToStory() => Instance?.GoToStory();
     public static void TriggerGameStart() => Instance?.StartGame();
     public static void TriggerPhase1Start() => Instance?.EnterPhase1();
     public static void TriggerPhase2Start() => Instance?.EnterPhase2();
     public static void TriggerPhase1Finish() => Instance?.FinishPhase1();
     public static void TriggerPhase2Finish() => Instance?.FinishPhase2();
     public static void TriggerGameEnd(bool isWin) => Instance?.EndGame(isWin);
+
+    private int dieTime = 0;
+    public static int GetDieTime() => Instance.dieTime;
 
     private void Awake()
     {
@@ -46,7 +59,22 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
-        TriggerGameStart();
+        GoToTitle();
+    }
+
+    public void GoToTitle()
+    {
+        Debug.Log("[GameManager] Title");
+        currentStage = State.OnTitle;
+        onTitleEvent?.Invoke();
+    }
+
+    public void GoToStory()
+    {
+        Debug.Log("[GameManager] Story");
+        currentStage = State.OnStory;
+        onStoryEvent?.Invoke();
+        SceneManager.LoadScene(storyScene?.SceneName);
     }
 
     private void StartGame()
@@ -54,6 +82,7 @@ public class GameManager : Singleton<GameManager>
         Debug.Log("[GameManager] GameStart");
         currentStage = State.OnGameStart;
         onGameStartEvent?.Invoke();
+        SceneManager.LoadScene(gameScene?.SceneName);
     }
 
     private void EnterPhase1()
@@ -94,8 +123,18 @@ public class GameManager : Singleton<GameManager>
 
         if (!isWin)
         {
-            TriggerGameStart();
-            SceneManager.LoadScene(reloadScene?.SceneName); // Reload Game
+            dieTime++;
+            GameEndManager.instance.DieGame();
+            Invoke("Restart", 1f);
         }
+        else
+        {
+            dieTime = 0;
+        }
+    }
+
+    private void Restart()
+    {
+        TriggerGameStart();
     }
 }
