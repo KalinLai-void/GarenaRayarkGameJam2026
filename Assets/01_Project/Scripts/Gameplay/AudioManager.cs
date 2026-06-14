@@ -8,7 +8,38 @@ namespace Gameplay
     /// </summary>
     public sealed class AudioManager : MonoBehaviour
     {
-        public static AudioManager Instance { get; private set; }
+        private static AudioManager instance;
+        public static AudioManager Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = FindFirstObjectByType<AudioManager>();
+                    if (instance == null)
+                    {
+                        var prefab = Resources.Load<GameObject>("AudioManager");
+                        if (prefab != null)
+                        {
+                            var go = Instantiate(prefab);
+                            instance = go.GetComponent<AudioManager>();
+                            if (instance.transform.parent != null)
+                            {
+                                instance.transform.SetParent(null);
+                            }
+                            DontDestroyOnLoad(go);
+                        }
+                        else
+                        {
+                            var go = new GameObject("AudioManager (Auto Generated)");
+                            instance = go.AddComponent<AudioManager>();
+                            Debug.LogWarning("[AudioManager] 在場景與 Resources 中皆找不到 AudioManager，已自動生成空物件。請確認是否有配置音效！");
+                        }
+                    }
+                }
+                return instance;
+            }
+        }
 
         [Header("--- 核心播放組件 (Audio Sources) ---")]
         [Tooltip("負責播放背景音樂 (BGM) 的 AudioSource")]
@@ -87,9 +118,9 @@ namespace Gameplay
 
         private void Awake()
         {
-            if (Instance == null)
+            if (instance == null)
             {
-                Instance = this;
+                instance = this;
                 // 確保切換場景時音效管理器不會被銷毀
                 if (transform.parent != null)
                 {
@@ -100,7 +131,7 @@ namespace Gameplay
                 // 如果沒有手動配置 AudioSource，在執行期自動建立以防 NullReference
                 InitializeAudioSources();
             }
-            else
+            else if (instance != this)
             {
                 Destroy(gameObject);
             }
