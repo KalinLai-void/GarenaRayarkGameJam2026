@@ -1697,25 +1697,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 182279715443784289, guid: b05e381a565dc954fafeea0caba02622, type: 3}
-      propertyPath: m_Size.y
-      value: 3.2837782
-      objectReference: {fileID: 0}
-    - target: {fileID: 182279715443784289, guid: b05e381a565dc954fafeea0caba02622, type: 3}
-      propertyPath: m_Offset.y
-      value: -1.1418891
-      objectReference: {fileID: 0}
     - target: {fileID: 4437235484165393430, guid: b05e381a565dc954fafeea0caba02622, type: 3}
       propertyPath: m_Name
       value: Boundaries Variant
-      objectReference: {fileID: 0}
-    - target: {fileID: 7346302954405996416, guid: b05e381a565dc954fafeea0caba02622, type: 3}
-      propertyPath: m_Size.y
-      value: 4.022641
-      objectReference: {fileID: 0}
-    - target: {fileID: 7346302954405996416, guid: b05e381a565dc954fafeea0caba02622, type: 3}
-      propertyPath: m_Offset.y
-      value: -1.5113212
       objectReference: {fileID: 0}
     - target: {fileID: 7420883051082739729, guid: b05e381a565dc954fafeea0caba02622, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1756,22 +1740,6 @@ PrefabInstance:
     - target: {fileID: 7420883051082739729, guid: b05e381a565dc954fafeea0caba02622, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7464658415240985575, guid: b05e381a565dc954fafeea0caba02622, type: 3}
-      propertyPath: m_Size.y
-      value: 3.6196234
-      objectReference: {fileID: 0}
-    - target: {fileID: 7464658415240985575, guid: b05e381a565dc954fafeea0caba02622, type: 3}
-      propertyPath: m_Offset.y
-      value: 1.309812
-      objectReference: {fileID: 0}
-    - target: {fileID: 7636081035882283925, guid: b05e381a565dc954fafeea0caba02622, type: 3}
-      propertyPath: m_Size.y
-      value: 3.7539625
-      objectReference: {fileID: 0}
-    - target: {fileID: 7636081035882283925, guid: b05e381a565dc954fafeea0caba02622, type: 3}
-      propertyPath: m_Offset.y
-      value: 1.376981
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
