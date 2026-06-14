@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace Gameplay
@@ -46,7 +47,36 @@ namespace Gameplay
                 }
             }
 
+            // 🌟 預先暖機 (Warm-up) 機制，防止第一次升級彈出 UI 時卡頓
+            if (tinderHUD != null)
+            {
+                StartCoroutine(WarmupTinderHUDRoutine());
+            }
+
             UpdateXPSystem();
+        }
+
+        private IEnumerator WarmupTinderHUDRoutine()
+        {
+            // 取得 CanvasGroup 來控制透明度，讓玩家在暖機時看不到畫面閃爍
+            CanvasGroup canvasGroup = tinderHUD.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+            {
+                canvasGroup = tinderHUD.AddComponent<CanvasGroup>();
+            }
+            
+            float originalAlpha = canvasGroup.alpha;
+            canvasGroup.alpha = 0f; // 設為完全透明
+
+            // 啟用 Tinder HUD 來讓其內部的 Awake/OnEnable 進行初始化與 Prefab 實例化
+            tinderHUD.SetActive(true);
+
+            // 等待一個 frame 讓 Unity 完成 UI 的實例化、貼圖載入與 Shader 編譯
+            yield return null;
+
+            // 暖機結束，將其隱藏並還原透明度以備後續正常使用
+            tinderHUD.SetActive(false);
+            canvasGroup.alpha = originalAlpha;
         }
 
         [ContextMenu("Add 5 XP")]
