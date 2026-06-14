@@ -27,6 +27,10 @@ namespace Gameplay
             if (!heldItems.Contains(itemName))
             {
                 heldItems.Add(itemName);
+                if (heldItems.Count >= 5)
+                {
+                    GameManager.TriggerGameEnd(true);
+                }
                 Debug.Log($"【PlayerInventory】玩家獲得並持有了道具: {itemName}");
             }
         }

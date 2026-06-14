@@ -83,6 +83,7 @@ namespace Gameplay
             {
                 swipeManager.PauseTimer();
                 swipeManager.StopButtonScaleCoroutines(); // 停止所有正在進行的按鈕回彈協程，防止拖拽衝突
+                swipeManager.SetIsDraggingCard(true); // 🌟 通知管理器開始拖曳，以便動態解鎖第二張卡片的遮罩
             }
         }
 
@@ -131,6 +132,11 @@ namespace Gameplay
         {
             if (isFlyingAway) return;
             isDragging = false;
+
+            if (swipeManager != null)
+            {
+                swipeManager.SetIsDraggingCard(false); // 🌟 通知管理器結束拖曳，還原下層遮罩以防穿幫露出
+            }
 
             float offsetX = rectTransform.anchoredPosition.x - startPosition.x;
 

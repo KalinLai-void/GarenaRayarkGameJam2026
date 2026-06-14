@@ -104,6 +104,25 @@ namespace Gameplay
         [Header("天使金光菇 (SSR_Angel) 主動")]
         [Tooltip("治癒生命值數量（若無LV.1技能時觸發）")]
         public int angelHealAmount = 50;
+
+        [Header("--- 卡牌 UI 自訂佈局 (可填) ---")]
+        [Tooltip("是否為此技能啟用自訂頭像框 (Avatar_Border) 大小，若不勾選則維持原本 Prefab 大小")]
+        public bool useCustomAvatarSize = false;
+        [Tooltip("自訂頭像框的大小 (寬, 高)")]
+        public Vector2 customAvatarSize = new Vector2(294f, 316f);
+        [Tooltip("自訂頭像框的偏移位置 (以卡片中心為基準)")]
+        public Vector2 customAvatarOffset = new Vector2(0f, 98.6f);
+        [Tooltip("自訂頭像框的縮放比例")]
+        public Vector3 customAvatarScale = Vector3.one;
+
+        [Tooltip("是否為此技能啟用自訂稀有度圖示 (Rare_Image_Area) 大小，若不勾選則維持原本 Prefab 大小")]
+        public bool useCustomRareImageSize = false;
+        [Tooltip("自訂稀有度圖示的大小 (寬, 高)")]
+        public Vector2 customRareImageSize = new Vector2(70f, 89f);
+        [Tooltip("自訂稀有度圖示的偏移位置 (以卡片中心為基準)")]
+        public Vector2 customRareImageOffset = new Vector2(-132.7f, 216.3f);
+        [Tooltip("自訂稀有度圖示的縮放比例")]
+        public Vector3 customRareImageScale = Vector3.one;
     }
 }
 
