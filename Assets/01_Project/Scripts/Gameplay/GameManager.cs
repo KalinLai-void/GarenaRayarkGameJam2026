@@ -47,13 +47,7 @@ public class GameManager : Singleton<GameManager>
     public static int GetDieTime() => Instance.dieTime;
 
     private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Instantiate(gameObject);
-            return;
-        }
-
+    {   
         DontDestroyOnLoad(gameObject);
     }
 
