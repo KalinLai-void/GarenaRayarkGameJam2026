@@ -9,6 +9,8 @@ namespace Gameplay
     [RequireComponent(typeof(Rigidbody2D))]
     public sealed class EnemyMovement : MonoBehaviour
     {
+        [SerializeField] Animator animator;
+
         [Header("【怪物移動設定】")]
         [Tooltip("怪物的移動速度")]
         [SerializeField] private float moveSpeed = 2.5f;
@@ -129,11 +131,13 @@ namespace Gameplay
 
             if (finalVelocity.sqrMagnitude > 0.001f)
             {
-                rb.linearVelocity = finalVelocity.normalized * actualSpeed;
+                rb.linearVelocity = finalVelocity.normalized * moveSpeed;
+                animator.SetBool("IsMoving", true);
             }
             else
             {
                 rb.linearVelocity = Vector2.zero;
+                animator.SetBool("IsMoving", false);
             }
 
             // 4. 根據速度方向更新翻面 (水平翻轉)
@@ -171,15 +175,15 @@ namespace Gameplay
 
         private void UpdateFacing(float vx)
         {
-            if (spriteRenderer != null)
+            if (animator != null)
             {
                 if (vx < -0.01f)
                 {
-                    spriteRenderer.flipX = true;
+                    animator.SetBool("IsFaceLeft", true);
                 }
                 else if (vx > 0.01f)
                 {
-                    spriteRenderer.flipX = false;
+                    animator.SetBool("IsFaceLeft", false);
                 }
             }
         }
