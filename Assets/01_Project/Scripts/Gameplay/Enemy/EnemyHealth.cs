@@ -84,6 +84,12 @@ namespace Gameplay
             currentHealth -= damage;
             currentHealth = Mathf.Max(currentHealth, 0);
 
+            // 🎵 播放敵人受擊受傷音效
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayEnemyHurt();
+            }
+
             // 切換狀態為 Hurt
             currentState = EnemyState.Hurt;
             Debug.Log($"【Console Log】怪物 {gameObject.name} 受到 {damage} 點傷害，剩餘生命值: {currentHealth}，狀態變更為: [Hurt]");
@@ -292,6 +298,12 @@ namespace Gameplay
         {
             currentState = EnemyState.Dead;
             Debug.Log($"【Console Log】怪物 {gameObject.name} 已被消滅！狀態變更為: [Dead]");
+
+            // 🎵 播放敵人死亡音效
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayEnemyDeath();
+            }
 
             // 檢查玩家猴頭菇主動技能是否啟用，若啟用則在死亡處生成猴頭炸彈
             if (PlayerSkillSystem.Instance != null && 

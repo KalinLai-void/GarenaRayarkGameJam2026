@@ -257,6 +257,19 @@ namespace Gameplay
                 bool isCoralActive = PlayerSkillSystem.Instance != null && PlayerSkillSystem.Instance.IsActiveSkillEffectRunning && PlayerSkillSystem.Instance.ActiveSkill.skillID == "SR_CoralMushroom";
                 int coralLvl = PlayerSkillSystem.Instance != null ? PlayerSkillSystem.Instance.GetSkillLevel("SR_CoralMushroom") : 0;
 
+                // 🎵 播放射擊音效
+                if (AudioManager.Instance != null)
+                {
+                    if (isCoralActive)
+                    {
+                        AudioManager.Instance.PlayLaserBeam();
+                    }
+                    else
+                    {
+                        AudioManager.Instance.PlayShoot();
+                    }
+                }
+
                 // 2. 計算傷害、體積與速度
                 int damage = FinalDamage;
                 if (kingOysterLvl > 0)

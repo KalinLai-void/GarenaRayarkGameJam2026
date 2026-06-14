@@ -63,6 +63,12 @@ namespace Gameplay
                     uiManager.AddInventoryIcon(itemSprite);
                 }
 
+                // 🎵 播放撿起道具音效
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlayPickupItem();
+                }
+
                 // 銷毀道具
                 Destroy(gameObject);
             }

@@ -1,4 +1,4 @@
-﻿using Common;
+using Common;
 using System;
 using UnityEngine;
 using UnityEngine.Events;
@@ -54,6 +54,12 @@ public class GameManager : Singleton<GameManager>
         Debug.Log("[GameManager] GameStart");
         currentStage = State.OnGameStart;
         onGameStartEvent?.Invoke();
+
+        // 🎵 播放遊戲背景音樂
+        if (Gameplay.AudioManager.Instance != null)
+        {
+            Gameplay.AudioManager.Instance.PlayGameBGM();
+        }
     }
 
     private void EnterPhase1()
@@ -91,6 +97,19 @@ public class GameManager : Singleton<GameManager>
         Debug.Log("[GameManager] EndGame");
         currentStage = State.OnGameEnd;
         onGameEndEvent?.Invoke(isWin);
+
+        // 🎵 播放結局對應的音效
+        if (Gameplay.AudioManager.Instance != null)
+        {
+            if (isWin)
+            {
+                Gameplay.AudioManager.Instance.PlayGameClear();
+            }
+            else
+            {
+                Gameplay.AudioManager.Instance.PlayPlayerDeath();
+            }
+        }
 
         if (!isWin)
         {
