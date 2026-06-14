@@ -57,6 +57,12 @@ namespace Gameplay
 
         private void Explode()
         {
+            // 🎵 播放炸彈/爆炸音效
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayBomb();
+            }
+
             // 搜尋範圍內的所有敵人
             Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
             

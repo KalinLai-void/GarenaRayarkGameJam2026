@@ -183,13 +183,45 @@ namespace Gameplay
 
             for (int i = 0; i < spawnCount; i++)
             {
-                float randomX = Random.Range(-pickupSpawnSize.x / 2f, pickupSpawnSize.x / 2f);
-                float randomY = Random.Range(-pickupSpawnSize.y / 2f, pickupSpawnSize.y / 2f);
-                Vector3 spawnPos = originCenter + new Vector3(randomX, randomY, 0f);
+                Vector3 spawnPos = Vector3.zero;
+                bool validPos = false;
+                int maxRetries = 30;
+
+                for (int retry = 0; retry < maxRetries; retry++)
+                {
+                    float randomX = Random.Range(-pickupSpawnSize.x / 2f, pickupSpawnSize.x / 2f);
+                    float randomY = Random.Range(-pickupSpawnSize.y / 2f, pickupSpawnSize.y / 2f);
+                    spawnPos = originCenter + new Vector3(randomX, randomY, 0f);
+
+                    // 檢查在生成位置附近是否有碰撞體
+                    Collider2D hit = Physics2D.OverlapCircle(spawnPos, 0.5f);
+                    bool isObstacle = false;
+
+                    if (hit != null)
+                    {
+                        // 遞迴檢查自身與所有父物件是否有 "Obstacle" tag
+                        Transform current = hit.transform;
+                        while (current != null)
+                        {
+                            if (current.CompareTag("Obstacle"))
+                            {
+                                isObstacle = true;
+                                break;
+                            }
+                            current = current.parent;
+                        }
+                    }
+
+                    if (!isObstacle)
+                    {
+                        validPos = true;
+                        break;
+                    }
+                }
 
                 GameObject pickup = Instantiate(pickupItemPrefab, spawnPos, Quaternion.identity);
                 pickup.transform.parent = mapItemsParent;
-                Debug.Log($"【EnemySpawner】波次 {completedWave.waveName} 結束：在 {spawnPos} 生成了拾取物：{pickup.name}");
+                Debug.Log($"【EnemySpawner】波次 {completedWave.waveName} 結束：在 {spawnPos} 生成了拾取物：{pickup.name} (是否避開障礙物: {validPos})");
             }
         }
 
