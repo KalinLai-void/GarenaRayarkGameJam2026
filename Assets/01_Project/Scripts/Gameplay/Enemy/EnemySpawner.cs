@@ -17,6 +17,8 @@ namespace Gameplay
             [Tooltip("此波次持續時間 (秒)")] public float duration;
             [Tooltip("每次生成數量 (設 1 為散怪，大於 1 為群聚)")] public int amountPerSpawn;
             [Tooltip("群聚怪物隨機散佈的半徑範圍")] public float groupSpread;
+            [Tooltip("此波次結束時產生的拾取物最小數量")] public int minPickupAmount;
+            [Tooltip("此波次結束時產生的拾取物最大數量")] public int maxPickupAmount;
         }
 
         [Header("--- 玩家參照 ---")]
@@ -30,6 +32,16 @@ namespace Gameplay
 
         [Header("--- 波次設定 ---")]
         [SerializeField] private SpawnWave[] waves;
+
+        [Header("--- 拾取物生成設定 ---")]
+        [Tooltip("拾取物預製體 (Pickup_Item.prefab)")]
+        [SerializeField] private GameObject pickupItemPrefab;
+        [Tooltip("放置拾取物的父物件 (若未指定，會尋找名為 MapItems 的物件，若仍找不到則自動創建)")]
+        [SerializeField] private Transform mapItemsParent;
+        [Tooltip("拾取物生成範圍的中心點 (相對於 Spawner 的偏移量)")]
+        [SerializeField] private Vector2 pickupSpawnCenter = Vector2.zero;
+        [Tooltip("拾取物生成範圍的尺寸 (X 軸寬度, Y 軸高度)")]
+        [SerializeField] private Vector2 pickupSpawnSize = new Vector2(10f, 10f);
 
         private int currentWaveIndex = 0;
         private float waveTimer = 0f;
@@ -118,6 +130,9 @@ namespace Gameplay
 
         private void GoToNextWave()
         {
+            // 記錄剛剛完成的波次索引
+            int completedWaveIndex = currentWaveIndex;
+
             waveTimer = 0f;
             currentWaveIndex++;
 
@@ -131,6 +146,59 @@ namespace Gameplay
             {
                 Debug.Log($"【EnemySpawner】進入下一波：{waves[currentWaveIndex].waveName}");
             }
+
+            // 根據剛剛結束的波次設定來生成拾取物
+            SpawnPickups(completedWaveIndex);
+        }
+
+        private void SpawnPickups(int waveIndex)
+        {
+            if (waveIndex < 0 || waveIndex >= waves.Length) return;
+            if (pickupItemPrefab == null)
+            {
+                Debug.LogWarning("【EnemySpawner】未指定 pickupItemPrefab，無法生成拾取物！");
+                return;
+            }
+
+            SpawnWave completedWave = waves[waveIndex];
+            int minAmount = completedWave.minPickupAmount;
+            int maxAmount = completedWave.maxPickupAmount;
+
+            // 如果設定的最大數量小於等於 0，表示此波不需要產生任何道具
+            if (maxAmount <= 0) return;
+
+            // 確保有 MapItems 父物件
+            if (mapItemsParent == null)
+            {
+                GameObject mapItemsGo = GameObject.Find("MapItems");
+                if (mapItemsGo == null)
+                {
+                    mapItemsGo = new GameObject("MapItems");
+                }
+                mapItemsParent = mapItemsGo.transform;
+            }
+
+            int spawnCount = Random.Range(minAmount, maxAmount + 1);
+            Vector3 originCenter = transform.position + new Vector3(pickupSpawnCenter.x, pickupSpawnCenter.y, 0f);
+
+            for (int i = 0; i < spawnCount; i++)
+            {
+                float randomX = Random.Range(-pickupSpawnSize.x / 2f, pickupSpawnSize.x / 2f);
+                float randomY = Random.Range(-pickupSpawnSize.y / 2f, pickupSpawnSize.y / 2f);
+                Vector3 spawnPos = originCenter + new Vector3(randomX, randomY, 0f);
+
+                GameObject pickup = Instantiate(pickupItemPrefab, spawnPos, Quaternion.identity);
+                pickup.transform.parent = mapItemsParent;
+                Debug.Log($"【EnemySpawner】波次 {completedWave.waveName} 結束：在 {spawnPos} 生成了拾取物：{pickup.name}");
+            }
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            // 畫出拾取物隨機生成範圍
+            Gizmos.color = Color.yellow;
+            Vector3 center = transform.position + new Vector3(pickupSpawnCenter.x, pickupSpawnCenter.y, 0f);
+            Gizmos.DrawWireCube(center, new Vector3(pickupSpawnSize.x, pickupSpawnSize.y, 0f));
         }
     }
 }
