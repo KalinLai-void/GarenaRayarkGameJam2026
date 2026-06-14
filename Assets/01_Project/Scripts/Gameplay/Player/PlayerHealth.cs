@@ -52,7 +52,7 @@ namespace Gameplay
         public PlayerState CurrentState => currentState;
 
         private int currentHealth;
-        private SpriteRenderer spriteRenderer;
+        private SpriteRenderer[] spriteRenderers;
         private Color originalColor = Color.white;
         private Coroutine flashCoroutine;
         private PlayerState currentState = PlayerState.Normal;
@@ -68,10 +68,10 @@ namespace Gameplay
         {
             currentHealth = maxHealth;
             // 尋找子物件 Visual 上的 SpriteRenderer
-            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-            if (spriteRenderer != null)
+            spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+            if (spriteRenderers != null)
             {
-                originalColor = spriteRenderer.color;
+                originalColor = spriteRenderers[0].color;
             }
 
             playerCollider = GetComponent<Collider2D>();
@@ -166,7 +166,7 @@ namespace Gameplay
             Debug.Log($"【Console Log】玩家受到 {damage} 點傷害，剩餘生命值: {currentHealth}，狀態變更為: [Hurt]");
 
             // 觸發受傷紅閃
-            if (spriteRenderer != null)
+            if (spriteRenderers != null)
             {
                 if (flashCoroutine != null)
                 {
@@ -208,10 +208,16 @@ namespace Gameplay
 
         private IEnumerator FlashRedRoutine()
         {
-            spriteRenderer.color = flashColor;
+            for (int i = 0; i < spriteRenderers.Length; i++)
+            {
+                spriteRenderers[i].color = flashColor;
+            }
             yield return new WaitForSeconds(flashDuration);
-            spriteRenderer.color = originalColor;
-            
+            for (int i = 0; i < spriteRenderers.Length; i++)
+            {
+                spriteRenderers[i].color = originalColor;
+            }
+
             // 閃紅結束若未死亡，狀態切換回 Normal
             if (currentState == PlayerState.Hurt)
             {

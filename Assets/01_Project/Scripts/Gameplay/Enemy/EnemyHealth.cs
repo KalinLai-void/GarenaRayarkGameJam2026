@@ -48,7 +48,7 @@ namespace Gameplay
         public EnemyState CurrentState => currentState;
 
         private int currentHealth;
-        private SpriteRenderer spriteRenderer;
+        private SpriteRenderer[] spriteRenderers;
         private Color originalColor = Color.white;
         private Coroutine flashCoroutine;
         private EnemyState currentState = EnemyState.Normal;
@@ -67,10 +67,10 @@ namespace Gameplay
         {
             currentHealth = maxHealth;
             // 尋找子物件 Visual 上的 SpriteRenderer
-            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-            if (spriteRenderer != null)
+            spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+            if (spriteRenderers != null)
             {
-                originalColor = spriteRenderer.color;
+                originalColor = spriteRenderers[0].color;
             }
         }
 
@@ -95,7 +95,7 @@ namespace Gameplay
             Debug.Log($"【Console Log】怪物 {gameObject.name} 受到 {damage} 點傷害，剩餘生命值: {currentHealth}，狀態變更為: [Hurt]");
 
             // 觸發受傷紅閃
-            if (spriteRenderer != null)
+            if (spriteRenderers != null)
             {
                 if (flashCoroutine != null)
                 {
@@ -246,9 +246,12 @@ namespace Gameplay
 
         private IEnumerator BurnVisualRoutine(float duration)
         {
-            if (spriteRenderer != null)
+            if (spriteRenderers != null)
             {
-                spriteRenderer.color = Color.red;
+                for (int i = 0; i < spriteRenderers.Length; i++)
+                {
+                    spriteRenderers[i].color = Color.red;
+                }
                 yield return new WaitForSeconds(duration);
                 UpdateColorTint();
             }
@@ -257,7 +260,7 @@ namespace Gameplay
 
         private void UpdateColorTint()
         {
-            if (spriteRenderer == null) return;
+            if (spriteRenderers == null) return;
             if (flashCoroutine != null || burnVisualCoroutine != null) return;
 
             EnemyMovement mv = GetComponent<EnemyMovement>();
@@ -266,23 +269,38 @@ namespace Gameplay
 
             if (isBurning)
             {
-                spriteRenderer.color = new Color(1.0f, 0.4f, 0.4f, 1f); // 燃燒染紅
+                for (int i = 0; i < spriteRenderers.Length; i++)
+                {
+                    spriteRenderers[i].color = new Color(1.0f, 0.4f, 0.4f, 1f); // 燃燒染紅
+                }
             }
             else if (isSlowed)
             {
-                spriteRenderer.color = new Color(0.4f, 0.6f, 1.0f, 1f); // 緩速染藍
+                for (int i = 0; i < spriteRenderers.Length; i++)
+                {
+                    spriteRenderers[i].color = new Color(0.4f, 0.6f, 1.0f, 1f); // 緩速染藍
+                }
             }
             else
             {
-                spriteRenderer.color = originalColor;
+                for (int i = 0; i < spriteRenderers.Length; i++)
+                {
+                    spriteRenderers[i].color = originalColor;
+                }
             }
         }
 
         private IEnumerator FlashRedRoutine()
         {
-            spriteRenderer.color = flashColor;
+            for (int i = 0; i < spriteRenderers.Length; i++)
+            {
+                spriteRenderers[i].color = flashColor;
+            }
             yield return new WaitForSeconds(flashDuration);
-            spriteRenderer.color = originalColor;
+            for (int i = 0; i < spriteRenderers.Length; i++)
+            {
+                spriteRenderers[i].color = originalColor;
+            }
 
             // 閃紅結束若未死亡，狀態切換回 Normal
             if (currentState == EnemyState.Hurt)
