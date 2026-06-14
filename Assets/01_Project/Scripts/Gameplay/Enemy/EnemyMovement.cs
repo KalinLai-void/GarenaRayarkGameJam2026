@@ -25,6 +25,9 @@ namespace Gameplay
         [Tooltip("當怪物完全重疊（距離趨近於0）時，推開彼此的隨機排斥力強度")]
         [SerializeField] private float overlapPushForce = 5.0f;
 
+        [Tooltip("排斥力偵測中心的偏移量 (可用於對齊 Y 軸，避免跟腳底 Pivot 偏離)")]
+        [SerializeField] private Vector2 separationOffset = Vector2.zero;
+
         private Rigidbody2D rb;
         private Transform playerTransform;
         private int enemyLayer;
@@ -90,10 +93,11 @@ namespace Gameplay
             {
                 frameDelayCount = 0;
                 Vector2 separationShared = Vector2.zero;
+                Vector2 detectionCenter = (Vector2)transform.position + separationOffset;
 
                 // 使用 NonAlloc 避免垃圾回收 (GC Alloc) 造成卡頓
 #pragma warning disable 618
-                int count = Physics2D.OverlapCircleNonAlloc(transform.position, separationRadius, nearbyBuffer, enemyLayer);
+                int count = Physics2D.OverlapCircleNonAlloc(detectionCenter, separationRadius, nearbyBuffer, enemyLayer);
 #pragma warning restore 618
                 for (int i = 0; i < count; i++)
                 {
@@ -104,7 +108,9 @@ namespace Gameplay
                     if (enemyCol.transform.IsChildOf(this.transform))
                         continue;
 
-                    Vector2 awayFromEnemy = (transform.position - enemyCol.transform.position);
+                    // 使用其他怪物的實際碰撞中心點來計算排斥距離，更加精確
+                    Vector2 enemyCenter = enemyCol.bounds.center;
+                    Vector2 awayFromEnemy = (detectionCenter - enemyCenter);
                     float dist = awayFromEnemy.magnitude;
 
                     if (dist > 0.001f)
@@ -192,7 +198,7 @@ namespace Gameplay
         {
             // 在編輯器選取時畫出排斥力半徑範圍
             Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(transform.position, separationRadius);
+            Gizmos.DrawWireSphere((Vector2)transform.position + separationOffset, separationRadius);
         }
     }
 }
