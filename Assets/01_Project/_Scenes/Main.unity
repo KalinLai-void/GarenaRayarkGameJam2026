@@ -3873,12 +3873,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gameplay.JuiceScaleEffect
   targetScale: {x: 1, y: 1, z: 1}
-  durationUp: 0.2
-  durationDown: 0.2
+  durationUp: 0.5
+  durationDown: 0.5
   playOnEnable: 1
   loop: 1
   useRandomScale: 1
-  randomRange: {x: 0.3, y: 0.3}
+  randomRange: {x: 0.05, y: 0.05}
   useRandomDuration: 1
   randomDurationUpRange: {x: 0.3, y: 0.7}
   randomDurationDownRange: {x: 0.3, y: 0.7}
