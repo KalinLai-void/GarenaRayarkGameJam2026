@@ -59,7 +59,6 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
-        // 檢查如果是在編輯器直接執行 Game 場景 (通常是 "Main")
         if (SceneManager.GetActiveScene().name == gameScene?.SceneName || SceneManager.GetActiveScene().name == "Main")
         {
             Debug.Log("[GameManager] 直接在編輯器執行 Main 場景，自動播放遊戲背景音樂");
@@ -72,11 +71,11 @@ public class GameManager : Singleton<GameManager>
         }
         else
         {
-            GoToTitle();
+            Init();
         }
     }
 
-    public void GoToTitle()
+    private void Init()
     {
         Debug.Log("[GameManager] Title");
         currentStage = State.OnTitle;
@@ -87,6 +86,12 @@ public class GameManager : Singleton<GameManager>
         {
             Gameplay.AudioManager.Instance.PlayTitleBGM();
         }
+    }
+
+    public void GoToTitle()
+    {
+        Init();
+        SceneManager.LoadScene(titleScene?.SceneName);
     }
 
     public void GoToStory()
@@ -171,16 +176,13 @@ public class GameManager : Singleton<GameManager>
         {
             dieTime++;
             GameEndManager.instance.DieGame();
-            Invoke("Restart", 1f);
+            Invoke("StartGame", 1f);
         }
         else
         {
             dieTime = 0;
+            GameEndManager.instance.PassGame();
+            Invoke("GoToTitle", 1.5f);
         }
-    }
-
-    private void Restart()
-    {
-        TriggerGameStart();
     }
 }
