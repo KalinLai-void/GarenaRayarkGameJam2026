@@ -50,9 +50,9 @@ MonoBehaviour:
   bgmSource: {fileID: 1921032616372397846}
   sfxSource: {fileID: 4449579157362559821}
   loopSfxSource: {fileID: 8061833538892382302}
-  titleBgm: {fileID: 8300000, guid: c223e0afcc5dbd6409590f9a27cd77e7, type: 3}
-  gameBgm: {fileID: 8300000, guid: c223e0afcc5dbd6409590f9a27cd77e7, type: 3}
-  cutsceneBgm: {fileID: 8300000, guid: c223e0afcc5dbd6409590f9a27cd77e7, type: 3}
+  titleBgm: {fileID: 8300000, guid: 7f2b39440789d4b4bb9fcd94990a5a32, type: 3}
+  gameBgm: {fileID: 8300000, guid: 7f2b39440789d4b4bb9fcd94990a5a32, type: 3}
+  cutsceneBgm: {fileID: 8300000, guid: 7f2b39440789d4b4bb9fcd94990a5a32, type: 3}
   gameClearBgm: {fileID: 8300000, guid: c6062370615a6b64995508e86e243ea7, type: 3}
   playerDeathSe: {fileID: 8300000, guid: e66b494c305cc0645b074df96400a41b, type: 3}
   playerHurtSe: {fileID: 8300000, guid: 67c583f01d37dd64fab668c7b5b14eb1, type: 3}
@@ -63,9 +63,9 @@ MonoBehaviour:
   matchSuccessSe: {fileID: 8300000, guid: 90b9e2167fe150a49bf2322f6f689591, type: 3}
   pickupItemSe: {fileID: 8300000, guid: f07f8d28c621497419ac0c0e8da54e4e, type: 3}
   buttonClickSe: {fileID: 0}
-  tinderSwipeLeftSe: {fileID: 0}
+  tinderSwipeLeftSe: {fileID: 8300000, guid: 63cfced12349e224ca9fdb33c8a401bb, type: 3}
   tinderSwipeRightSe: {fileID: 8300000, guid: f07f8d28c621497419ac0c0e8da54e4e, type: 3}
-  phonePopupSe: {fileID: 0}
+  phonePopupSe: {fileID: 8300000, guid: cb6f04cd1b5bca046a1685edb3ad47e9, type: 3}
   timerTickSe: {fileID: 0}
   healSe: {fileID: 8300000, guid: 9c5c1be2b29ac8e4a9464cb62e3ee3b0, type: 3}
   laserBeamSe: {fileID: 8300000, guid: 42f16d4bd9dd4c048b120cfae8bb0ed1, type: 3}
