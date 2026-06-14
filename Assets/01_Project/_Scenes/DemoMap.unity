@@ -5114,7 +5114,7 @@ GameObject:
   - component: {fileID: 478030236}
   m_Layer: 0
   m_Name: LeftBottomCorner
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15497,7 +15497,7 @@ GameObject:
   - component: {fileID: 1313227105}
   m_Layer: 0
   m_Name: RightBottomConer
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -19782,7 +19782,7 @@ GameObject:
   - component: {fileID: 1687542384}
   m_Layer: 0
   m_Name: LeftTopCorner
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -24189,9 +24189,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c666307df93be32449af13b6a1ebb81f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  reloadScene:
-    sceneAsset: {fileID: 102900000, guid: 9dd841c78df49184baaadab1622f9502, type: 3}
-    sceneName: Main
+  titleScene:
+    sceneAsset: {fileID: 0}
+    sceneName: 
+  gameScene:
+    sceneAsset: {fileID: 0}
+    sceneName: 
+  storyScene:
+    sceneAsset: {fileID: 0}
+    sceneName: 
+  onTitleEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  onStoryEvent:
+    m_PersistentCalls:
+      m_Calls: []
   onGameStartEvent:
     m_PersistentCalls:
       m_Calls: []
