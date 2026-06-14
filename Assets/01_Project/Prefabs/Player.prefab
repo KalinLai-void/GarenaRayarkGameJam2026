@@ -464,6 +464,7 @@ MonoBehaviour:
   bulletPrefab: {fileID: 6652034002896249891, guid: 017c031ce40c6c54cbea5bd82c044fa1, type: 3}
   muzzlePoint: {fileID: 6425962006874782336}
   spriteRenderer: {fileID: 0}
+  animator: {fileID: 8149228348242307686}
   playerInput: {fileID: 0}
   aimRenderer: {fileID: 3798680421534629351}
 --- !u!1 &8262024977718382237

@@ -31,6 +31,7 @@ namespace Gameplay
         [SerializeField] private GameObject bulletPrefab;
         [SerializeField] private Transform muzzlePoint;
         [SerializeField] private SpriteRenderer spriteRenderer;
+        [SerializeField] private Animator animator;
 
         [Header("--- 參照輸入組件 (選填) ---")]
         [SerializeField] private PlayerInput playerInput;
@@ -106,6 +107,7 @@ namespace Gameplay
         private void Update()
         {
             RotateAndLockToOrbit();
+            UpdateFacingDirection();
 
             if (isReloading) return;
 
@@ -135,6 +137,21 @@ namespace Gameplay
             {
                 nextFireTime = Time.time + (1f / FinalFireRate);
                 Shoot();
+            }
+        }
+
+        private void UpdateFacingDirection()
+        {
+            if (animator == null) return;
+
+            // 當往左移動時，翻面 (flipX = true)；當往右移動時，不翻面 (flipX = false)
+            if (transform.localPosition.x < -0.01f)
+            {
+                animator.SetBool("IsFaceLeft", true);
+            }
+            else if (transform.localPosition.x > 0.01f)
+            {
+                animator.SetBool("IsFaceLeft", false);
             }
         }
 

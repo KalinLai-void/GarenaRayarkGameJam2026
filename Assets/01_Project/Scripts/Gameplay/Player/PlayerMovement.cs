@@ -79,7 +79,7 @@ namespace Gameplay
             }
 
             // 更新角色面向 (水平翻面)
-            UpdateFacingDirection();
+            //UpdateFacingDirection();
         }
 
         private void FixedUpdate()
