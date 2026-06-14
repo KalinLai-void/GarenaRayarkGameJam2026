@@ -170,37 +170,14 @@ namespace Gameplay
 
             if (activeSkill.skillID == "SSR_Angel")
             {
-                // 天使金光菇特殊邏輯：
-                // 取得除了自身以外，所有等級等於 LV.1 的技能
-                List<string> lv1SkillIDs = new List<string>();
-                foreach (var kvp in skillLevels)
+                // 天使金光菇主動：回復最大血量 50%
+                PlayerHealth hp = GetComponent<PlayerHealth>();
+                if (hp == null) hp = Object.FindFirstObjectByType<PlayerHealth>();
+                if (hp != null)
                 {
-                    if (kvp.Key != "SSR_Angel" && kvp.Value == 1)
-                    {
-                        lv1SkillIDs.Add(kvp.Key);
-                    }
-                }
-
-                if (lv1SkillIDs.Count > 0)
-                {
-                    foreach (var id in lv1SkillIDs)
-                    {
-                        skillLevels[id] = 2;
-                        Debug.Log($"【技能系統】天使金光菇：強行將技能 {id} 等級提升至 LV.2");
-                        SyncSkillLevelUI(id, 2);
-                    }
-                }
-                else
-                {
-                    // 若無任何 LV.1 技能，則回血
-                    PlayerHealth hp = GetComponent<PlayerHealth>();
-                    if (hp == null) hp = Object.FindFirstObjectByType<PlayerHealth>();
-                    if (hp != null)
-                    {
-                        int healAmt = activeSkill != null ? activeSkill.angelHealAmount : 50;
-                        hp.Heal(healAmt);
-                        Debug.Log($"【技能系統】天使金光菇：玩家技能均已 >= LV.2，觸發治癒回血 {healAmt}！");
-                    }
+                    int healAmt = Mathf.RoundToInt(hp.MaxHealth * 0.5f);
+                    hp.Heal(healAmt);
+                    Debug.Log($"【技能系統】天使金光菇：觸發主動，回復最大生命值 50%（共 {healAmt} 點）！");
                 }
             }
             else

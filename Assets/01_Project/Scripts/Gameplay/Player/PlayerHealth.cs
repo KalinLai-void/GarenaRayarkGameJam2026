@@ -42,6 +42,11 @@ namespace Gameplay
         public int CurrentHealth => currentHealth;
 
         /// <summary>
+        /// 最大生命值
+        /// </summary>
+        public int MaxHealth => maxHealth;
+
+        /// <summary>
         /// 當前玩家狀態
         /// </summary>
         public PlayerState CurrentState => currentState;
