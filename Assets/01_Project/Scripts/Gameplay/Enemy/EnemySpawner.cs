@@ -121,8 +121,7 @@ namespace Gameplay
                 GameObject currentEnemyPrefab = currentWave.enemyPrefab;
                 if (currentEnemyPrefab != null)
                 {
-                    GameObject enemy = Instantiate(currentEnemyPrefab, finalSpawnPos, Quaternion.identity);
-                    enemy.transform.parent = pool.transform;
+                    GameObject enemy = Instantiate(currentEnemyPrefab, finalSpawnPos, Quaternion.identity, pool.transform);
                 }
             }
         }

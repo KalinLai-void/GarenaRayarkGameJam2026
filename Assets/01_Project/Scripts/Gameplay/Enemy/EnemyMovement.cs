@@ -45,6 +45,17 @@ namespace Gameplay
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             // 隨機錯開每個怪物的計算幀，避免所有怪物在同一幀同時執行物理查詢
             frameDelayCount = Random.Range(0, 5);
+
+            // 🌟 解決 WebGL 平台上 2D Skeletal Animation (SpriteSkin) 進入畫面時的「閃現/拉伸/變形」異常問題
+            // 強制所有子物件的 SpriteSkin 在畫面外也持續更新 (alwaysUpdate = true)
+            var spriteSkins = GetComponentsInChildren<UnityEngine.U2D.Animation.SpriteSkin>(true);
+            if (spriteSkins != null)
+            {
+                foreach (var skin in spriteSkins)
+                {
+                    skin.alwaysUpdate = true;
+                }
+            }
         }
 
         private void Start()
