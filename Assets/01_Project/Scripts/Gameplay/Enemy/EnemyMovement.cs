@@ -36,11 +36,13 @@ namespace Gameplay
         // 使用共享緩衝區以避免 Physics2D.OverlapCircle 產生垃圾回收 (GC Alloc)
         private static readonly Collider2D[] nearbyBuffer = new Collider2D[30];
         private Vector2 cachedSeparation = Vector2.zero;
+        private Vector2 currentSeparation = Vector2.zero;
         private int frameDelayCount;
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate; // 🌟 物理插值防止 WebGL 下物理與渲染影格率不一致造成的抖動
             enemyLayer = LayerMask.GetMask("Enemy");
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             // 隨機錯開每個怪物的計算幀，避免所有怪物在同一幀同時執行物理查詢
@@ -124,14 +126,15 @@ namespace Gameplay
                     Vector2 awayFromEnemy = (detectionCenter - enemyCenter);
                     float dist = awayFromEnemy.magnitude;
 
-                    if (dist > 0.001f)
+                    if (dist > 0.01f)
                     {
-                        // 距離越近，排斥力越強
-                        separationShared += awayFromEnemy.normalized / dist;
+                        // 限制最大排斥力，避免極近距離下的物理爆炸與抖動
+                        float force = Mathf.Min(10f, 1f / dist);
+                        separationShared += awayFromEnemy.normalized * force;
                     }
                     else
                     {
-                        // 完全重疊時，給予隨機方向的強排斥力來分開彼此，避免重疊成一張圖
+                        // 完全重疊時，給予隨機方向的強排斥力來分開彼此
                         float randomAngle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
                         Vector2 randomPush = new Vector2(Mathf.Cos(randomAngle), Mathf.Sin(randomAngle));
                         separationShared += randomPush * overlapPushForce;
@@ -140,15 +143,19 @@ namespace Gameplay
                 cachedSeparation = separationShared;
             }
 
+            // 🌟 平滑排斥力過渡，消除每 5 幀突變時產生的微幅瞬移/抖動
+            currentSeparation = Vector2.Lerp(currentSeparation, cachedSeparation, Time.fixedDeltaTime * 15f);
+
             // 3. 最終移動方向 = 朝向玩家的引力 + 避開隊友的排斥力 (乘以權重)
-            Vector2 finalVelocity = moveDirection + (cachedSeparation * separationWeight);
+            Vector2 finalVelocity = moveDirection + (currentSeparation * separationWeight);
 
             float currentMaxSlow = Mathf.Max(passiveSlowPercent, blockSlowPercent);
             float actualSpeed = moveSpeed * (1f - currentMaxSlow);
 
             if (finalVelocity.sqrMagnitude > 0.001f)
             {
-                rb.linearVelocity = finalVelocity.normalized * moveSpeed;
+                // 修正原先直接使用 moveSpeed 的 Bug，使緩速機制真正生效
+                rb.linearVelocity = finalVelocity.normalized * actualSpeed;
                 animator.SetBool("IsMoving", true);
             }
             else
@@ -157,8 +164,8 @@ namespace Gameplay
                 animator.SetBool("IsMoving", false);
             }
 
-            // 4. 根據速度方向更新翻面 (水平翻轉)
-            UpdateFacing(rb.linearVelocity.x);
+            // 4. 根據與玩家的相對位置進行翻面，從根本上消除「因群體排斥抖動導致的左右面部閃爍」
+            UpdateFacing();
         }
 
         private float passiveSlowPercent = 0f;
@@ -190,18 +197,18 @@ namespace Gameplay
             }
         }
 
-        private void UpdateFacing(float vx)
+        private void UpdateFacing()
         {
-            if (animator != null)
+            if (playerTransform == null || animator == null) return;
+            
+            float dx = playerTransform.position.x - transform.position.x;
+            if (dx < -0.1f)
             {
-                if (vx < -0.01f)
-                {
-                    animator.SetBool("IsFaceLeft", true);
-                }
-                else if (vx > 0.01f)
-                {
-                    animator.SetBool("IsFaceLeft", false);
-                }
+                animator.SetBool("IsFaceLeft", true);
+            }
+            else if (dx > 0.1f)
+            {
+                animator.SetBool("IsFaceLeft", false);
             }
         }
 
