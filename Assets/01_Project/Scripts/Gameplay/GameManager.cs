@@ -59,14 +59,20 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
-        GoToTitle();
+        Init();
     }
 
-    public void GoToTitle()
+    private void Init()
     {
         Debug.Log("[GameManager] Title");
         currentStage = State.OnTitle;
         onTitleEvent?.Invoke();
+    }
+
+    public void GoToTitle()
+    {
+        Init();
+        SceneManager.LoadScene(titleScene?.SceneName);
     }
 
     public void GoToStory()
@@ -125,16 +131,13 @@ public class GameManager : Singleton<GameManager>
         {
             dieTime++;
             GameEndManager.instance.DieGame();
-            Invoke("Restart", 1f);
+            Invoke("StartGame", 1f);
         }
         else
         {
             dieTime = 0;
+            GameEndManager.instance.PassGame();
+            Invoke("GoToTitle", 1.5f);
         }
-    }
-
-    private void Restart()
-    {
-        TriggerGameStart();
     }
 }

@@ -9,7 +9,7 @@ namespace Gameplay
     public sealed class PlayerInventory : MonoBehaviour
     {
         // 儲存玩家目前擁有的道具名稱 (例如 "Map", "Key")
-        private readonly HashSet<string> heldItems = new HashSet<string>();
+        private readonly List<string> heldItems = new List<string>();
 
         /// <summary>
         /// 判斷玩家目前是否持有某個特定道具
@@ -24,15 +24,16 @@ namespace Gameplay
         /// </summary>
         public void AddItem(string itemName)
         {
-            if (!heldItems.Contains(itemName))
-            {
+            //if (!heldItems.Contains(itemName))
+            //{
                 heldItems.Add(itemName);
+                Debug.Log("[Inventory] " + heldItems.Count);
                 if (heldItems.Count >= 5)
                 {
                     GameManager.TriggerGameEnd(true);
                 }
                 Debug.Log($"【PlayerInventory】玩家獲得並持有了道具: {itemName}");
-            }
+            //}
         }
 
         /// <summary>

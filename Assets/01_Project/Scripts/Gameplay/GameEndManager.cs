@@ -7,6 +7,7 @@ public class GameEndManager : MonoBehaviour
     public static GameEndManager instance;
 
     [SerializeField] private GameObject HUD;
+    [SerializeField] private GameObject PassUI;
     [SerializeField] private GameObject DieUI;
     [SerializeField] private TextMeshProUGUI DieText;
     [SerializeField] private string dieStr = "你已經歷第 X 次死亡";
@@ -14,6 +15,12 @@ public class GameEndManager : MonoBehaviour
     private void Start()
     {
         if (instance == null ) instance = this;
+    }
+
+    public void PassGame()
+    {
+        HUD.SetActive(false);
+        PassUI.SetActive(true);
     }
 
     public void DieGame()
