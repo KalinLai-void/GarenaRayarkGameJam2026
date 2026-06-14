@@ -49,6 +49,7 @@ namespace Gameplay
         [SerializeField] private float bounceIntensity = 1.70158f;
         
         private float currentTimer;
+        private int lastCeilTime;
         private bool isTimerRunning = false;
         private readonly List<GameObject> activeCards = new List<GameObject>();
         private bool isClosing = false;
@@ -148,9 +149,16 @@ namespace Gameplay
             // 初始化或重置狀態
             isClosing = false;
             currentTimer = maxTime;
+            lastCeilTime = Mathf.CeilToInt(maxTime);
             isTimerRunning = false; // 彈出動畫進行中先不計時，彈完才計時
             currentLikes = 0;
             currentNopes = 0;
+
+            // 🎵 播放手機介面彈出音效
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayPhonePopup();
+            }
 
             // 🌟 讀取編輯器中的卡片範本設定，以便動態生成的卡片完全契合您在編輯器中排版的位置與大小！
             hasTemplate = false;
@@ -194,7 +202,10 @@ namespace Gameplay
                 if (btn != null)
                 {
                     btn.onClick.RemoveAllListeners();
-                    btn.onClick.AddListener(() => OnButtonClick(false));
+                    btn.onClick.AddListener(() => {
+                        if (AudioManager.Instance != null) AudioManager.Instance.PlayButtonClick();
+                        OnButtonClick(false);
+                    });
                     // 關閉鍵盤/手把 Navigation，防止 Space/Enter 誤觸
                     btn.navigation = new UnityEngine.UI.Navigation { mode = UnityEngine.UI.Navigation.Mode.None };
                 }
@@ -205,7 +216,10 @@ namespace Gameplay
                 if (btn != null)
                 {
                     btn.onClick.RemoveAllListeners();
-                    btn.onClick.AddListener(() => OnButtonClick(true));
+                    btn.onClick.AddListener(() => {
+                        if (AudioManager.Instance != null) AudioManager.Instance.PlayButtonClick();
+                        OnButtonClick(true);
+                    });
                     // 關閉鍵盤/手把 Navigation，防止 Space/Enter 誤觸
                     btn.navigation = new UnityEngine.UI.Navigation { mode = UnityEngine.UI.Navigation.Mode.None };
                 }
@@ -236,10 +250,21 @@ namespace Gameplay
                     OnTimerExpired();
                 }
                 
+                // 🎵 播放計時器滴答聲
+                int currentCeil = Mathf.CeilToInt(currentTimer);
+                if (currentCeil != lastCeilTime)
+                {
+                    lastCeilTime = currentCeil;
+                    if (AudioManager.Instance != null && currentCeil > 0 && currentTimer > 0.05f)
+                    {
+                        AudioManager.Instance.PlayTimerTick();
+                    }
+                }
+
                 // 更新 Home Button 上的數字倒數
                 if (timerText != null)
                 {
-                    timerText.text = Mathf.CeilToInt(currentTimer).ToString();
+                    timerText.text = currentCeil.ToString();
                 }
             }
         }
@@ -469,6 +494,14 @@ namespace Gameplay
                 if (isLike)
                 {
                     currentLikes++;
+                    
+                    // 🎵 播放右滑音效與配對成功音效
+                    if (AudioManager.Instance != null)
+                    {
+                        AudioManager.Instance.PlayTinderSwipeRight();
+                        AudioManager.Instance.PlayMatchSuccess();
+                    }
+
                     if (cardToSkillMap.TryGetValue(swipedCard, out SkillData skill))
                     {
                         if (PlayerSkillSystem.Instance != null)
@@ -480,6 +513,12 @@ namespace Gameplay
                 else
                 {
                     currentNopes++;
+                    
+                    // 🎵 播放左滑音效
+                    if (AudioManager.Instance != null)
+                    {
+                        AudioManager.Instance.PlayTinderSwipeLeft();
+                    }
                 }
 
                 // 清除映射

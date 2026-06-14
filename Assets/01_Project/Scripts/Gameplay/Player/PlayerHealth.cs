@@ -151,6 +151,16 @@ namespace Gameplay
                 uiManager.UpdateHP(currentHealth, maxHealth);
             }
 
+            // 🎵 播放玩家受傷音效
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayPlayerHurt();
+                
+                // 檢查是否處於殘血狀態 (30% 以下) 且未死亡
+                bool isLow = (float)currentHealth / maxHealth <= 0.3f && currentHealth > 0;
+                AudioManager.Instance.SetLowHealthWarning(isLow);
+            }
+
             // 切換至 Hurt 狀態
             currentState = PlayerState.Hurt;
             Debug.Log($"【Console Log】玩家受到 {damage} 點傷害，剩餘生命值: {currentHealth}，狀態變更為: [Hurt]");
@@ -182,6 +192,13 @@ namespace Gameplay
             currentHealth = Mathf.Min(currentHealth, maxHealth);
             
             Debug.Log($"【Console Log】玩家回復了 {amount} 點生命值，目前生命值: {currentHealth}/{maxHealth}");
+
+            // 🎵 更新殘血警報狀態
+            if (AudioManager.Instance != null)
+            {
+                bool isLow = (float)currentHealth / maxHealth <= 0.3f;
+                AudioManager.Instance.SetLowHealthWarning(isLow);
+            }
 
             if (uiManager != null)
             {
@@ -215,6 +232,13 @@ namespace Gameplay
             currentState = PlayerState.Dead;
             Debug.Log($"【Console Log】玩家已被擊敗！狀態變更為: [Dead]");
             
+            // 🎵 播放死亡音效，並關閉殘血警告
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayPlayerDeath();
+                AudioManager.Instance.SetLowHealthWarning(false);
+            }
+
             // 停用移動腳本，阻止玩家繼續操作
             PlayerMovement pm = GetComponent<PlayerMovement>();
             if (pm != null)

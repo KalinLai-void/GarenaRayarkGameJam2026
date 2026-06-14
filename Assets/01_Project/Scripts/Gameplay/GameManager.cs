@@ -1,4 +1,4 @@
-﻿using Common;
+using Common;
 using System;
 using UnityEngine;
 using UnityEngine.Events;
@@ -50,7 +50,7 @@ public class GameManager : Singleton<GameManager>
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            Instantiate(gameObject);
             return;
         }
 
@@ -59,7 +59,20 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
-        Init();
+        if (SceneManager.GetActiveScene().name == gameScene?.SceneName || SceneManager.GetActiveScene().name == "Main")
+        {
+            Debug.Log("[GameManager] 直接在編輯器執行 Main 場景，自動播放遊戲背景音樂");
+            currentStage = State.OnGameStart;
+            onGameStartEvent?.Invoke();
+            if (Gameplay.AudioManager.Instance != null)
+            {
+                Gameplay.AudioManager.Instance.PlayGameBGM();
+            }
+        }
+        else
+        {
+            Init();
+        }
     }
 
     private void Init()
@@ -67,6 +80,12 @@ public class GameManager : Singleton<GameManager>
         Debug.Log("[GameManager] Title");
         currentStage = State.OnTitle;
         onTitleEvent?.Invoke();
+
+        // 播放標題背景音樂
+        if (Gameplay.AudioManager.Instance != null)
+        {
+            Gameplay.AudioManager.Instance.PlayTitleBGM();
+        }
     }
 
     public void GoToTitle()
@@ -80,6 +99,13 @@ public class GameManager : Singleton<GameManager>
         Debug.Log("[GameManager] Story");
         currentStage = State.OnStory;
         onStoryEvent?.Invoke();
+
+        // 播放劇情/過場背景音樂
+        if (Gameplay.AudioManager.Instance != null)
+        {
+            Gameplay.AudioManager.Instance.PlayCutsceneBGM();
+        }
+
         SceneManager.LoadScene(storyScene?.SceneName);
     }
 
@@ -88,6 +114,12 @@ public class GameManager : Singleton<GameManager>
         Debug.Log("[GameManager] GameStart");
         currentStage = State.OnGameStart;
         onGameStartEvent?.Invoke();
+
+        // 🎵 播放遊戲背景音樂
+        if (Gameplay.AudioManager.Instance != null)
+        {
+            Gameplay.AudioManager.Instance.PlayGameBGM();
+        }
         SceneManager.LoadScene(gameScene?.SceneName);
     }
 
@@ -126,6 +158,19 @@ public class GameManager : Singleton<GameManager>
         Debug.Log("[GameManager] EndGame");
         currentStage = State.OnGameEnd;
         onGameEndEvent?.Invoke(isWin);
+
+        // 🎵 播放結局對應的音效
+        if (Gameplay.AudioManager.Instance != null)
+        {
+            if (isWin)
+            {
+                Gameplay.AudioManager.Instance.PlayGameClear();
+            }
+            else
+            {
+                Gameplay.AudioManager.Instance.PlayPlayerDeath();
+            }
+        }
 
         if (!isWin)
         {
