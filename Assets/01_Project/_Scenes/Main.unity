@@ -795,6 +795,10 @@ PrefabInstance:
       propertyPath: separationRadius
       value: 0.64
       objectReference: {fileID: 0}
+    - target: {fileID: 7394971189159301195, guid: c24576d7486ca7f48a89fdcfdd5a78a6, type: 3}
+      propertyPath: separationOffset.y
+      value: 0.58
+      objectReference: {fileID: 0}
     - target: {fileID: 8815031146929012466, guid: c24576d7486ca7f48a89fdcfdd5a78a6, type: 3}
       propertyPath: m_LocalPosition.x
       value: -25.06889
