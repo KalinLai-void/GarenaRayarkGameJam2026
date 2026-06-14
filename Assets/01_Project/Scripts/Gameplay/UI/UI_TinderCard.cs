@@ -108,5 +108,18 @@ namespace Gameplay
                 }
             }
         }
+
+        /// <summary>
+        /// 設定是否啟用卡牌自身的裁剪遮罩 (RectMask2D)。
+        /// 頂層卡牌關閉遮罩以利「超框」呈現；下層卡牌開啟遮罩以防內容向外穿幫露出。
+        /// </summary>
+        public void SetMaskEnabled(bool enabled)
+        {
+            var rectMask = GetComponent<UnityEngine.UI.RectMask2D>();
+            if (rectMask != null)
+            {
+                rectMask.enabled = enabled;
+            }
+        }
     }
 }

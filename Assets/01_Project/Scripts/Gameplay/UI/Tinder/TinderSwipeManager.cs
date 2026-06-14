@@ -628,6 +628,44 @@ namespace Gameplay
             return null;
         }
 
+        private bool isDraggingCard = false;
+
+        public void SetIsDraggingCard(bool dragging)
+        {
+            if (isDraggingCard != dragging)
+            {
+                isDraggingCard = dragging;
+                UpdateCardMasks();
+            }
+        }
+
+        public void UpdateCardMasks()
+        {
+            for (int i = 0; i < activeCards.Count; i++)
+            {
+                GameObject card = activeCards[i];
+                var cardUI = card.GetComponent<UI_TinderCard>();
+                if (cardUI != null)
+                {
+                    // 🌟 頂層卡牌 (i == 0) 永遠關閉遮罩以利「超框」
+                    // 🌟 第二層卡牌 (i == 1) 在玩家拖曳頂層牌時 (isDraggingCard == true) 暫時關閉遮罩，以利在滑動時能正常看見其超框內容；靜止時則開啟遮罩防穿幫
+                    // 🌟 其他下層卡牌 (i > 1) 永遠開啟遮罩
+                    if (i == 0)
+                    {
+                        cardUI.SetMaskEnabled(false);
+                    }
+                    else if (i == 1)
+                    {
+                        cardUI.SetMaskEnabled(!isDraggingCard);
+                    }
+                    else
+                    {
+                        cardUI.SetMaskEnabled(true);
+                    }
+                }
+            }
+        }
+
         private void UpdateTopCardDragState()
         {
             // 在卡片堆疊中，只有第 0 張 (最後被渲染在最頂端的卡片) 能接受拖曳輸入與連結按鈕
@@ -645,6 +683,9 @@ namespace Gameplay
                     dragHandler.SetupButtons(nopeButton, likeButton);
                 }
             }
+
+            // 更新遮罩狀態
+            UpdateCardMasks();
         }
 
         public void AnimateButtonBounce(bool isLike)
