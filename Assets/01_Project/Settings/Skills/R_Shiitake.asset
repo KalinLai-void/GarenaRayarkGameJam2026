@@ -19,8 +19,94 @@ MonoBehaviour:
   description: "\u5B50\u5F48\u9020\u6210\u707C\u71D2\u50B7\u5BB3\uFF0C\u6575\u4EBA\u6BCF\u79D2\u53D7\u52305%\u50B7\u5BB3"
   flavorText: "\u300C\u53C8\u71D2\u53C8\u75DB\uFF0C\u9019\u6CE2\u53EB\u96D9\u8D0F!\u300D"
   avatarSprite: {fileID: 4845602570016336723, guid: 192e043a17f5b564ab1fe102bfa2ce73, type: 3}
-  rarityBackground: {fileID: 21300000, guid: 141600b92b3b8af49bb86dd11f4b9ccd, type: 3}
+  rarityBackground: {fileID: 2053893646450974759, guid: 141600b92b3b8af49bb86dd11f4b9ccd, type: 3}
   rarityTag: {fileID: 21300000, guid: 6e85559c94d1416459ed2ef3347c0544, type: 3}
   hudIcon: {fileID: 4845602570016336723, guid: 192e043a17f5b564ab1fe102bfa2ce73, type: 3}
+  isActive: 0
   cooldown: 0
   maxLevel: 5
+  activeDuration: 10
+  needleFireRateBonusPercent:
+  - 0.15
+  - 0.2
+  - 0.25
+  - 0.3
+  - 0.35
+  needleBulletSpeedMultiplier:
+  - 1.1
+  - 1.1
+  - 1.1
+  - 1.1
+  - 1.1
+  whiteElfBulletCount: 0200000003000000040000000500000006000000
+  whiteElfSpreadAngle:
+  - 30
+  - 30
+  - 30
+  - 45
+  - 45
+  kingOysterDamageBonusPercent:
+  - 0.05
+  - 0.1
+  - 0.15
+  - 0.2
+  - 0.25
+  kingOysterScaleMultiplierBonus:
+  - 0.1
+  - 0.2
+  - 0.3
+  - 0.4
+  - 0.5
+  buttonSlowPercent:
+  - 0.05
+  - 0.08
+  - 0.11
+  - 0.14
+  - 0.17
+  buttonSlowDuration: 2
+  shiitakeBurnDotPercent:
+  - 0.05
+  - 0.08
+  - 0.11
+  - 0.14
+  - 0.17
+  shiitakeBurnDuration: 3
+  shiitakeBurnInterval: 1
+  blackMushroomSlowPercent:
+  - 0.1
+  - 0.15
+  - 0.2
+  - 0.25
+  - 0.3
+  blackMushroomDotPercent:
+  - 0.05
+  - 0.1
+  - 0.15
+  - 0.2
+  - 0.25
+  blackMushroomDuration: 2
+  coralDamageBonusPercent:
+  - 0.1
+  - 0.2
+  - 0.3
+  - 0.4
+  - 0.5
+  coralBeamWidth: 3.5
+  coralBeamHeight: 0.8
+  coralBeamDuration: 1
+  coralBeamDotPercent: 1
+  coralBeamDotInterval: 0.25
+  monkeyExplosionRadius:
+  - 2
+  - 2.2
+  - 2.4
+  - 2.6
+  - 2.8
+  monkeyBombDelay: 0.6
+  monkeyDamagePercent:
+  - 1.1
+  - 1.2
+  - 1.3
+  - 1.4
+  - 1.5
+  angelHealAmount: 50

@@ -52,6 +52,7 @@ namespace Gameplay
         private bool isTimerRunning = false;
         private readonly List<GameObject> activeCards = new List<GameObject>();
         private bool isClosing = false;
+        public bool IsClosing => isClosing;
         private int currentLikes = 0;
         private int currentNopes = 0;
         private Coroutine nopeScaleCoroutine;
@@ -186,6 +187,7 @@ namespace Gameplay
             cardToSkillMap.Clear();
 
             // 為實體按鈕綁定點擊事件，讓點擊也能觸發滑動
+            // ⚠️ 同時關閉 Button Navigation，防止 Space 鍵 (UI Submit) 意外觸發按鈕！
             if (nopeButton != null)
             {
                 var btn = nopeButton.GetComponent<UnityEngine.UI.Button>();
@@ -193,6 +195,8 @@ namespace Gameplay
                 {
                     btn.onClick.RemoveAllListeners();
                     btn.onClick.AddListener(() => OnButtonClick(false));
+                    // 關閉鍵盤/手把 Navigation，防止 Space/Enter 誤觸
+                    btn.navigation = new UnityEngine.UI.Navigation { mode = UnityEngine.UI.Navigation.Mode.None };
                 }
             }
             if (likeButton != null)
@@ -202,8 +206,11 @@ namespace Gameplay
                 {
                     btn.onClick.RemoveAllListeners();
                     btn.onClick.AddListener(() => OnButtonClick(true));
+                    // 關閉鍵盤/手把 Navigation，防止 Space/Enter 誤觸
+                    btn.navigation = new UnityEngine.UI.Navigation { mode = UnityEngine.UI.Navigation.Mode.None };
                 }
             }
+
 
             // 初始化堆疊：一次生成 stackSize 張卡片，方便透出下方卡面
             for (int i = 0; i < stackSize; i++)

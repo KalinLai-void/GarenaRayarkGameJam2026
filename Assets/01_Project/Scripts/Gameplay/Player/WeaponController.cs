@@ -31,6 +31,7 @@ namespace Gameplay
         [SerializeField] private GameObject bulletPrefab;
         [SerializeField] private Transform muzzlePoint;
         [SerializeField] private SpriteRenderer spriteRenderer;
+        [SerializeField] private Animator animator;
 
         [Header("--- 參照輸入組件 (選填) ---")]
         [SerializeField] private PlayerInput playerInput;
@@ -45,8 +46,20 @@ namespace Gameplay
 
         // --- 供內部與外部讀取的「最終實際數值」 ---
         public int FinalDamage => baseDamage + bonusDamage;
-        public float FinalFireRate => baseFireRate + bonusFireRate;
+        public float FinalFireRate => baseFireRate + bonusFireRate + (PlayerSkillSystem.Instance != null ? GetNeedleFireRateBonus() : 0f);
         public int FinalMaxAmmo => baseMaxAmmo + bonusMaxAmmo;
+
+        private float GetNeedleFireRateBonus()
+        {
+            int lvl = PlayerSkillSystem.Instance.GetSkillLevel("R_NeedleMushroom");
+            if (lvl <= 0) return 0f;
+            SkillData data = PlayerSkillSystem.Instance.GetSkillData("R_NeedleMushroom");
+            if (data != null && data.needleFireRateBonusPercent != null && lvl <= data.needleFireRateBonusPercent.Length)
+            {
+                return baseFireRate * data.needleFireRateBonusPercent[lvl - 1];
+            }
+            return baseFireRate * (0.15f + 0.05f * (lvl - 1));
+        }
 
         public int CurrentAmmo => currentAmmo;
         public bool IsReloading => isReloading;
@@ -94,6 +107,7 @@ namespace Gameplay
         private void Update()
         {
             RotateAndLockToOrbit();
+            UpdateFacingDirection();
 
             if (isReloading) return;
 
@@ -123,6 +137,21 @@ namespace Gameplay
             {
                 nextFireTime = Time.time + (1f / FinalFireRate);
                 Shoot();
+            }
+        }
+
+        private void UpdateFacingDirection()
+        {
+            if (animator == null) return;
+
+            // 當往左移動時，翻面 (flipX = true)；當往右移動時，不翻面 (flipX = false)
+            if (transform.localPosition.x < -0.01f)
+            {
+                animator.SetBool("IsFaceLeft", true);
+            }
+            else if (transform.localPosition.x > 0.01f)
+            {
+                animator.SetBool("IsFaceLeft", false);
             }
         }
 
@@ -218,18 +247,139 @@ namespace Gameplay
 
             if (bulletPrefab != null && muzzlePoint != null)
             {
-                // 計算從武器中心指向槍口的精確世界方向向量，確保子彈沿着槍口指向的直線往前飛行
                 Vector2 fireDirection = ((Vector2)(muzzlePoint.position - transform.position)).normalized;
                 float fireAngle = Mathf.Atan2(fireDirection.y, fireDirection.x) * Mathf.Rad2Deg;
-                Quaternion bulletRotation = Quaternion.Euler(0f, 0f, fireAngle);
 
-                GameObject bulletGo = Instantiate(bulletPrefab, muzzlePoint.position, bulletRotation);
-                bulletGo.transform.parent = pool.transform;
-                Bullet bulletScript = bulletGo.GetComponent<Bullet>();
-                
-                if (bulletScript != null)
+                // 1. 讀取技能系統的各項加成數值
+                int needleLvl = PlayerSkillSystem.Instance != null ? PlayerSkillSystem.Instance.GetSkillLevel("R_NeedleMushroom") : 0;
+                int whiteElfLvl = PlayerSkillSystem.Instance != null ? PlayerSkillSystem.Instance.GetSkillLevel("R_WhiteElf") : 0;
+                int kingOysterLvl = PlayerSkillSystem.Instance != null ? PlayerSkillSystem.Instance.GetSkillLevel("R_KingOyster") : 0;
+                bool isCoralActive = PlayerSkillSystem.Instance != null && PlayerSkillSystem.Instance.IsActiveSkillEffectRunning && PlayerSkillSystem.Instance.ActiveSkill.skillID == "SR_CoralMushroom";
+                int coralLvl = PlayerSkillSystem.Instance != null ? PlayerSkillSystem.Instance.GetSkillLevel("SR_CoralMushroom") : 0;
+
+                // 2. 計算傷害、體積與速度
+                int damage = FinalDamage;
+                if (kingOysterLvl > 0)
                 {
-                    bulletScript.Setup(FinalDamage); // 帶入最終加成傷害
+                    SkillData kingData = PlayerSkillSystem.Instance.GetSkillData("R_KingOyster");
+                    if (kingData != null && kingData.kingOysterDamageBonusPercent != null && kingOysterLvl <= kingData.kingOysterDamageBonusPercent.Length)
+                    {
+                        damage += (int)(baseDamage * kingData.kingOysterDamageBonusPercent[kingOysterLvl - 1]);
+                    }
+                    else
+                    {
+                        damage += (int)(baseDamage * 0.05f * kingOysterLvl);
+                    }
+                }
+                if (isCoralActive)
+                {
+                    SkillData coralData = PlayerSkillSystem.Instance.GetSkillData("SR_CoralMushroom");
+                    if (coralData != null && coralData.coralDamageBonusPercent != null && coralLvl <= coralData.coralDamageBonusPercent.Length)
+                    {
+                        damage += (int)(baseDamage * coralData.coralDamageBonusPercent[coralLvl - 1]);
+                    }
+                    else
+                    {
+                        damage += (int)(baseDamage * (0.10f + 0.10f * (coralLvl - 1)));
+                    }
+                }
+
+                float scaleMultiplier = 1.0f;
+                if (kingOysterLvl > 0)
+                {
+                    SkillData kingData = PlayerSkillSystem.Instance.GetSkillData("R_KingOyster");
+                    if (kingData != null && kingData.kingOysterScaleMultiplierBonus != null && kingOysterLvl <= kingData.kingOysterScaleMultiplierBonus.Length)
+                    {
+                        scaleMultiplier += kingData.kingOysterScaleMultiplierBonus[kingOysterLvl - 1];
+                    }
+                    else
+                    {
+                        scaleMultiplier += 0.10f * kingOysterLvl;
+                    }
+                }
+
+                float bulletSpeed = 15f; // Bullet.cs 預設基礎速度為 15f
+                if (needleLvl > 0)
+                {
+                    SkillData needleData = PlayerSkillSystem.Instance.GetSkillData("R_NeedleMushroom");
+                    if (needleData != null && needleData.needleBulletSpeedMultiplier != null && needleLvl <= needleData.needleBulletSpeedMultiplier.Length)
+                    {
+                        bulletSpeed *= needleData.needleBulletSpeedMultiplier[needleLvl - 1];
+                    }
+                    else
+                    {
+                        bulletSpeed *= 1.10f;
+                    }
+                }
+
+                // 3. 處理白精靈菇的多發扇形子彈
+                int bulletCount = 1;
+                float spreadAngle = 30f;
+                if (whiteElfLvl > 0)
+                {
+                    SkillData whiteElfData = PlayerSkillSystem.Instance.GetSkillData("R_WhiteElf");
+                    if (whiteElfData != null)
+                    {
+                        if (whiteElfData.whiteElfBulletCount != null && whiteElfLvl <= whiteElfData.whiteElfBulletCount.Length)
+                        {
+                            bulletCount = whiteElfData.whiteElfBulletCount[whiteElfLvl - 1];
+                        }
+                        else
+                        {
+                            bulletCount = whiteElfLvl + 1;
+                        }
+
+                        if (whiteElfData.whiteElfSpreadAngle != null && whiteElfLvl <= whiteElfData.whiteElfSpreadAngle.Length)
+                        {
+                            spreadAngle = whiteElfData.whiteElfSpreadAngle[whiteElfLvl - 1];
+                        }
+                        else
+                        {
+                            spreadAngle = whiteElfLvl >= 4 ? 45f : 30f;
+                        }
+                    }
+                    else
+                    {
+                        bulletCount = whiteElfLvl + 1;
+                        spreadAngle = whiteElfLvl >= 4 ? 45f : 30f;
+                    }
+                }
+
+                float angleStep = bulletCount > 1 ? spreadAngle / (bulletCount - 1) : 0f;
+                float startAngle = fireAngle - (bulletCount > 1 ? spreadAngle / 2f : 0f);
+
+                for (int i = 0; i < bulletCount; i++)
+                {
+                    float angle = startAngle + i * angleStep;
+                    Quaternion bulletRotation = Quaternion.Euler(0f, 0f, angle);
+
+                    GameObject bulletGo = Instantiate(bulletPrefab, muzzlePoint.position, bulletRotation);
+                    bulletGo.transform.parent = pool.transform;
+
+                    // 4. 設定子彈體積 (若為珊瑚菇光束，另外將 X 軸拉伸呈光束形狀)
+                    if (isCoralActive)
+                    {
+                        float beamW = 3.5f;
+                        float beamH = 0.8f;
+                        SkillData coralData = PlayerSkillSystem.Instance.GetSkillData("SR_CoralMushroom");
+                        if (coralData != null)
+                        {
+                            beamW = coralData.coralBeamWidth;
+                            beamH = coralData.coralBeamHeight;
+                        }
+                        bulletGo.transform.localScale = new Vector3(beamW, beamH, 1f) * scaleMultiplier;
+                    }
+                    else
+                    {
+                        bulletGo.transform.localScale = Vector3.one * scaleMultiplier;
+                    }
+
+                    Bullet bulletScript = bulletGo.GetComponent<Bullet>();
+                    if (bulletScript != null)
+                    {
+                        // 帶入最終傷害、速度、是否為珊瑚菇光束等設定
+                        bulletScript.Setup(damage, bulletSpeed, -1f, isCoralActive);
+                    }
                 }
             }
         }

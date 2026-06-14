@@ -22,5 +22,6 @@ MonoBehaviour:
   rarityBackground: {fileID: 7272243660297046984, guid: a50f63fc708d31b44ab4fd6ec17811c5, type: 3}
   rarityTag: {fileID: 4313237860023825539, guid: 1aab3285dae810042b03fc747e394f8d, type: 3}
   hudIcon: {fileID: -8882604789696179207, guid: 54e211fc8817a7b46aa46f3881327a71, type: 3}
-  cooldown: 0
+  isActive: 0
+  cooldown: 60
   maxLevel: 5
