@@ -114,7 +114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cbfd50b887d4024db13d5d9079539b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gameplay.EnemyHealth
-  maxHealth: 3
+  maxHealth: 2
   xpReward: 2
   flashDuration: 0.15
   flashColor: {r: 1, g: 0, b: 0, a: 1}
@@ -135,6 +135,7 @@ MonoBehaviour:
   separationRadius: 1
   separationWeight: 1.5
   overlapPushForce: 5
+  separationOffset: {x: 0, y: 0}
 --- !u!1 &5497522911275322254
 GameObject:
   m_ObjectHideFlags: 0
