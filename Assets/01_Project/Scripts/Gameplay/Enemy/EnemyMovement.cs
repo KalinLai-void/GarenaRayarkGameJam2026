@@ -42,7 +42,7 @@ namespace Gameplay
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
-            rb.interpolation = RigidbodyInterpolation2D.Interpolate; // 🌟 物理插值防止 WebGL 下物理與渲染影格率不一致造成的抖動
+            rb.interpolation = RigidbodyInterpolation2D.None;
             enemyLayer = LayerMask.GetMask("Enemy");
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             // 隨機錯開每個怪物的計算幀，避免所有怪物在同一幀同時執行物理查詢
@@ -60,17 +60,41 @@ namespace Gameplay
             }
         }
 
-        private void Start()
+        private System.Collections.IEnumerator Start()
         {
-            // 尋找玩家 (藉由 Tag "Player" 尋找)
+            // 1. 剛生成時，先強制把圖片隱藏起來！(穿上隱形斗篷)
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.enabled = false;
+            }
+
+            // 2. 尋找玩家
             GameObject player = GameObject.FindWithTag("Player");
             if (player != null)
             {
                 playerTransform = player.transform;
             }
-            else
+
+            // 3. 確保畫外更新開啟
+            var skins = GetComponentsInChildren<UnityEngine.U2D.Animation.SpriteSkin>(true);
+            if (skins != null)
             {
-                Debug.LogWarning($"【EnemyMovement】{gameObject.name} 找不到 Tag 為 Player 的玩家物件！");
+                foreach (var skin in skins)
+                {
+                    skin.alwaysUpdate = true;
+                }
+            }
+
+            // ==========================================
+            // 🌟 讓子彈飛一會兒：等待 0.1 秒 🌟
+            // 讓 Unity 的底層 Job System 和剛體有充足的時間把骨架跟位置綁定好
+            yield return new WaitForSeconds(0.1f);
+            // ==========================================
+
+            // 4. 0.1 秒後，骨架絕對算好了，這時候再把圖片顯示出來！
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.enabled = true;
             }
         }
 
