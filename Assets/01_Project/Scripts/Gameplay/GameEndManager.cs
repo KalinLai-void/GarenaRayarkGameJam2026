@@ -6,6 +6,7 @@ public class GameEndManager : MonoBehaviour
 {
     public static GameEndManager instance;
 
+    [SerializeField] private GameObject player;
     [SerializeField] private GameObject HUD;
     [SerializeField] private GameObject PassUI;
     [SerializeField] private GameObject DieUI;
@@ -21,6 +22,7 @@ public class GameEndManager : MonoBehaviour
     {
         HUD.SetActive(false);
         PassUI.SetActive(true);
+        player.SetActive(false); // avoid enemy attack
     }
 
     public void DieGame()
